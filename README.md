@@ -126,4 +126,10 @@ started. The convention for configuration file names is `install.conf.json`.
 ]
 ```
 
+License
+-------
+
+Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
+`LICENSE.md` for details.
+
 [1]: https://github.com/anishathalye/dotfiles_template
