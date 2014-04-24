@@ -46,9 +46,9 @@ class Dispatcher(object):
             for plugin in Executor.__subclasses__()]
 
     def _handle_metadata(self, metadata):
+        print
         if 'title' in metadata:
             self._log.warning(metadata['title'])
-
         if 'description' in metadata:
             self._log.info(' ' + metadata['description'])
 
