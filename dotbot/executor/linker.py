@@ -6,11 +6,13 @@ class Linker(Executor):
     Symbolically links dotfiles.
     '''
 
+    _directive = 'link'
+
     def can_handle(self, directive):
-        return directive == 'link'
+        return directive == self._directive
 
     def handle(self, directive, data):
-        if directive != 'link':
+        if directive != self._directive:
             raise ValueError('Linker cannot handle directive %s' % directive)
         return self._process_links(data)
 

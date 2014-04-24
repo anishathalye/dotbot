@@ -6,11 +6,13 @@ class CommandRunner(Executor):
     Run arbitrary shell commands.
     '''
 
+    _directive = 'shell'
+
     def can_handle(self, directive):
-        return directive == 'shell'
+        return directive == self._directive
 
     def handle(self, directive, data):
-        if directive != 'shell':
+        if directive != self._directive:
             raise ValueError('CommandRunner cannot handle directive %s' %
                 directive)
         return self._process_commands(data)
