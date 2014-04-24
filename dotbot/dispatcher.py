@@ -22,7 +22,6 @@ class Dispatcher(object):
     def dispatch(self, tasks):
         success = True
         for task in tasks:
-
             for action in task:
                 if action == 'meta':
                     self._handle_metadata(task['meta'])
