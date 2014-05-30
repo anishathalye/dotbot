@@ -34,10 +34,10 @@ you have to do is download your dotfiles and then run `./install`.
 Template
 --------
 
-To make life easier, you can fork the [template repository][1]. If you want,
-you can rename it afterwards (to something like just `dotfiles`). If you're
-looking for inspiration, the template repository contains links to dotfiles
-repositories that use Dotbot.
+To make life easier, you can fork the [template repository][template]. If you
+want, you can rename it afterwards (to something like just `dotfiles`). If
+you're looking for inspiration, the template repository contains links to
+dotfiles repositories that use Dotbot.
 
 If you prefer, instead of reading about how Dotbot works, you could refer to
 the code in the template repository and get a feel for how to set things up,
@@ -132,4 +132,4 @@ License
 Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
 `LICENSE.md` for details.
 
-[1]: https://github.com/anishathalye/dotfiles_template
+[template]: https://github.com/anishathalye/dotfiles_template
