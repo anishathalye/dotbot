@@ -88,8 +88,9 @@ Configuration
 -------------
 
 Dotbot uses json-formatted configuration files to let you specify how to set up
-your dotfiles. Currently, Dotbot knows how to `link` files and execute `shell`
-commands. Dotbot executes tasks in the order that they are specified in.
+your dotfiles. Currently, Dotbot knows how to `link` files, execute `shell`
+commands, and `clean` directories of broken symbolic links. Dotbot executes
+tasks in the order that they are specified in.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
@@ -100,7 +101,8 @@ dictionary that contains a command name mapping to data for that command. For
 `link`, you specify how files should be linked in a dictionary. For `shell`,
 you specify an array consisting of commands, where each command is an array
 consisting of the shell command as the first element and a description as the
-second.
+second. For `clean`, you specify an array consisting of targets, where each
+target is a path to a directory.
 
 Dotbot is aware of a base directory (that is specified when running the
 installer), so link targets can be specified relative to that, and shell
@@ -111,6 +113,9 @@ started. The convention for configuration file names is `install.conf.json`.
 
 ```json
 [
+    {
+        "clean": ["~"]
+    },
     {
         "link": {
             "~/.tmux.conf": "tmux.conf",
