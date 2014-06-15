@@ -14,7 +14,7 @@ class Messenger(object):
 
     def log(self, level, message):
         if (level >= self._level):
-            print '%s%s%s' % (self._color(level), message, self._reset())
+            print('%s%s%s' % (self._color(level), message, self._reset()))
 
     def debug(self, message):
         self.log(Level.DEBUG, message)
