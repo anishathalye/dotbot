@@ -55,10 +55,11 @@ class Linker(Executor):
         '''
         success = False
         source = os.path.join(self._base_directory, source)
-        if not self._exists(link_name) and self._is_link(link_name):
+        if (not self._exists(link_name) and self._is_link(link_name) and
+                self._link_destination(link_name) != source):
             self._log.warning('Invalid link %s -> %s' %
                 (link_name, self._link_destination(link_name)))
-        elif not self._exists(link_name):
+        elif not self._exists(link_name) and self._exists(source):
             self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
             os.symlink(source, os.path.expanduser(link_name))
             success = True
@@ -66,9 +67,16 @@ class Linker(Executor):
             self._log.warning(
                 '%s already exists but is a regular file or directory' %
                 link_name)
-        elif self._link_destination(link_name) != source:
+        elif self._is_link(link_name) and self._link_destination(link_name) != source:
             self._log.warning('Incorrect link %s -> %s' %
                 (link_name, self._link_destination(link_name)))
+        elif not self._exists(source):
+            if self._is_link(link_name):
+                self._log.warning('Nonexistant target %s -> %s' %
+                    (link_name, source))
+            else:
+                self._log.warning('Nonexistant target for %s : %s' %
+                    (link_name, source))
         else:
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
             success = True
