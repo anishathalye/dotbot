@@ -60,9 +60,13 @@ class Linker(Executor):
             self._log.warning('Invalid link %s -> %s' %
                 (link_name, self._link_destination(link_name)))
         elif not self._exists(link_name) and self._exists(source):
-            self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
-            os.symlink(source, os.path.expanduser(link_name))
-            success = True
+            try:
+                os.symlink(source, os.path.expanduser(link_name))
+            except OSError as e:
+                self._log.warning('Linking failed %s -> %s' % (link_name, source))
+            else:
+                self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
+                success = True
         elif self._exists(link_name) and not self._is_link(link_name):
             self._log.warning(
                 '%s already exists but is a regular file or directory' %
