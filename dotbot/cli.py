@@ -44,3 +44,6 @@ def main():
     except (ReadingError, DispatchError) as e:
         log.error('%s' % e)
         exit(1)
+    except KeyboardInterrupt:
+        log.error('\n==> Operation aborted')
+        exit(1)
