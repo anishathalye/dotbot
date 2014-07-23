@@ -135,6 +135,7 @@ License
 -------
 
 Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
-`LICENSE.md` for details.
+[LICENSE.md][license] for details.
 
 [template]: https://github.com/anishathalye/dotfiles_template
+[license]: LICENSE.md
