@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CONFIG="install.conf.json"
 DOTBOT_DIR="dotbot"
