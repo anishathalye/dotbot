@@ -61,28 +61,13 @@ updated once it's placed in the proper location (the Dotbot repository can be
 updated independently).
 
 An example bootstrap install shell script is given in
-`tools/git-submodule/install` (and included below). The script assumes that the
+[tools/git-submodule/install][git-install]. The script assumes that the
 configuration is located in `install.conf.json` and Dotbot is located in
 `dotbot`. The script automatically makes sure that the correct version of
 Dotbot is checked out in the submodule.
 
 Adapting the bootstrap script for different situations (such as using a
 different VCS) is fairly straightforward.
-
-```bash
-#!/bin/bash
-
-CONFIG="install.conf.json"
-DOTBOT_DIR="dotbot"
-
-DOTBOT_BIN="bin/dotbot"
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-cd "${BASEDIR}"
-git submodule update --init --recursive ${DOTBOT_DIR}
-
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "${CONFIG}" $@
-```
 
 Configuration
 -------------
@@ -138,4 +123,5 @@ Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [template]: https://github.com/anishathalye/dotfiles_template
+[git-install]: tools/git-submodule/install
 [license]: LICENSE.md
