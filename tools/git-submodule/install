@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eu
+
 CONFIG="install.conf.json"
 DOTBOT_DIR="dotbot"
 
