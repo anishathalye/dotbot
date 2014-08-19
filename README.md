@@ -19,6 +19,9 @@ your dotfiles.
 Dotfiles Organization
 ---------------------
 
+If you want an in-depth tutorial about organizing your dotfiles, see this [blog
+post][managing-dotfiles-post].
+
 A great way to organize your dotfiles is having all of them in a single
 (isolated) git repository and symlinking files into place. You can add plugins
 and stuff using git submodules. This whole symlinking business can be a bit of
@@ -125,3 +128,4 @@ Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
 [template]: https://github.com/anishathalye/dotfiles_template
 [git-install]: tools/git-submodule/install
 [license]: LICENSE.md
+[managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
