@@ -62,7 +62,7 @@ class Linker(Executor):
         elif not self._exists(link_name) and self._exists(source):
             try:
                 os.symlink(source, os.path.expanduser(link_name))
-            except OSError as e:
+            except OSError:
                 self._log.warning('Linking failed %s -> %s' % (link_name, source))
             else:
                 self._log.lowinfo('Creating link %s -> %s' % (link_name, source))

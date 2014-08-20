@@ -1,5 +1,5 @@
 import os
-from .executor import *
+from .executor import Executor
 from .messenger import Messenger
 
 class Dispatcher(object):
