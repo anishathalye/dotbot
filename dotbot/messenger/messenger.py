@@ -30,7 +30,7 @@ class Messenger(object):
 
     def error(self, message):
         self.log(Level.ERROR, message)
-    
+
     def _color(self, level):
         '''
         Get a color (terminal escape sequence) according to a level.
