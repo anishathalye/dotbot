@@ -91,6 +91,8 @@ have a defined ordering.
 ### Link
 
 Link commands specify how files and directories should be symbolically linked.
+If desired, items can be specified to be forcibly linked, overwriting existing
+files if necessary.
 
 #### Format
 
@@ -99,13 +101,23 @@ locations. Source locations are specified relative to the base directory (that
 is specified when running the installer). Source directory names should contain
 a trailing "/" character.
 
+Link commands support an (optional) extended configuration. In this type of
+configuration, instead of specifying source locations directly, targets are
+mapped to extended configuration dictionaries. These dictionaries map "path" to
+the source path, and specify "force" as true if the file or directory should be
+forcibly linked.
+
 ##### Example
 
 ```json
 {
     "link": {
         "~/.vimrc": "vimrc",
-        "~/.vim": "vim/"
+        "~/.vim": "vim/",
+        "~/.zshrc": {
+            "path": "zshrc",
+            "force": true
+        }
     }
 }
 ```
