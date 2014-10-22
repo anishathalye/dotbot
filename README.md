@@ -104,14 +104,19 @@ a trailing "/" character.
 Link commands support an (optional) extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries. These dictionaries map "path" to
-the source path, and specify "force" as true if the file or directory should be
-forcibly linked.
+the source path, specify "create" as true if the parent directory should be
+created if necessary, and specify "force" as true if the file or directory
+should be forcibly linked.
 
 ##### Example
 
 ```json
 {
     "link": {
+        "~/.config/terminator": {
+            "path": "config/terminator/",
+            "create": true
+        },
         "~/.vimrc": "vimrc",
         "~/.vim": "vim/",
         "~/.zshrc": {

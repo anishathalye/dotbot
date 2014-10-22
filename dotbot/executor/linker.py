@@ -23,6 +23,9 @@ class Linker(Executor):
                 # extended config
                 path = source['path']
                 force = source.get('force', False)
+                create = source.get('create', False)
+                if create:
+                    success &= self._create(destination)
                 if force:
                     success &= self._delete(destination)
             else:
@@ -54,6 +57,19 @@ class Linker(Executor):
         '''
         path = os.path.expanduser(path)
         return os.path.exists(path)
+
+    def _create(self, path):
+        success = True
+        parent = os.path.abspath(os.path.join(os.path.expanduser(path), os.pardir))
+        if not self._exists(parent):
+            try:
+                os.makedirs(parent)
+            except OSError:
+                self._log.warning('Failed to create directory %s' % parent)
+                success = False
+            else:
+                self._log.lowinfo('Creating directory %s' % parent)
+        return success
 
     def _delete(self, path):
         success = True
