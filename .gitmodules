@@ -1,0 +1,3 @@
+[submodule "lib/pyyaml"]
+	path = lib/pyyaml
+	url = https://github.com/anishathalye/pyyaml

@@ -63,8 +63,8 @@ updated once it's placed in the proper location (the Dotbot repository can be
 updated independently).
 
 An bootstrap install shell script for git is given in
-[tools/git-submodule/install][git-install]. The script assumes that the
-configuration is located in `install.conf.json` and Dotbot is located in
+[tools/git-submodule/install][git-install]. By default, the script assumes that
+the configuration is located in `install.conf.yaml` and Dotbot is located in
 `dotbot`. The script automatically makes sure that the correct version of
 Dotbot is checked out in the submodule.
 
@@ -74,19 +74,20 @@ different VCS) is fairly straightforward.
 Configuration
 -------------
 
-Dotbot uses json-formatted configuration files to let you specify how to set up
-your dotfiles. Currently, Dotbot knows how to `link` files and folders, execute
-`shell` commands, and `clean` directories of broken symbolic links.
+Dotbot uses YAML-formatted (or JSON-formatted) configuration files to let you
+specify how to set up your dotfiles. Currently, Dotbot knows how to `link`
+files and folders, execute `shell` commands, and `clean` directories of broken
+symbolic links.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
 problems.** This makes a lot of things easier to do (in particular, syncing
 updates between machines becomes really easy).
 
-Dotbot configuration files are json arrays of tasks, where each task is a
-dictionary that contains a command name mapping to data for that command. Tasks
-are run in the order in which they are specified. Commands within a task do not
-have a defined ordering.
+Dotbot configuration files are YAML (or JSON) arrays of tasks, where each task
+is a dictionary that contains a command name mapping to data for that command.
+Tasks are run in the order in which they are specified. Commands within a task
+do not have a defined ordering.
 
 ### Link
 
@@ -108,23 +109,37 @@ the source path, specify "create" as true if the parent directory should be
 created if necessary, and specify "force" as true if the file or directory
 should be forcibly linked.
 
-##### Example
+##### Example (YAML)
+
+```yaml
+- link:
+    ~/.config/terminator:
+      create: true
+      path: config/terminator/
+    ~/.vim: vim/
+    ~/.vimrc: vimrc
+    ~/.zshrc:
+      force: true
+      path: zshrc
+```
+
+##### Example (JSON)
 
 ```json
-{
+[{
     "link": {
         "~/.config/terminator": {
-            "path": "config/terminator/",
-            "create": true
+            "create": true,
+            "path": "config/terminator/"
         },
-        "~/.vimrc": "vimrc",
         "~/.vim": "vim/",
+        "~/.vimrc": "vimrc",
         "~/.zshrc": {
-            "path": "zshrc",
-            "force": true
+            "force": true,
+            "path": "zshrc"
         }
     }
-}
+}]
 ```
 
 ### Shell
@@ -138,14 +153,21 @@ Shell commands are specified as an array of commands, where each command is a
 two element array containing the actual shell command as the first element and
 a human-readable description as the second element.
 
-##### Example
+##### Example (YAML)
+
+```yaml
+- shell:
+  - [mkdir -p ~/downloads, Creating downloads directory]
+```
+
+##### Example (JSON)
 
 ```json
-{
+[{
     "shell": [
         ["mkdir -p ~/downloads", "Creating downloads directory"]
     ]
-}
+}]
 ```
 
 ### Clean
@@ -158,18 +180,41 @@ to the dotfiles directory are removed.
 
 Clean commands are specified as an array of directories to be cleaned.
 
-##### Example
+##### Example (YAML)
+
+```yaml
+- clean: ['~']
+```
+
+##### Example (JSON)
 
 ```json
-{
+[{
     "clean": ["~"]
-}
+}]
 ```
 
 ### Full Example
 
 The configuration file format is pretty simple. Here's an example of a complete
 configuration. The conventional name for the configuration file is
+`install.conf.yaml`.
+
+```yaml
+- clean: ['~']
+
+- link:
+    ~/.dotfiles: ''
+    ~/.tmux.conf: tmux.conf
+    ~/.vim: vim/
+    ~/.vimrc: vimrc
+
+- shell:
+  - [git update-submodules, Installing/updating submodules]
+```
+
+The configuration file can also be written in JSON. Here is the JSON equivalent
+of the YAML configuration given above. The conventional name for this file is
 `install.conf.json`.
 
 ```json
@@ -181,8 +226,8 @@ configuration. The conventional name for the configuration file is
         "link": {
             "~/.dotfiles": "",
             "~/.tmux.conf": "tmux.conf",
-            "~/.vimrc": "vimrc",
-            "~/.vim": "vim/"
+            "~/.vim": "vim/",
+            "~/.vimrc": "vimrc"
         }
     },
     {

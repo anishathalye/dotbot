@@ -5,6 +5,16 @@ import sys, os
 PROJECT_ROOT_DIRECTORY = os.path.dirname(
     os.path.dirname(os.path.realpath(__file__)))
 
+def inject(lib_path):
+    path = os.path.join(PROJECT_ROOT_DIRECTORY, 'lib', lib_path)
+    sys.path.insert(0, path)
+
+# version dependent libraries
+if sys.version_info.major >= 3:
+    inject('pyyaml/lib3')
+else:
+    inject('pyyaml/lib')
+
 if os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'dotbot')):
     if PROJECT_ROOT_DIRECTORY not in sys.path:
         sys.path.insert(0, PROJECT_ROOT_DIRECTORY)
