@@ -27,7 +27,7 @@ class Linker(Executor):
                 if create:
                     success &= self._create(destination)
                 if force:
-                    success &= self._delete(destination)
+                    success &= self._delete(path, destination)
             else:
                 path = source
             success &= self._link(path, destination)
@@ -71,9 +71,11 @@ class Linker(Executor):
                 self._log.lowinfo('Creating directory %s' % parent)
         return success
 
-    def _delete(self, path):
+    def _delete(self, source, path):
         success = True
-        if self._exists(path) and not self._is_link(path):
+        source = os.path.join(self._base_directory, source)
+        if ((self._is_link(path) and self._link_destination(path) != source) or
+                (self._exists(path) and not self._is_link(path))):
             fullpath = os.path.expanduser(path)
             try:
                 if os.path.isdir(fullpath):
