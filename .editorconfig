@@ -7,8 +7,5 @@ insert_final_newline = true
 indent_style = space
 trim_trailing_whitespace = true
 
-[*.md]
-indent_size = 4
-
 [*.py]
-indent_size = 2
+indent_size = 4
