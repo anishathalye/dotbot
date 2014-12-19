@@ -10,7 +10,7 @@ def inject(lib_path):
     sys.path.insert(0, path)
 
 # version dependent libraries
-if sys.version_info.major >= 3:
+if sys.version_info[0] >= 3:
     inject('pyyaml/lib3')
 else:
     inject('pyyaml/lib')
