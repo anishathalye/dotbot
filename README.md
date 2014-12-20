@@ -238,6 +238,12 @@ of the YAML configuration given above. The conventional name for this file is
 ]
 ```
 
+Contributing
+------------
+
+Do you have a feature request, bug report, or patch? Great! See
+[CONTRIBUTING.md][contributing] for information on what you can do about that.
+
 License
 -------
 
@@ -246,5 +252,6 @@ Copyright (c) 2014 Anish Athalye. Released under the MIT License. See
 
 [template]: https://github.com/anishathalye/dotfiles_template
 [git-install]: tools/git-submodule/install
-[license]: LICENSE.md
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
+[contributing]: CONTRIBUTING.md
+[license]: LICENSE.md
