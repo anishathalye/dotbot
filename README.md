@@ -68,6 +68,16 @@ the configuration is located in `install.conf.yaml` and Dotbot is located in
 `dotbot`. The script automatically makes sure that the correct version of
 Dotbot is checked out in the submodule.
 
+This script should be **copied** into your dotfiles repository. Once the
+install script has been copied into your dotfiles, there is no need to modify
+the script again -- it is merely a shim that checks out the appropriate version
+of Dotbot and calls the full Dotbot installer. Note that using a symbolic link
+to the sample install script included in the Dotbot repository won't work
+correctly -- it can actually lead to several problems. For example, when
+cloning your dotfiles onto a new system, the Dotbot submodule won't be
+initialized (unless you use the `--recursive` flag), so the symbolic link will
+be broken, pointing to a nonexistent file.
+
 Adapting the bootstrap script for different situations (such as using a
 different VCS) is fairly straightforward.
 
