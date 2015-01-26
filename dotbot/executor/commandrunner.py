@@ -30,5 +30,5 @@ class CommandRunner(Executor):
         if success:
             self._log.info('All commands have been executed')
         else:
-            self._log.error('Some commands were not sucessfully executed')
+            self._log.error('Some commands were not successfully executed')
         return success

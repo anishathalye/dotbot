@@ -3,9 +3,6 @@ from .executor import Executor
 from .messenger import Messenger
 
 class Dispatcher(object):
-    PLUGIN_CLASS = Executor
-    PLUGIN_DIR = 'dotbot/executor'
-
     def __init__(self, base_directory):
         self._log = Messenger()
         self._set_base_directory(base_directory)
@@ -17,7 +14,7 @@ class Dispatcher(object):
         if os.path.exists(path):
             self._base_directory = path
         else:
-            raise DispatchError('Nonexistant base directory')
+            raise DispatchError('Nonexistent base directory')
 
     def dispatch(self, tasks):
         success = True

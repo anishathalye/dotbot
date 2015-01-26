@@ -23,7 +23,7 @@ class Cleaner(Executor):
         if success:
             self._log.info('All targets have been cleaned')
         else:
-            self._log.error('Some targets were not succesfully cleaned')
+            self._log.error('Some targets were not successfully cleaned')
         return success
 
     def _clean(self, target):

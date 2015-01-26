@@ -118,10 +118,10 @@ class Linker(Executor):
                 (link_name, self._link_destination(link_name)))
         elif not self._exists(source):
             if self._is_link(link_name):
-                self._log.warning('Nonexistant target %s -> %s' %
+                self._log.warning('Nonexistent target %s -> %s' %
                     (link_name, source))
             else:
-                self._log.warning('Nonexistant target for %s : %s' %
+                self._log.warning('Nonexistent target for %s : %s' %
                     (link_name, source))
         else:
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
