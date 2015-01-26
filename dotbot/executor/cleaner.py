@@ -31,6 +31,9 @@ class Cleaner(Executor):
         Cleans all the broken symbolic links in target that point to
         a subdirectory of the base directory.
         '''
+        if not os.path.isdir(os.path.expanduser(target)):
+            self._log.debug('Ignoring nonexistent directory %s' % target)
+            return True
         for item in os.listdir(os.path.expanduser(target)):
             path = os.path.join(os.path.expanduser(target), item)
             if not os.path.exists(path) and os.path.islink(path):
