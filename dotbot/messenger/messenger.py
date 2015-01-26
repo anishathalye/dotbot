@@ -1,11 +1,10 @@
 import sys
 from ..util.singleton import Singleton
+from ..util.compat import with_metaclass
 from .color import Color
 from .level import Level
 
-class Messenger(object):
-    __metaclass__ = Singleton
-
+class Messenger(with_metaclass(Singleton, object)):
     def __init__(self, level = Level.LOWINFO):
         self.set_level(level)
 
