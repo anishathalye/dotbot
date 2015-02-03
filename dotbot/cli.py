@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from .config import ConfigReader, ReadingError
+from .config import ConfigReader, ReadingError, ConfigurationError
 from .dispatcher import Dispatcher, DispatchError
 from .messenger import Messenger
 from .messenger import Level
@@ -17,9 +17,12 @@ def add_options(parser):
     parser.add_argument('-c', '--config-file', nargs = 1, dest = 'config_file',
         help = 'run commands given in CONFIGFILE', metavar = 'CONFIGFILE',
         required = True)
+    parser.add_argument('-t', '--targets', nargs = '*', dest = 'targets',
+        help = 'set the target environments defined in the configuration file', metavar = 'TARGET',
+        required = True)
 
-def read_config(config_file):
-    reader = ConfigReader(config_file)
+def read_config(config_file, target):
+    reader = ConfigReader(config_file, target)
     return reader.get_config()
 
 def main():
@@ -34,14 +37,20 @@ def main():
             log.set_level(Level.INFO)
         if (options.verbose):
             log.set_level(Level.DEBUG)
-        tasks = read_config(options.config_file[0])
-        dispatcher = Dispatcher(options.base_directory[0])
-        success = dispatcher.dispatch(tasks)
+        targets = options.targets
+        target_tasks = read_config(options.config_file[0], targets)
+
+        success = True
+        for target, tasks in target_tasks.iteritems():
+            log.info('\nExecuting tasks for target %s' % target)
+            dispatcher = Dispatcher(options.base_directory[0])
+            success &= dispatcher.dispatch(tasks)
+
         if success:
             log.info('\n==> All tasks executed successfully')
         else:
             raise DispatchError('\n==> Some tasks were not executed successfully')
-    except (ReadingError, DispatchError) as e:
+    except (ReadingError, DispatchError, ConfigurationError) as e:
         log.error('%s' % e)
         exit(1)
     except KeyboardInterrupt:
