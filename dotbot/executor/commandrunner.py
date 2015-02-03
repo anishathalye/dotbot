@@ -20,10 +20,29 @@ class CommandRunner(Executor):
     def _process_commands(self, data):
         success = True
         with open(os.devnull, 'w') as devnull:
-            for cmd, msg in data:
-                self._log.lowinfo('%s [%s]' % (msg, cmd))
-                ret = subprocess.call(cmd, shell = True, stdout = devnull,
-                    stderr = devnull, cwd = self._base_directory)
+            for item in data:
+                stdin = stdout = stderr = devnull
+                if isinstance(item, dict):
+                    cmd = item['command']
+                    msg = item.get('description', None)
+                    if item.get('stdin', False) is True:
+                        stdin = None
+                    if item.get('stdout', False) is True:
+                        stdout = None
+                    if item.get('stderr', False) is True:
+                        stderr = None
+                elif isinstance(item, list):
+                    cmd = item[0]
+                    msg = item[1] if len(item) > 1 else None
+                else:
+                    cmd = item
+                    msg = None
+                if msg is None:
+                    self._log.lowinfo(cmd)
+                else:
+                    self._log.lowinfo('%s [%s]' % (msg, cmd))
+                ret = subprocess.call(cmd, shell = True, stdin = stdin, stdout = stdout,
+                    stderr = stderr, cwd = self._base_directory)
                 if ret != 0:
                     success = False
                     self._log.warning('Command [%s] failed' % cmd)
