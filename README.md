@@ -160,16 +160,13 @@ base directory (that is specified when running the installer).
 #### Format
 
 Shell commands can be specified in several different ways. The simplest way is
-just to specify a command as a string containing the command to be run. Shell
+just to specify a command as a string containing the command to be run. Another
+way is to specify a two element array where the first element is the shell
+command and the second is an optional human-readable description. Shell
 commands support an extended syntax as well, which provides more fine-grained
 control. A command can be specified as a dictionary that contains the command
 to be run, a description, and whether stdin, stdout, and stderr are enabled. In
-this syntax, all keys are optional except for the command itself, and all
-streams are disabled by default.
-
-Another way is to specify a two element array where the first element is the
-shell command and the second is an optional human-readable description. **This
-syntax is deprecated.**
+this syntax, all keys are optional except for the command itself.
 
 ##### Example (YAML)
 
