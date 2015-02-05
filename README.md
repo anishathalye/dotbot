@@ -33,7 +33,7 @@ without the annoyance of having to manually copy or link files.
 Dotbot itself is entirely self contained and requires no installation (it's
 self-bootstrapping), so it's not necessary to install any software before you
 provision a new machine! All you have to do is download your dotfiles and then
-run `./install`.
+run `./install -t <list of targets>`.
 
 Template
 --------
@@ -94,10 +94,10 @@ installer should be able to be run multiple times without causing any
 problems.** This makes a lot of things easier to do (in particular, syncing
 updates between machines becomes really easy).
 
-Dotbot configuration files are YAML (or JSON) arrays of tasks, where each task
-is a dictionary that contains a command name mapping to data for that command.
-Tasks are run in the order in which they are specified. Commands within a task
-do not have a defined ordering.
+Dotbot configuration files are YAML (or JSON) dictionaries of targets with
+arrays of tasks, where each task is a dictionary that contains a command name
+mapping to data for that command. Tasks are run in the order in which they are
+specified. Commands within a task do not have a defined ordering.
 
 ### Link
 
@@ -122,34 +122,37 @@ should be forcibly linked.
 ##### Example (YAML)
 
 ```yaml
-- link:
-    ~/.config/terminator:
-      create: true
-      path: config/terminator/
-    ~/.vim: vim/
-    ~/.vimrc: vimrc
-    ~/.zshrc:
-      force: true
-      path: zshrc
+work:
+    - link:
+        ~/.config/terminator:
+          create: true
+          path: config/terminator/
+        ~/.vim: vim/
+        ~/.vimrc: vimrc
+        ~/.zshrc:
+          force: true
+          path: zshrc
 ```
 
 ##### Example (JSON)
 
 ```json
-[{
-    "link": {
-        "~/.config/terminator": {
-            "create": true,
-            "path": "config/terminator/"
-        },
-        "~/.vim": "vim/",
-        "~/.vimrc": "vimrc",
-        "~/.zshrc": {
-            "force": true,
-            "path": "zshrc"
+{
+    "work": [{
+        "link": {
+            "~/.config/terminator": {
+                "create": true,
+                "path": "config/terminator/"
+            },
+            "~/.vim": "vim/",
+            "~/.vimrc": "vimrc",
+            "~/.zshrc": {
+                "force": true,
+                "path": "zshrc"
+            }
         }
-    }
-}]
+    }]
+}
 ```
 
 ### Shell
@@ -174,36 +177,39 @@ syntax is deprecated.**
 ##### Example (YAML)
 
 ```yaml
-- shell:
-  - mkdir -p ~/src
-  - [mkdir -p ~/downloads, Creating downloads directory]
-  -
-    command: read var && echo Your variable is $var
-    stdin: true
-    stdout: true
-  -
-    command: read fail
-    stderr: true
+work:
+  - shell:
+    - mkdir -p ~/src
+    - [mkdir -p ~/downloads, Creating downloads directory]
+    -
+      command: read var && echo Your variable is $var
+      stdin: true
+      stdout: true
+    -
+      command: read fail
+      stderr: true
 ```
 
 ##### Example (JSON)
 
 ```json
-[{
-    "shell": [
-        "mkdir -p ~/src",
-        ["mkdir -p ~/downloads", "Creating downloads directory"],
-        {
-            "command": "read var && echo Your variable is $var",
-            "stdin": true,
-            "stdout": true
-        },
-        {
-            "command": "read fail",
-            "stderr": true
-        }
-    ]
-}]
+{
+    "work": [{
+        "shell": [
+            "mkdir -p ~/src",
+            ["mkdir -p ~/downloads", "Creating downloads directory"],
+            {
+                "command": "read var && echo Your variable is $var",
+                "stdin": true,
+                "stdout": true
+            },
+            {
+                "command": "read fail",
+                "stderr": true
+            }
+        ]
+    }]
+}
 ```
 
 ### Clean
@@ -219,15 +225,18 @@ Clean commands are specified as an array of directories to be cleaned.
 ##### Example (YAML)
 
 ```yaml
-- clean: ['~']
+work:
+  - clean: ['~']
 ```
 
 ##### Example (JSON)
 
 ```json
-[{
-    "clean": ["~"]
-}]
+{
+    "work": [{
+        "clean": ["~"]
+    }]
+}
 ```
 
 ### Full Example
@@ -237,16 +246,26 @@ configuration. The conventional name for the configuration file is
 `install.conf.yaml`.
 
 ```yaml
-- clean: ['~']
+common:
+  - clean: ['~']
 
-- link:
-    ~/.dotfiles: ''
-    ~/.tmux.conf: tmux.conf
-    ~/.vim: vim/
-    ~/.vimrc: vimrc
+  - link:
+      ~/.dotfiles: ''
+      ~/.tmux.conf: tmux.conf
+      ~/.vim: vim/
+      ~/.vimrc: vimrc
 
-- shell:
-  - [git update-submodules, Installing/updating submodules]
+  - shell:
+    - [git update-submodules, Installing/updating submodules]
+
+laptop:
+  - shell:
+    - [sudo apt-get install vim, Installing vim]
+
+server:
+  - shell:
+    - [sudo apt-get install tmux, Installing tmux]
+    - [echo 'Europe/Paris' | sudo tee /etc/timezone > /dev/null && sudo dpkg-reconfigure -f noninteractive tzdata, Configuring timezone]
 ```
 
 The configuration file can also be written in JSON. Here is the JSON equivalent
@@ -254,24 +273,53 @@ of the YAML configuration given above. The conventional name for this file is
 `install.conf.json`.
 
 ```json
-[
-    {
-        "clean": ["~"]
-    },
-    {
-        "link": {
-            "~/.dotfiles": "",
-            "~/.tmux.conf": "tmux.conf",
-            "~/.vim": "vim/",
-            "~/.vimrc": "vimrc"
+{
+    "common": [
+        {
+            "clean": ["~"]
+        },
+        {
+            "link": {
+                "~/.dotfiles": "",
+                "~/.tmux.conf": "tmux.conf",
+                "~/.vim": "vim/",
+                "~/.vimrc": "vimrc"
+            }
+        },
+        {
+            "shell": [
+                ["git submodule update --init --recursive", "Installing submodules"]
+            ]
         }
-    },
-    {
-        "shell": [
-            ["git submodule update --init --recursive", "Installing submodules"]
-        ]
-    }
-]
+    ],
+    "laptop": [
+        {
+            "clean": []
+        },
+        {
+            "link": {}
+        },
+        {
+            "shell": [
+                ["sudo apt-get install vim", "Installing vim"]
+            ]
+        }
+    ],
+    "server": [
+        {
+            "clean": []
+        },
+        {
+            "link": {}
+        },
+        {
+            "shell": [
+                ["sudo apt-get install tmux", "Installing tmux"],
+                ["echo 'Europe/Paris' | sudo tee /etc/timezone > /dev/null && sudo dpkg-reconfigure -f noninteractive tzdata", "Configuring timezone"]
+            ]
+        }
+    ]
+}
 ```
 
 Contributing

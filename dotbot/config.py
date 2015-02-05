@@ -1,8 +1,17 @@
 import yaml
+from .messenger import Messenger
 
 class ConfigReader(object):
-    def __init__(self, config_file_path):
-        self._config = self._read(config_file_path)
+    def __init__(self, config_file_path, targets):
+        complete_config = self._read(config_file_path)
+
+        target_configs = {}
+        for target in targets:
+            if not complete_config.has_key(target):
+                raise ConfigurationError('The target %s is not defined in the configuration file' % target)
+            target_configs[target] = complete_config.get(target)
+
+        self._config = target_configs
 
     def _read(self, config_file_path):
         try:
@@ -16,4 +25,7 @@ class ConfigReader(object):
         return self._config
 
 class ReadingError(Exception):
+    pass
+
+class ConfigurationError(Exception):
     pass
