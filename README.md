@@ -119,7 +119,7 @@ the source path, specify "create" as true if the parent directory should be
 created if necessary, and specify "force" as true if the file or directory
 should be forcibly linked.
 
-##### Example (YAML)
+#### Example
 
 ```yaml
 - link:
@@ -131,25 +131,6 @@ should be forcibly linked.
     ~/.zshrc:
       force: true
       path: zshrc
-```
-
-##### Example (JSON)
-
-```json
-[{
-    "link": {
-        "~/.config/terminator": {
-            "create": true,
-            "path": "config/terminator/"
-        },
-        "~/.vim": "vim/",
-        "~/.vimrc": "vimrc",
-        "~/.zshrc": {
-            "force": true,
-            "path": "zshrc"
-        }
-    }
-}]
 ```
 
 ### Shell
@@ -168,7 +149,7 @@ control. A command can be specified as a dictionary that contains the command
 to be run, a description, and whether stdin, stdout, and stderr are enabled. In
 this syntax, all keys are optional except for the command itself.
 
-##### Example (YAML)
+#### Example
 
 ```yaml
 - shell:
@@ -183,26 +164,6 @@ this syntax, all keys are optional except for the command itself.
     stderr: true
 ```
 
-##### Example (JSON)
-
-```json
-[{
-    "shell": [
-        "mkdir -p ~/src",
-        ["mkdir -p ~/downloads", "Creating downloads directory"],
-        {
-            "command": "read var && echo Your variable is $var",
-            "stdin": true,
-            "stdout": true
-        },
-        {
-            "command": "read fail",
-            "stderr": true
-        }
-    ]
-}]
-```
-
 ### Clean
 
 Clean commands specify directories that should be checked for dead symbolic
@@ -213,18 +174,10 @@ to the dotfiles directory are removed.
 
 Clean commands are specified as an array of directories to be cleaned.
 
-##### Example (YAML)
+#### Example
 
 ```yaml
 - clean: ['~']
-```
-
-##### Example (JSON)
-
-```json
-[{
-    "clean": ["~"]
-}]
 ```
 
 ### Full Example
