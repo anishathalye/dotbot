@@ -56,6 +56,13 @@ within your git repository:
 git submodule add https://github.com/anishathalye/dotbot
 ```
 
+This locks Dotbot on the current version. At any point, to upgrade Dotbot to
+the latest version, you can run:
+
+```bash
+git submodule update --remote dotbot # or other path to Dotbot submodule
+```
+
 To have a one-click (one-command) install, you can place a bootstrap install
 shell script that calls Dotbot with the appropriate parameters. This script
 simply passes its arguments to Dotbot, so the script itself will not have to be
