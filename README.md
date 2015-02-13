@@ -196,7 +196,7 @@ configuration. The conventional name for the configuration file is
     ~/.vimrc: vimrc
 
 - shell:
-  - [git update-submodules, Installing/updating submodules]
+  - [git submodule update --init --recursive, Installing submodules]
 ```
 
 The configuration file can also be written in JSON. Here is the JSON equivalent
