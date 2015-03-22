@@ -5,7 +5,7 @@ All kinds contributions to Dotbot are greatly appreciated. For someone
 unfamiliar with the code base, the most efficient way to contribute is usually
 to submit a [feature request](#feature-requests) or [bug report](#bug-reports).
 If you want to dive into the source code, you can submit a [patch](#patches) as
-well.
+well, either working on your own ideas or [existing issues][issues].
 
 Feature Requests
 ----------------
@@ -34,9 +34,13 @@ to find and fix the bug.
 Patches
 -------
 
-Before working on substantial changes to the code base, it is *highly
-recommended* that you first [open an issue][issue] describing what you intend
-to work on.
+Want to hack on Dotbot? Awesome!
+
+If there are [open issues][issues], you're more than welcome to work on those -
+this is probably the best way to contribute to Dotbot. If you have your own
+ideas, that's great too! In that case, before working on substantial changes to
+the code base, it is *highly recommended* that you first [open an issue][issue]
+describing what you intend to work on.
 
 **Patches are generally submitted as pull requests.** Patches are also
 [accepted over email][email].
@@ -46,9 +50,12 @@ used in the rest of the project. The version history should be clean, and
 commit messages should be descriptive and [properly
 formatted][commit-messages].
 
+---
+
 If you have any questions about anything, feel free to [ask][email]!
 
 [issue]: https://github.com/anishathalye/dotbot/issues/new
+[issues]: https://github.com/anishathalye/dotbot/issues
 [fork]: https://github.com/anishathalye/dotbot/fork
 [email]: mailto:me@anishathalye.com
 [commit-messages]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
