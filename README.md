@@ -106,6 +106,9 @@ is a dictionary that contains a command name mapping to data for that command.
 Tasks are run in the order in which they are specified. Commands within a task
 do not have a defined ordering.
 
+When writing nested constructs, keep in mind that YAML is whitespace-sensitive.
+Following the formatting used in the examples is a good idea.
+
 ### Link
 
 Link commands specify how files and directories should be symbolically linked.
