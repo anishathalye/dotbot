@@ -9,8 +9,8 @@ class ConfigReader(object):
             with open(config_file_path) as fin:
                 data = yaml.load(fin)
             return data
-        except Exception:
-            raise ReadingError('Could not read config file')
+        except Exception as e:
+            raise ReadingError('Could not read config file:\n%s' % e)
 
     def get_config(self):
         return self._config
