@@ -2,7 +2,9 @@ import os
 from .executor import Executor
 from .messenger import Messenger
 
+
 class Dispatcher(object):
+
     def __init__(self, base_directory):
         self._log = Messenger()
         self._set_base_directory(base_directory)
@@ -28,7 +30,8 @@ class Dispatcher(object):
                             handled = True
                         except Exception:
                             self._log.error(
-                                'An error was encountered while executing action %s' %
+                                'An error was encountered\
+                                        while executing action %s' %
                                 action)
                 if not handled:
                     success = False
@@ -37,7 +40,8 @@ class Dispatcher(object):
 
     def _load_plugins(self):
         self._plugins = [plugin(self._base_directory)
-            for plugin in Executor.__subclasses__()]
+                         for plugin in Executor.__subclasses__()]
+
 
 class DispatchError(Exception):
     pass

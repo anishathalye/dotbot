@@ -1,7 +1,9 @@
 import yaml
 from .util import string
 
+
 class ConfigReader(object):
+
     def __init__(self, config_file_path):
         self._config = self._read(config_file_path)
 
@@ -16,6 +18,7 @@ class ConfigReader(object):
 
     def get_config(self):
         return self._config
+
 
 class ReadingError(Exception):
     pass
