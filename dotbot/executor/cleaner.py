@@ -1,7 +1,9 @@
 import os
 from . import Executor
 
+
 class Cleaner(Executor):
+
     '''
     Cleans broken symbolic links.
     '''
@@ -39,7 +41,10 @@ class Cleaner(Executor):
             if not os.path.exists(path) and os.path.islink(path):
                 if self._in_directory(path, self._base_directory):
                     self._log.lowinfo('Removing invalid link %s -> %s' %
-                        (path, os.path.join(os.path.dirname(path), os.readlink(path))))
+                                      (path,
+                                          os.path.join(os.path.dirname(path),
+                                                       os.readlink(path)
+                                                       )))
                     os.remove(path)
         return True
 

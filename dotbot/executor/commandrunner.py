@@ -1,7 +1,10 @@
-import os, subprocess
+import os
+import subprocess
 from . import Executor
 
+
 class CommandRunner(Executor):
+
     '''
     Run arbitrary shell commands.
     '''
@@ -14,7 +17,7 @@ class CommandRunner(Executor):
     def handle(self, directive, data):
         if directive != self._directive:
             raise ValueError('CommandRunner cannot handle directive %s' %
-                directive)
+                             directive)
         return self._process_commands(data)
 
     def _process_commands(self, data):
@@ -41,8 +44,9 @@ class CommandRunner(Executor):
                     self._log.lowinfo(cmd)
                 else:
                     self._log.lowinfo('%s [%s]' % (msg, cmd))
-                ret = subprocess.call(cmd, shell=True, stdin=stdin, stdout=stdout,
-                    stderr=stderr, cwd=self._base_directory)
+                ret = subprocess.call(cmd, shell=True,
+                                      stdin=stdin, stdout=stdout,
+                                      stderr=stderr, cwd=self._base_directory)
                 if ret != 0:
                     success = False
                     self._log.warning('Command [%s] failed' % cmd)

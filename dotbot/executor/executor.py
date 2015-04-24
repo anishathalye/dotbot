@@ -1,6 +1,8 @@
 from ..messenger import Messenger
 
+
 class Executor(object):
+
     '''
     Abstract base class for commands that process directives.
     '''

@@ -1,7 +1,10 @@
-import os, shutil
+import os
+import shutil
 from . import Executor
 
+
 class Linker(Executor):
+
     '''
     Symbolically links dotfiles.
     '''
@@ -60,7 +63,8 @@ class Linker(Executor):
 
     def _create(self, path):
         success = True
-        parent = os.path.abspath(os.path.join(os.path.expanduser(path), os.pardir))
+        parent = os.path.abspath(
+            os.path.join(os.path.expanduser(path), os.pardir))
         if not self._exists(parent):
             try:
                 os.makedirs(parent)
@@ -100,29 +104,32 @@ class Linker(Executor):
         if (not self._exists(link_name) and self._is_link(link_name) and
                 self._link_destination(link_name) != source):
             self._log.warning('Invalid link %s -> %s' %
-                (link_name, self._link_destination(link_name)))
+                              (link_name, self._link_destination(link_name)))
         elif not self._exists(link_name) and self._exists(source):
             try:
                 os.symlink(source, os.path.expanduser(link_name))
             except OSError:
-                self._log.warning('Linking failed %s -> %s' % (link_name, source))
+                self._log.warning('Linking failed %s -> %s' %
+                                  (link_name, source))
             else:
-                self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
+                self._log.lowinfo('Creating link %s -> %s' %
+                                  (link_name, source))
                 success = True
         elif self._exists(link_name) and not self._is_link(link_name):
             self._log.warning(
                 '%s already exists but is a regular file or directory' %
                 link_name)
-        elif self._is_link(link_name) and self._link_destination(link_name) != source:
+        elif self._is_link(link_name)\
+                and self._link_destination(link_name) != source:
             self._log.warning('Incorrect link %s -> %s' %
-                (link_name, self._link_destination(link_name)))
+                              (link_name, self._link_destination(link_name)))
         elif not self._exists(source):
             if self._is_link(link_name):
                 self._log.warning('Nonexistent target %s -> %s' %
-                    (link_name, source))
+                                  (link_name, source))
             else:
                 self._log.warning('Nonexistent target for %s : %s' %
-                    (link_name, source))
+                                  (link_name, source))
         else:
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
             success = True
