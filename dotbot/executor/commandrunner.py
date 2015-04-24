@@ -41,8 +41,8 @@ class CommandRunner(Executor):
                     self._log.lowinfo(cmd)
                 else:
                     self._log.lowinfo('%s [%s]' % (msg, cmd))
-                ret = subprocess.call(cmd, shell = True, stdin = stdin, stdout = stdout,
-                    stderr = stderr, cwd = self._base_directory)
+                ret = subprocess.call(cmd, shell=True, stdin=stdin, stdout=stdout,
+                    stderr=stderr, cwd=self._base_directory)
                 if ret != 0:
                     success = False
                     self._log.warning('Command [%s] failed' % cmd)
