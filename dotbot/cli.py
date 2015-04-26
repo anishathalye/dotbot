@@ -35,6 +35,8 @@ def main():
         if (options.verbose):
             log.set_level(Level.DEBUG)
         tasks = read_config(options.config_file[0])
+        if not isinstance(tasks, list):
+            raise ReadingError('Configuration file must be a list of tasks')
         dispatcher = Dispatcher(options.base_directory[0])
         success = dispatcher.dispatch(tasks)
         if success:
