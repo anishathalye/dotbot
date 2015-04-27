@@ -78,7 +78,9 @@ class Linker(Executor):
                 (self._exists(path) and not self._is_link(path))):
             fullpath = os.path.expanduser(path)
             try:
-                if os.path.isdir(fullpath):
+                if os.path.islink(fullpath):
+                    os.unlink(fullpath)
+                elif os.path.isdir(fullpath):
                     shutil.rmtree(fullpath)
                 else:
                     os.remove(fullpath)
