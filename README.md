@@ -131,8 +131,9 @@ Link commands support an (optional) extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries. These dictionaries map `path` to
 the source path, specify `create` as `true` if the parent directory should be
-created if necessary, and specify `force` as `true` if the file or directory
-should be forcibly linked.
+created if necessary, specify `relink` as `true` if incorrect symbolic links
+should be automatically overwritten, and specify `force` as `true` if the file
+or directory should be forcibly linked.
 
 #### Example
 
@@ -142,7 +143,9 @@ should be forcibly linked.
       create: true
       path: config/terminator/
     ~/.vim: vim/
-    ~/.vimrc: vimrc
+    ~/.vimrc:
+      relink: true
+      path: vimrc
     ~/.zshrc:
       force: true
       path: zshrc

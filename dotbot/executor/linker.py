@@ -23,11 +23,14 @@ class Linker(Executor):
                 # extended config
                 path = source['path']
                 force = source.get('force', False)
+                relink = source.get('relink', False)
                 create = source.get('create', False)
                 if create:
                     success &= self._create(destination)
                 if force:
-                    success &= self._delete(path, destination)
+                    success &= self._delete(path, destination, force=True)
+                elif relink:
+                    success &= self._delete(path, destination, force=False)
             else:
                 path = source
             success &= self._link(path, destination)
@@ -71,24 +74,30 @@ class Linker(Executor):
                 self._log.lowinfo('Creating directory %s' % parent)
         return success
 
-    def _delete(self, source, path):
+    def _delete(self, source, path, force):
         success = True
         source = os.path.join(self._base_directory, source)
         if ((self._is_link(path) and self._link_destination(path) != source) or
                 (self._exists(path) and not self._is_link(path))):
             fullpath = os.path.expanduser(path)
+            removed = False
             try:
                 if os.path.islink(fullpath):
                     os.unlink(fullpath)
-                elif os.path.isdir(fullpath):
-                    shutil.rmtree(fullpath)
-                else:
-                    os.remove(fullpath)
+                    removed = True
+                elif force:
+                    if os.path.isdir(fullpath):
+                        shutil.rmtree(fullpath)
+                        removed = True
+                    else:
+                        os.remove(fullpath)
+                        removed = True
             except OSError:
                 self._log.warning('Failed to remove %s' % path)
                 success = False
             else:
-                self._log.lowinfo('Removing %s' % path)
+                if removed:
+                    self._log.lowinfo('Removing %s' % path)
         return success
 
     def _link(self, source, link_name):
