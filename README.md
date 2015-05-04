@@ -14,7 +14,7 @@ If you want an in-depth tutorial about organizing your dotfiles, see this [blog
 post][managing-dotfiles-post].
 
 Get Running in 5 Minutes
----------------------------
+------------------------
 
 ### Starting Fresh?
 
