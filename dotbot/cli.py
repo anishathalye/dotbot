@@ -1,3 +1,5 @@
+import os
+import socket
 from argparse import ArgumentParser
 from .config import ConfigReader, ReadingError
 from .dispatcher import Dispatcher, DispatchError
@@ -24,6 +26,8 @@ def read_config(config_file):
 
 def main():
     log = Messenger()
+
+    os.environ.setdefault("HOSTNAME", socket.gethostname())
     try:
         parser = ArgumentParser()
         add_options(parser)

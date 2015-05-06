@@ -107,7 +107,7 @@ class Linker(Executor):
         Returns true if successfully linked files.
         '''
         success = False
-        source = os.path.join(self._base_directory, source)
+        source = os.path.expandvars(os.path.join(self._base_directory, source))
         if (not self._exists(link_name) and self._is_link(link_name) and
                 self._link_destination(link_name) != source):
             self._log.warning('Invalid link %s -> %s' %
