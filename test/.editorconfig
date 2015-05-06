@@ -1,0 +1,5 @@
+[Vagrantfile]
+indent_size = 2
+
+[test]
+indent_size = 4
