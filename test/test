@@ -22,7 +22,7 @@ fi
 initialize "${#tests[@]}"
 
 for file in "${tests[@]}"; do
-    run_test "$(basename ${file})"
+    run_test "$(basename "${file}")"
 done
 
 if report; then
