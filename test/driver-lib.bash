@@ -88,7 +88,7 @@ fail() {
 
 run_test() {
     tests_run=$((tests_run + 1))
-    printf '[%d/%d]\n' ${tests_run} ${tests_total}
+    printf '[%d/%d] (%s)\n' ${tests_run} ${tests_total} ${1}
     rollback || die "unable to rollback vm." # start with a clean slate
     vagrant ssh -c "cd /dotbot/test/tests && bash ${1}" 2>/dev/null && pass || fail
 }
