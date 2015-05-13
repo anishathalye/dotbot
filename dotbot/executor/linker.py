@@ -19,6 +19,8 @@ class Linker(Executor):
     def _process_links(self, links):
         success = True
         for destination, source in links.items():
+            source = os.path.expandvars(source)
+            destination = os.path.expandvars(destination)
             if isinstance(source, dict):
                 # extended config
                 path = source['path']

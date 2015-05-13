@@ -118,7 +118,7 @@ Following the formatting used in the examples is a good idea.
 
 Link commands specify how files and directories should be symbolically linked.
 If desired, items can be specified to be forcibly linked, overwriting existing
-files if necessary.
+files if necessary. Environment variables in paths are automatically expanded.
 
 #### Format
 
