@@ -22,23 +22,36 @@ Great! Just run the following command and start adding your customizations. If
 you're looking for [some inpiration][inspiration], we've got you covered.
 
 ```bash
-  git clone git@github.com:anishathalye/dotfiles_template dotfiles
+git clone git@github.com:anishathalye/dotfiles_template dotfiles
 ```
 
 ### Integrate with Existing Dotfiles
 
 The following will help you get set up using Dotbot in just a few steps.
 
+If you're using Git, you can add Dotbot as a submodule:
+
 ```bash
-  # replace with the path to your dotfiles
-  cd ~/.dotfiles
-  git submodule add https://github.com/anishathalye/dotbot
-  cp dotbot/tools/git-submodule/install .
-  touch install.conf.yaml
+# replace with the path to your dotfiles
+cd ~/.dotfiles
+git submodule add https://github.com/anishathalye/dotbot
+cp dotbot/tools/git-submodule/install .
+touch install.conf.yaml
 ```
 
-To get started, you just need to fill in the `install.conf.yaml` and Dotbot will
-take care of the rest.  To help you get started we have [an
+If you're using Mercurial, you can add Dotbot as a subrepo:
+
+```bash
+# replace with the path to your dotfiles
+echo "dotbot = [git]https://github.com/anishathalye/dotbot" > .hgsub
+hg add .hgsub
+git clone https://github.com/anishathalye/dotbot
+cp dotbot/tools/hg-subrepo/install .
+touch install.conf.yaml
+```
+
+To get started, you just need to fill in the `install.conf.yaml` and Dotbot
+will take care of the rest. To help you get started we have [an
 example](#full-example) config file as well as [configuration
 documentation](#configuration) for the accepted parameters.
 
