@@ -77,7 +77,6 @@ for item in ${paths[*]}
 do
 	fullname="${item/\~/$HOME}"
 	if [ -f $fullname ] || [ -d $fullname ]; then
-		echoerr "Found one!"
 		moveon=0;
 		until (( $moveon )); do
 			read -p "I found ${item}, do you want to DotBot it? (Y/n) " answer
