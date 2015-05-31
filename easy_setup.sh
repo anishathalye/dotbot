@@ -15,6 +15,7 @@ setupshell='echo "Setting up DotBot. Please do not ^C." >&2'
 dotclean=''
 dotlink=''
 dotshell=''
+installerrun=1;
 
 echoerr "Welcome to the configuration generator for DotBot"
 echoerr "Please be aware that if you have a complicated setup, you may need more customization than this script offers."
@@ -56,6 +57,7 @@ until (( $moveon )); do
 	elif echo "$answer" | grep -iq "^n"; then
 		echoerr "Okay, I shall not. You will need to manually set up your install script."
 		moveon=1
+		installerrun=0;
 	else
 		echoerr "Answer not understood: ${answer}"
 	fi
@@ -138,7 +140,24 @@ setupshell=$setupshell'; echo -e "'$installconfyaml'" > install.conf.yaml'
 
 
 moveon=0;
+installerrun=1;
 until (( $moveon )); do
+	read -p "Shall I run the installer? (Necessary to git commit) (Y/n) " answer
+	if echo "$answer" | grep -iq "^y" || echo "$answer" | grep -q "^$" ; then
+		echoerr "Will do."
+		setupshell=$setupshell'; ./install'
+		moveon=1
+	elif echo "$answer" | grep -iq "^n"; then
+		echoerr "Okay, I shall not. You will need to take care of that yourself."
+		moveon=1
+		installerrun=0;
+	else
+		echoerr "Answer not understood: ${answer}"
+	fi
+done
+
+moveon=0;
+until (( $moveon )) || ! (( $installerrun )); do
 	read -p "Shall I make the initial commit? (Y/n) " answer
 	if echo "$answer" | grep -iq "^y" || echo "$answer" | grep -q "^$" ; then
 		echoerr "Will do."
