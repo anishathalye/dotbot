@@ -145,10 +145,10 @@ until (( $moveon )); do
 	fi
 done
 
-echo;
+echoerr;
 echo $dotlink
-echo
-echo "The below are the actions that will be taken to setup DotBot."
+echoerr
+echoerr "The below are the actions that will be taken to setup DotBot."
 
 echoerr $setupshell
 
