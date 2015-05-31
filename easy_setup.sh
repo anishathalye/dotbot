@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 echoerr() { echo "$@" >&2; }
 
+testmode=0;
+
+case "$1" in
+	test)
+		testmode=1;
+		echoerr "Test mode enabled."
+esac
+
 paths=('~/.profile' '~/.bash_profile' '~/.bashrc' '~/.bash_logout' '~/.gitconfig' '~/.ssh/config' '~/.tmux.conf' '~/.vimrc' '~/.vim/vimrc' '~/.zprofile' '~/.zshenv' '~/.zshrc' '~/bin' '~/.Xmodmap' '~/.Xresources' '~/.Xdefaults' '~/.vimperatorrc' '~/.xinitrc' '~/.i3' '~/.i3status.conf' '~/.config/awesome' '~/.config/pianobar' '~/.config/vimprobable' '~/.config/redshift' '~/.config/openbox' '~/.config/tint2')
 
 setupshell='echo "Setting up DotBot. Please do not ^C." >&2'
@@ -145,12 +153,19 @@ until (( $moveon )); do
 done
 
 echoerr;
-echo $dotlink
+if ! (( $testmode )); then
+	echo $dotlink
+fi
 echoerr
 echoerr "The below are the actions that will be taken to setup DotBot."
+if (( $testmode )); then
+	echoerr "Just kidding. They won't be."
+fi
 
 echoerr $setupshell
 
 read -p "If you do not see a problem with the above commands, press enter. This is your last chance to press ^C before actions are taken that should not be interrupted. "
 
-eval $setupshell
+if ! (( $testmode )); then
+	eval $setupshell
+fi
