@@ -19,7 +19,7 @@ Get Running in 5 Minutes
 ### Starting Fresh?
 
 Great! Just run the following command and start adding your customizations. If
-you're looking for [some inpiration][inspiration], we've got you covered.
+you're looking for [some inspiration][inspiration], we've got you covered.
 
 ```bash
 git clone git@github.com:anishathalye/dotfiles_template dotfiles
@@ -59,7 +59,7 @@ Note: The `install` script is merely a shim that checks out the appropriate
 version of Dotbot and calls the full Dotbot installer. By default, the script
 assumes that the configuration is located in `install.conf.yaml` the Dotbot
 submodule is located in `dotbot`. You can change either of these parameters by
-editing the variables in the `install` script appropiately.
+editing the variables in the `install` script appropriately.
 
 Setting up Dotbot as a submodule or subrepo locks it on the current version.
 You can upgrade Dotbot at any point. If using a submodule, run `git submodule
