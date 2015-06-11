@@ -19,7 +19,7 @@ Get Running in 5 Minutes
 ### Starting Fresh?
 
 Great! You can automate the creation of your dotfiles by using amazing
-[easy-dotfiles][easy-dotfiles] script. Or, if you're just looking for [some
+[init-dotfiles][init-dotfiles] script. Or, if you're just looking for [some
 inspiration][inspiration], we've got you covered.
 
 ### Integrate with Existing Dotfiles
@@ -228,7 +228,7 @@ License
 Copyright (c) 2014-2015 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
-[easy-dotfiles]: https://github.com/Aviator45003/easy-dotfiles
+[init-dotfiles]: https://github.com/Aviator45003/init-dotfiles
 [inspiration]: https://github.com/anishathalye/dotfiles_template#inspiration
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
 [contributing]: CONTRIBUTING.md
