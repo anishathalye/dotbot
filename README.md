@@ -18,12 +18,10 @@ Get Running in 5 Minutes
 
 ### Starting Fresh?
 
-Great! Just run the following command and start adding your customizations. If
-you're looking for [some inspiration][inspiration], we've got you covered.
-
-```bash
-git clone git@github.com:anishathalye/dotfiles_template dotfiles
-```
+Great! You can automate the creation of your dotfiles by using the
+user-contributed [init-dotfiles][init-dotfiles] script. If you'd rather use a
+template repository, check out [dotfiles_template][dotfiles-template]. Or, if
+you're just looking for [some inspiration][inspiration], we've got you covered.
 
 ### Integrate with Existing Dotfiles
 
@@ -231,6 +229,8 @@ License
 Copyright (c) 2014-2015 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
+[init-dotfiles]: https://github.com/Aviator45003/init-dotfiles
+[dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotfiles_template#inspiration
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
 [contributing]: CONTRIBUTING.md
