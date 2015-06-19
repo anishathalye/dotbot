@@ -183,8 +183,9 @@ shell command and the second is an optional human-readable description.
 Shell commands support an extended syntax as well, which provides more
 fine-grained control. A command can be specified as a dictionary that contains
 the command to be run, a description, and whether `stdin`, `stdout`, and
-`stderr` are enabled. In this syntax, all keys are optional except for the
-command itself.
+`stderr` are enabled. Another useful key is `confirm` which, if true, prompts
+the user at install time, allowing them to not run that script that time.
+In this syntax, all keys are optional except for the command itself.
 
 #### Example
 
@@ -199,6 +200,9 @@ command itself.
   -
     command: read fail
     stderr: true
+  -
+    command: rm -rf ~/.config
+    confirm: true
 ```
 
 ### Clean
