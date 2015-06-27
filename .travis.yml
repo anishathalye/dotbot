@@ -7,7 +7,7 @@ env:
     - TOXENV=py33
     - TOXENV=py34
 install:
-    - pip install tox
+    - pip install tox python-coveralls
 script:
     - tox
 after_success:

@@ -1,6 +1,10 @@
 Dotbot
 ======
 
+[![Build Status](https://travis-ci.org/PacketPerception/dotbot.svg?branch=feature%2Fnew_tests)](https://travis-ci.org/PacketPerception/dotbot) [![Coverage Status](https://coveralls.io/repos/PacketPerception/dotbot/badge.svg?branch=feature%2Fnew_tests)](https://coveralls.io/r/PacketPerception/dotbot?branch=feature%2Fnew_tests)
+
+
+
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
 [bo]o[t]strapper, get it?). It does *less* than you think, because version
 control systems do more than you think.
