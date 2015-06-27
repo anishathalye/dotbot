@@ -21,9 +21,7 @@ class MissingTestCase(DotbotTestCase):
     def test_ignores_outside_linking(self):
         """ clean ignores files linking outside dotfiles directory """
         self.add_symlink('f')
-
-        with open(os.path.join(self.home_dir, 'g'), 'w') as g:
-            g.write('')
+        self.add_home_file('g')
         os.symlink(os.path.join(self.home_dir, 'g'), os.path.join(self.home_dir, '.g'))
 
         self.run_dotbot(config='- clean: ["~"]')
