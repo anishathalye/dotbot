@@ -1,7 +1,7 @@
 Contributing
 ============
 
-All kinds contributions to Dotbot are greatly appreciated. For someone
+All kinds of contributions to Dotbot are greatly appreciated. For someone
 unfamiliar with the code base, the most efficient way to contribute is usually
 to submit a [feature request](#feature-requests) or [bug report](#bug-reports).
 If you want to dive into the source code, you can submit a [patch](#patches) as
