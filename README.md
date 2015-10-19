@@ -30,8 +30,7 @@ The following will help you get set up using Dotbot in just a few steps.
 If you're using Git, you can add Dotbot as a submodule:
 
 ```bash
-# replace with the path to your dotfiles
-cd ~/.dotfiles
+cd ~/.dotfiles # replace with the path to your dotfiles
 git submodule add https://github.com/anishathalye/dotbot
 cp dotbot/tools/git-submodule/install .
 touch install.conf.yaml
@@ -40,7 +39,7 @@ touch install.conf.yaml
 If you're using Mercurial, you can add Dotbot as a subrepo:
 
 ```bash
-# replace with the path to your dotfiles
+cd ~/.dotfiles # replace with the path to your dotfiles
 echo "dotbot = [git]https://github.com/anishathalye/dotbot" > .hgsub
 hg add .hgsub
 git clone https://github.com/anishathalye/dotbot
