@@ -1,24 +1,41 @@
 Testing
 =======
 
-Dotbot testing code uses [Vagrant][vagrant] to run all tests inside a virtual
-machine to have tests be completely isolated from the host machine. The test
-driver relies on the [Sahara][sahara] plugin to snapshot and roll back virtual
-machine state. The tests are deterministic, and each test is run in a virtual
-machine with fresh state, ensuring that tests that modify system state are
-easily repeatable.
+Testing is run against multiple Python using ``tox``. It is recommended to use ``pyenv`` to manage
+your Python version.
 
-Running the Tests
------------------
 
-Before running the tests, the virtual machine must be running. It can be
-started by running `vagrant up`.
+Setup
+=====
 
-The test suite can be run by running `./test`. Selected tests can be run by
-passing paths to the tests as arguments to `./test`.
+* Ensure git submodules are up to date
+* Install pyenv
+* Install Python versions
 
-When finished with testing, it is good to shut down the virtual machine by
-running `vagrant halt`.
+```
+pyenv install 3.4.3
+pyenv install 3.3.6
+pyenv install 3.2.6
+pyenv install 2.7.10
+pyenv install 2.6.9
+```
 
-[vagrant]: https://www.vagrantup.com/
-[sahara]: https://github.com/jedi4ever/sahara
+* *cd* into the *dotbot* repository and set the local Python versions for pyenv
+
+```
+pyenv local 3.4.3 3.3.6 3.2.6 2.7.10 2.6.9
+```
+
+* Install test requirements
+
+```
+pip install tox
+pyenv rehash
+```
+
+
+Running the Test Suite
+======================
+
+Once the environment has been setup, simply run the ``tox`` command in the ``dotbot`` directory
+
