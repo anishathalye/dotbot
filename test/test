@@ -9,6 +9,23 @@ start="$(date +%s)"
 
 check_prereqs || die "prerequisites unsatsfied."
 
+# command line options
+while [[ $# > 1 ]]
+do
+    key="${1}"
+    case $key in
+        -v|--version)
+            VERSION="${2}"
+            shift && shift
+            ;;
+        *)
+            # unknown option
+            break
+            ;;
+    esac
+done
+VERSION="${VERSION:-2.7.9}"
+
 declare -a tests=()
 
 if [ $# -eq 0 ]; then
@@ -19,10 +36,10 @@ else
     tests=("$@")
 fi
 
-initialize "${#tests[@]}"
+initialize "${#tests[@]}" "${VERSION}"
 
 for file in "${tests[@]}"; do
-    run_test "$(basename "${file}")"
+    run_test "$(basename "${file}")" "${VERSION}"
 done
 
 if report; then

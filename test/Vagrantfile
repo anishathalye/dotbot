@@ -7,4 +7,20 @@ Vagrant.configure(2) do |config|
 
   # disable default synced folder
   config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # install packages
+  config.vm.provision "shell", inline: <<-EOS
+    apt-get -y update
+    apt-get install -y git make build-essential libssl-dev zlib1g-dev \
+      libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm \
+      libncurses5-dev
+  EOS
+
+  # install pyenv
+  config.vm.provision "shell", privileged: false, inline: <<-EOS
+    rm -rf ~/.pyenv
+    git clone git://github.com/yyuu/pyenv.git ~/.pyenv
+    echo 'export PATH="$HOME/.pyenv/bin:$PATH"\neval "$(pyenv init -)"' \
+      > ~/.bashrc
+  EOS
 end

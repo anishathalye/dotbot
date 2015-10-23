@@ -65,6 +65,14 @@ rollback() {
 initialize() {
     echo "initializing."
     vagrant sandbox on >/dev/null 2>&1
+    if ! vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1; then
+        wait_for_vagrant && vagrant sandbox rollback >/dev/null 2>&1
+        wait_for_vagrant
+        if ! vagrant ssh -c "pyenv install -s ${2} && pyenv local ${2}" >/dev/null 2>&1; then
+            die "could not install python ${2}"
+        fi
+        vagrant sandbox commit >/dev/null 2>&1
+    fi
     tests_run=0
     tests_passed=0
     tests_failed=0
@@ -89,6 +97,7 @@ run_test() {
     tests_run=$((tests_run + 1))
     printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
     rollback || die "unable to rollback vm." # start with a clean slate
+    vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1
     if vagrant ssh -c "cd /dotbot/test/tests && bash ${1}" 2>/dev/null; then
         pass
     else

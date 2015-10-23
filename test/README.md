@@ -17,6 +17,9 @@ started by running `vagrant up`.
 The test suite can be run by running `./test`. Selected tests can be run by
 passing paths to the tests as arguments to `./test`.
 
+Tests can be run with a specific Python version by running `./test --version
+<version>` - for example, `./test --version 3.4.3`.
+
 When finished with testing, it is good to shut down the virtual machine by
 running `vagrant halt`.
 
