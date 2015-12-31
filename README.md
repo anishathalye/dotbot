@@ -1,6 +1,8 @@
 Dotbot
 ======
 
+[![Join the chat at https://gitter.im/anishathalye/dotbot](https://badges.gitter.im/anishathalye/dotbot.svg)](https://gitter.im/anishathalye/dotbot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
 [bo]o[t]strapper, get it?). It does *less* than you think, because version
 control systems do more than you think.
