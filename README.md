@@ -109,12 +109,17 @@ The conventional name for this file is `install.conf.json`.
 ]
 ```
 
-## Configuration
+Configuration
+-------------
 
-Dotbot uses YAML or JSON formatted configuration files to let you specify how to
-set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
-folders, execute [shell](#shell) commands, and [clean](#clean) directories of
-broken symbolic links.
+Dotbot uses YAML or JSON formatted configuration files to let you specify how
+to set up your dotfiles. The YAML format is recommended because it looks
+cleaner. JSON will be parsed as a subset of YAML, so tab characters are not
+permitted.
+
+Currently, Dotbot knows how to [link](#link) files and folders, execute
+[shell](#shell) commands, and [clean](#clean) directories of broken symbolic
+links.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
