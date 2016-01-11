@@ -1,6 +1,11 @@
 Dotbot
 ======
 
+Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
+&& ./install`, even on a freshly installed system!
+
+---
+
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
 [bo]o[t]strapper, get it?). It does *less* than you think, because version
 control systems do more than you think.
