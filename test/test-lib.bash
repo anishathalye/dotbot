@@ -1,6 +1,7 @@
 DEBUG=false
 DOTFILES='/home/vagrant/dotfiles'
 INSTALL_CONF='install.conf.yaml'
+INSTALL_CONF_JSON='install.conf.json'
 
 test_run_() {
     if ! ${DEBUG}; then
@@ -45,6 +46,14 @@ run_dotbot() {
         cd "${DOTFILES}"
         cat > "${INSTALL_CONF}"
         /dotbot/bin/dotbot -d . -c "${INSTALL_CONF}" "${@}"
+    )
+}
+
+run_dotbot_json() {
+    (
+        cd "${DOTFILES}"
+        cat > "${INSTALL_CONF_JSON}"
+        /dotbot/bin/dotbot -d . -c "${INSTALL_CONF_JSON}" "${@}"
     )
 }
 

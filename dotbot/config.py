@@ -1,4 +1,5 @@
 import yaml
+import json
 from .util import string
 
 class ConfigReader(object):
@@ -8,7 +9,16 @@ class ConfigReader(object):
     def _read(self, config_file_path):
         try:
             with open(config_file_path) as fin:
-                data = yaml.safe_load(fin)
+                try:
+                    data = yaml.safe_load(fin)
+                except Exception as e:
+                    # try falling back to JSON, but return original exception
+                    # if that fails too
+                    try:
+                        fin.seek(0)
+                        data = json.load(fin)
+                    except Exception:
+                        raise e
             return data
         except Exception as e:
             msg = string.indent_lines(str(e))
