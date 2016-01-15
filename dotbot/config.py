@@ -11,7 +11,6 @@ class ConfigReader(object):
         try:
             _, ext = os.path.splitext(config_file_path)
             with open(config_file_path) as fin:
-                print ext
                 if ext == '.json':
                     data = json.load(fin)
                 else:
