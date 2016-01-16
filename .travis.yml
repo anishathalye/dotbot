@@ -7,4 +7,4 @@ python:
   - "3.5"
 
 script:
-  - ./.travis/run_tests
+  - ./test/test_travis
