@@ -6,6 +6,8 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 
 ---
 
+[![Build Status](https://travis-ci.org/anishathalye/dotbot.svg?branch=master)](https://travis-ci.org/anishathalye/dotbot)
+
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
 [bo]o[t]strapper, get it?). It does *less* than you think, because version
 control systems do more than you think.
