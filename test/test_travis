@@ -8,6 +8,12 @@ set -e
 
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# Prevent execution outside of Travis CI builds
+if [[ "${TRAVIS}" != true || "${CI}" != true ]]; then
+    echo "Error: `basename "$0"` should only be used on Travis"
+    exit 2
+fi
+
 # Travis runs do not rely on Vagrant
 export USE_VAGRANT=false
 export DOTBOT_EXEC="${BASEDIR}/bin/dotbot"
