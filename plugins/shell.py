@@ -1,7 +1,6 @@
-import os, subprocess
-from . import Executor
+import os, subprocess, dotbot
 
-class CommandRunner(Executor):
+class Shell(dotbot.Plugin):
     '''
     Run arbitrary shell commands.
     '''
@@ -13,7 +12,7 @@ class CommandRunner(Executor):
 
     def handle(self, directive, data):
         if directive != self._directive:
-            raise ValueError('CommandRunner cannot handle directive %s' %
+            raise ValueError('Shell cannot handle directive %s' %
                 directive)
         return self._process_commands(data)
 
