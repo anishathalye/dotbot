@@ -6,5 +6,7 @@ python:
   - "3.4"
   - "3.5"
 
+sudo: false
+
 script:
   - ./test/test_travis
