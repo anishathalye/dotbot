@@ -233,7 +233,7 @@ Do you have a feature request, bug report, or patch? Great! See
 License
 -------
 
-Copyright (c) 2014-2015 Anish Athalye. Released under the MIT License. See
+Copyright (c) 2014-2016 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [init-dotfiles]: https://github.com/Aviator45003/init-dotfiles
