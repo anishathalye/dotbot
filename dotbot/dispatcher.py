@@ -1,5 +1,5 @@
 import os
-from .executor import Executor
+from .plugin import Plugin
 from .messenger import Messenger
 
 class Dispatcher(object):
@@ -37,7 +37,7 @@ class Dispatcher(object):
 
     def _load_plugins(self):
         self._plugins = [plugin(self._base_directory)
-            for plugin in Executor.__subclasses__()]
+            for plugin in Plugin.__subclasses__()]
 
 class DispatchError(Exception):
     pass

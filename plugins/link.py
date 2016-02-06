@@ -1,7 +1,6 @@
-import os, shutil
-from . import Executor
+import os, shutil, dotbot
 
-class Linker(Executor):
+class Link(dotbot.Plugin):
     '''
     Symbolically links dotfiles.
     '''
@@ -13,7 +12,7 @@ class Linker(Executor):
 
     def handle(self, directive, data):
         if directive != self._directive:
-            raise ValueError('Linker cannot handle directive %s' % directive)
+            raise ValueError('Link cannot handle directive %s' % directive)
         return self._process_links(data)
 
     def _process_links(self, links):

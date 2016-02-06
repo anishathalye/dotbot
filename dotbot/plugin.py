@@ -1,6 +1,6 @@
-from ..messenger import Messenger
+from .messenger import Messenger
 
-class Executor(object):
+class Plugin(object):
     '''
     Abstract base class for commands that process directives.
     '''
@@ -11,7 +11,7 @@ class Executor(object):
 
     def can_handle(self, directive):
         '''
-        Returns true if the Executor can handle the directive.
+        Returns true if the Plugin can handle the directive.
         '''
         raise NotImplementedError
 
@@ -19,6 +19,6 @@ class Executor(object):
         '''
         Executes the directive.
 
-        Returns true if the Executor successfully handled the directive.
+        Returns true if the Plugin successfully handled the directive.
         '''
         raise NotImplementedError
