@@ -122,7 +122,7 @@ Configuration
 Dotbot uses YAML or JSON formatted configuration files to let you specify how
 to set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
 folders, execute [shell](#shell) commands, and [clean](#clean) directories of
-broken symbolic links.
+broken symbolic links. Dotbot also supports user plugins for custom commands.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
@@ -223,6 +223,21 @@ Clean commands are specified as an array of directories to be cleaned.
 ```yaml
 - clean: ['~']
 ```
+
+### Plugins
+
+Dotbot also supports custom directives implemented by plugins. Plugins are
+implemented as subclasses of `dotbot.Plugin`, so they must implement
+`can_handle()` and `handle()`. The `can_handle()` method should return `True`
+if the plugin can handle an action with the given name. The `handle()` method
+should do something and return whether or not it completed successfully.
+
+All built-in Dotbot directives are written as plugins that are loaded by
+default, so those can be used as a reference when writing custom plugins.
+
+Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
+either absolute paths or paths relative to the base directory. It is
+recommended that these options are added directly to the `install` script.
 
 Contributing
 ------------
