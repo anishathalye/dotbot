@@ -83,7 +83,7 @@ The conventional name for the configuration file is `install.conf.yaml`.
 - link:
     ~/.dotfiles: ''
     ~/.tmux.conf: tmux.conf
-    ~/.vim: vim/
+    ~/.vim: vim
     ~/.vimrc: vimrc
 
 - shell:
@@ -104,7 +104,7 @@ The conventional name for this file is `install.conf.json`.
         "link": {
             "~/.dotfiles": "",
             "~/.tmux.conf": "tmux.conf",
-            "~/.vim": "vim/",
+            "~/.vim": "vim",
             "~/.vimrc": "vimrc"
         }
     },
@@ -147,7 +147,7 @@ files if necessary. Environment variables in paths are automatically expanded.
 
 Link commands are specified as a dictionary mapping targets to source
 locations. Source locations are specified relative to the base directory (that
-is specified when running the installer). Source directory names should contain
+is specified when running the installer). Directory names should *not* contain
 a trailing "/" character.
 
 Link commands support an (optional) extended configuration. In this type of
@@ -155,8 +155,9 @@ configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries. These dictionaries map `path` to
 the source path, specify `create` as `true` if the parent directory should be
 created if necessary, specify `relink` as `true` if incorrect symbolic links
-should be automatically overwritten, and specify `force` as `true` if the file
-or directory should be forcibly linked.
+should be automatically overwritten, specify `force` as `true` if the file or
+directory should be forcibly linked, and specify `relative` as `true` if the
+symbolic link should have a relative path.
 
 #### Example
 
@@ -164,8 +165,8 @@ or directory should be forcibly linked.
 - link:
     ~/.config/terminator:
       create: true
-      path: config/terminator/
-    ~/.vim: vim/
+      path: config/terminator
+    ~/.vim: vim
     ~/.vimrc:
       relink: true
       path: vimrc

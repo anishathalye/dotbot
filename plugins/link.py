@@ -23,6 +23,7 @@ class Link(dotbot.Plugin):
             if isinstance(source, dict):
                 # extended config
                 path = source['path']
+                relative = source.get('relative', False)
                 force = source.get('force', False)
                 relink = source.get('relink', False)
                 create = source.get('create', False)
@@ -33,8 +34,9 @@ class Link(dotbot.Plugin):
                 elif relink:
                     success &= self._delete(path, destination, force=False)
             else:
+                relative = False
                 path = source
-            success &= self._link(path, destination)
+            success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
         else:
@@ -101,7 +103,7 @@ class Link(dotbot.Plugin):
                     self._log.lowinfo('Removing %s' % path)
         return success
 
-    def _link(self, source, link_name):
+    def _link(self, source, link_name, relative):
         '''
         Links link_name to source.
 
@@ -115,7 +117,11 @@ class Link(dotbot.Plugin):
                 (link_name, self._link_destination(link_name)))
         elif not self._exists(link_name) and self._exists(source):
             try:
-                os.symlink(source, os.path.expanduser(link_name))
+                destination = os.path.expanduser(link_name)
+                if relative:
+                    destination_dir = os.path.dirname(destination)
+                    source = os.path.relpath(source, destination_dir)
+                os.symlink(source, destination)
             except OSError:
                 self._log.warning('Linking failed %s -> %s' % (link_name, source))
             else:
