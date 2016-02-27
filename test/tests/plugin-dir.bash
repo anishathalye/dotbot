@@ -11,7 +11,7 @@ class Test(dotbot.Plugin):
     def can_handle(self, directive):
         return directive == "test"
 
-    def handle(self, directive, data):
+    def handle(self, directive, data, defaults):
         with open(os.path.expanduser("~/flag"), "w") as f:
             f.write("it works")
         return True

@@ -10,13 +10,12 @@ class Shell(dotbot.Plugin):
     def can_handle(self, directive):
         return directive == self._directive
 
-    def handle(self, directive, data):
+    def handle(self, directive, data, defaults):
         if directive != self._directive:
-            raise ValueError('Shell cannot handle directive %s' %
-                directive)
-        return self._process_commands(data)
+            raise ValueError('Shell cannot handle directive %s' % directive)
+        return self._process_commands(data, defaults)
 
-    def _process_commands(self, data):
+    def _process_commands(self, data, defaults):
         success = True
         with open(os.devnull, 'w') as devnull:
             for item in data:
@@ -24,11 +23,11 @@ class Shell(dotbot.Plugin):
                 if isinstance(item, dict):
                     cmd = item['command']
                     msg = item.get('description', None)
-                    if item.get('stdin', False) is True:
+                    if item.get('stdin', defaults.get('stdin', False)) is True:
                         stdin = None
-                    if item.get('stdout', False) is True:
+                    if item.get('stdout', defaults.get('stdout', False)) is True:
                         stdout = None
-                    if item.get('stderr', False) is True:
+                    if item.get('stderr', defaults.get('stderr', False)) is True:
                         stderr = None
                 elif isinstance(item, list):
                     cmd = item[0]
@@ -41,7 +40,7 @@ class Shell(dotbot.Plugin):
                 else:
                     self._log.lowinfo('%s [%s]' % (msg, cmd))
                 ret = subprocess.call(cmd, shell=True, stdin=stdin, stdout=stdout,
-                    stderr=stderr, cwd=self._base_directory)
+                                      stderr=stderr, cwd=self._base_directory)
                 if ret != 0:
                     success = False
                     self._log.warning('Command [%s] failed' % cmd)

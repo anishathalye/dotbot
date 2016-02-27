@@ -15,7 +15,7 @@ class Plugin(object):
         '''
         raise NotImplementedError
 
-    def handle(self, directive, data):
+    def handle(self, directive, data, defaults):
         '''
         Executes the directive.
 

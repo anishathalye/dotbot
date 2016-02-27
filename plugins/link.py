@@ -10,12 +10,12 @@ class Link(dotbot.Plugin):
     def can_handle(self, directive):
         return directive == self._directive
 
-    def handle(self, directive, data):
+    def handle(self, directive, data, defaults):
         if directive != self._directive:
             raise ValueError('Link cannot handle directive %s' % directive)
-        return self._process_links(data)
+        return self._process_links(data, defaults)
 
-    def _process_links(self, links):
+    def _process_links(self, links, defaults):
         success = True
         for destination, source in links.items():
             source = os.path.expandvars(source)
@@ -23,10 +23,10 @@ class Link(dotbot.Plugin):
             if isinstance(source, dict):
                 # extended config
                 path = source['path']
-                relative = source.get('relative', False)
-                force = source.get('force', False)
-                relink = source.get('relink', False)
-                create = source.get('create', False)
+                relative = source.get('relative', defaults.get('relative', False))
+                force = source.get('force', defaults.get('force', False))
+                relink = source.get('relink', defaults.get('relink', False))
+                create = source.get('create', defaults.get('create', False))
                 if create:
                     success &= self._create(destination)
                 if force:
