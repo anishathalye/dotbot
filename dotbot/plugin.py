@@ -1,12 +1,13 @@
 from .messenger import Messenger
+from .context import Context
 
 class Plugin(object):
     '''
     Abstract base class for commands that process directives.
     '''
 
-    def __init__(self, base_directory):
-        self._base_directory = base_directory
+    def __init__(self, context):
+        self._context = context
         self._log = Messenger()
 
     def can_handle(self, directive):

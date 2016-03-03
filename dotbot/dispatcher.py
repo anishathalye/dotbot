@@ -1,26 +1,30 @@
 import os
 from .plugin import Plugin
 from .messenger import Messenger
+from .context import Context
 
 class Dispatcher(object):
     def __init__(self, base_directory):
         self._log = Messenger()
-        self._set_base_directory(base_directory)
+        self._setup_context(base_directory)
         self._load_plugins()
 
-    def _set_base_directory(self, base_directory):
+    def _setup_context(self, base_directory):
         path = os.path.abspath(os.path.realpath(
             os.path.expanduser(base_directory)))
-        if os.path.exists(path):
-            self._base_directory = path
-        else:
+        if not os.path.exists(path):
             raise DispatchError('Nonexistent base directory')
+        self._context = Context(path)
 
     def dispatch(self, tasks):
         success = True
         for task in tasks:
             for action in task:
                 handled = False
+                if action == 'defaults':
+                    self._context.set_defaults(task[action]) # replace, not update
+                    handled = True
+                    # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
                         try:
@@ -36,7 +40,7 @@ class Dispatcher(object):
         return success
 
     def _load_plugins(self):
-        self._plugins = [plugin(self._base_directory)
+        self._plugins = [plugin(self._context)
             for plugin in Plugin.__subclasses__()]
 
 class DispatchError(Exception):

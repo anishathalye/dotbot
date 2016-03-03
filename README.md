@@ -78,6 +78,10 @@ Here's an example of a complete configuration.
 The conventional name for the configuration file is `install.conf.yaml`.
 
 ```yaml
+- defaults:
+    link:
+      relink: true
+
 - clean: ['~']
 
 - link:
@@ -97,6 +101,13 @@ The conventional name for this file is `install.conf.json`.
 
 ```json
 [
+    {
+        "defaults": {
+            "link": {
+                "relink": true
+            }
+        }
+    },
     {
         "clean": ["~"]
     },
@@ -223,6 +234,30 @@ Clean commands are specified as an array of directories to be cleaned.
 
 ```yaml
 - clean: ['~']
+```
+
+### Defaults
+
+Default options for plugins can be specified so that options don't have to be
+repeated many times. This can be very useful to use with the link command, for
+example.
+
+Defaults apply to all commands that follow setting the defaults. Defaults can
+be set multiple times; each change replaces the defaults with a new set of
+options.
+
+#### Format
+
+Defaults are specified as a dictionary mapping action names to settings, which
+are dictionaries from option names to values.
+
+#### Example
+
+```yaml
+- defaults:
+    link:
+      create: true
+      relink: true
 ```
 
 ### Plugins

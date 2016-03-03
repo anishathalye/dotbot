@@ -36,7 +36,7 @@ class Clean(dotbot.Plugin):
         for item in os.listdir(os.path.expanduser(target)):
             path = os.path.join(os.path.expanduser(target), item)
             if not os.path.exists(path) and os.path.islink(path):
-                if self._in_directory(path, self._base_directory):
+                if self._in_directory(path, self._context.base_directory()):
                     self._log.lowinfo('Removing invalid link %s -> %s' %
                         (path, os.path.join(os.path.dirname(path), os.readlink(path))))
                     os.remove(path)

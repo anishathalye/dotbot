@@ -17,25 +17,27 @@ class Link(dotbot.Plugin):
 
     def _process_links(self, links):
         success = True
+        defaults = self._context.defaults().get('link', {})
         for destination, source in links.items():
             source = os.path.expandvars(source)
             destination = os.path.expandvars(destination)
+            relative = defaults.get('relative', False)
+            force = defaults.get('force', False)
+            relink = defaults.get('relink', False)
+            create = defaults.get('create', False)
             if isinstance(source, dict):
                 # extended config
+                relative = source.get('relative', relative)
+                force = source.get('force', force)
+                relink = source.get('relink', relink)
+                create = source.get('create', create)
                 path = source['path']
-                relative = source.get('relative', False)
-                force = source.get('force', False)
-                relink = source.get('relink', False)
-                create = source.get('create', False)
-                if create:
-                    success &= self._create(destination)
-                if force:
-                    success &= self._delete(path, destination, force=True)
-                elif relink:
-                    success &= self._delete(path, destination, force=False)
             else:
-                relative = False
                 path = source
+            if create:
+                success &= self._create(destination)
+            if force or relink:
+                success &= self._delete(path, destination, force=force)
             success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
@@ -79,7 +81,7 @@ class Link(dotbot.Plugin):
 
     def _delete(self, source, path, force):
         success = True
-        source = os.path.join(self._base_directory, source)
+        source = os.path.join(self._context.base_directory(), source)
         if ((self._is_link(path) and self._link_destination(path) != source) or
                 (self._exists(path) and not self._is_link(path))):
             fullpath = os.path.expanduser(path)
@@ -110,7 +112,7 @@ class Link(dotbot.Plugin):
         Returns true if successfully linked files.
         '''
         success = False
-        source = os.path.join(self._base_directory, source)
+        source = os.path.join(self._context.base_directory(), source)
         if (not self._exists(link_name) and self._is_link(link_name) and
                 self._link_destination(link_name) != source):
             self._log.warning('Invalid link %s -> %s' %
