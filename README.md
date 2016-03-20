@@ -133,7 +133,8 @@ Configuration
 Dotbot uses YAML or JSON formatted configuration files to let you specify how
 to set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
 folders, execute [shell](#shell) commands, and [clean](#clean) directories of
-broken symbolic links. Dotbot also supports user plugins for custom commands.
+broken symbolic links. Dotbot also supports user [plugins](#plugins) for custom
+commands.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
@@ -275,6 +276,12 @@ Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
 either absolute paths or paths relative to the base directory. It is
 recommended that these options are added directly to the `install` script.
 
+Wiki
+----
+
+Check out the [Dotbot wiki][wiki] for more information, tips and tricks,
+user-contributed plugins, and more.
+
 Contributing
 ------------
 
@@ -291,5 +298,6 @@ Copyright (c) 2014-2016 Anish Athalye. Released under the MIT License. See
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotfiles_template#inspiration
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
+[wiki]: https://github.com/anishathalye/dotbot/wiki
 [contributing]: CONTRIBUTING.md
 [license]: LICENSE.md
