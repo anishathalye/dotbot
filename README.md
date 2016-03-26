@@ -294,7 +294,7 @@ License
 Copyright (c) 2014-2016 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
-[init-dotfiles]: https://github.com/Aviator45003/init-dotfiles
+[init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotfiles_template#inspiration
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
