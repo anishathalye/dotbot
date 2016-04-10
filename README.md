@@ -296,7 +296,7 @@ Copyright (c) 2014-2016 Anish Athalye. Released under the MIT License. See
 
 [init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
-[inspiration]: https://github.com/anishathalye/dotfiles_template#inspiration
+[inspiration]: https://github.com/anishathalye/dotbot/wiki/List-of-Dotbot-Users
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
 [wiki]: https://github.com/anishathalye/dotbot/wiki
 [contributing]: CONTRIBUTING.md
