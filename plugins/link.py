@@ -19,7 +19,6 @@ class Link(dotbot.Plugin):
         success = True
         defaults = self._context.defaults().get('link', {})
         for destination, source in links.items():
-            source = os.path.expandvars(source)
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
             force = defaults.get('force', False)
@@ -31,9 +30,9 @@ class Link(dotbot.Plugin):
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
-                path = source['path']
+                path = os.path.expandvars(source['path'])
             else:
-                path = source
+                path = os.path.expandvars(source)
             if create:
                 success &= self._create(destination)
             if force or relink:
