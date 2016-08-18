@@ -30,9 +30,10 @@ class Link(dotbot.Plugin):
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
-                path = os.path.expandvars(source['path'])
+                path = source['path']
             else:
-                path = os.path.expandvars(source)
+                path = source
+            path = os.path.expandvars(os.path.expanduser(path))
             if create:
                 success &= self._create(destination)
             if force or relink:
