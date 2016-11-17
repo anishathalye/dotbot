@@ -37,7 +37,8 @@ class Link(dotbot.Plugin):
             if create:
                 success &= self._create(destination)
             if force or relink:
-                success &= self._delete(path, destination, relative, force)
+                if self._exists(path):
+                    success &= self._delete(path, destination, relative, force)
             success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
