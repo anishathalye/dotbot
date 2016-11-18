@@ -189,6 +189,47 @@ symbolic link should have a relative path.
       path: zshrc
 ```
 
+If the source location is omitted or NULL, dotbot will use the destination instead, without a leading `.` if present. This makes the following three config files equivalent:
+
+```yaml
+- link:
+    ~/bin/ack: ack
+    ~/.vim: vim
+    ~/.vimrc:
+      relink: true
+      path: vimrc
+    ~/.zshrc:
+      force: true
+      path: zshrc
+```
+
+```yaml
+- link:
+    ~/bin/ack:
+    ~/.vim:
+    ~/.vimrc:
+      relink: true
+    ~/.zshrc:
+      force: true
+```
+
+```json
+[
+  {
+    "link": {
+      "~/bin/ack": null,
+      "~/.vim": null,
+      "~/.vimrc": {
+        "relink": true
+      },
+      "~/.zshrc": {
+        "force": true
+      }
+    }
+  }
+]
+```
+
 ### Shell
 
 Shell commands specify shell commands to be run. Shell commands are run in the
