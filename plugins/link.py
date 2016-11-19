@@ -37,11 +37,15 @@ class Link(dotbot.Plugin):
             else:
                 path = source
             path = os.path.expandvars(os.path.expanduser(path))
+            if not self._exists(path):
+                success = False
+                self._log.warning('Skipping nonexistent target "%s" -> "%s"' %
+                    (destination, path))
+                continue
             if create:
                 success &= self._create(destination)
             if force or relink:
-                if self._exists(path):
-                    success &= self._delete(path, destination, relative, force)
+                success &= self._delete(path, destination, relative, force)
             success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
