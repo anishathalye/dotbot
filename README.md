@@ -151,6 +151,8 @@ do not have a defined ordering.
 When writing nested constructs, keep in mind that YAML is whitespace-sensitive.
 Following the formatting used in the examples is a good idea.
 
+Also, note that `~` in YAML is the same as `null` in JSON. If you want a single character string containing a tilde, make sure to enclose it in quotes: `'~'`
+
 ### Link
 
 Link commands specify how files and directories should be symbolically linked.
