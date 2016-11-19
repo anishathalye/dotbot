@@ -1,4 +1,7 @@
-import os, shutil, dotbot
+import os
+import shutil
+import dotbot
+
 
 class Link(dotbot.Plugin):
     '''
