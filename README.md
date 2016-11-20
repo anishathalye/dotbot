@@ -189,7 +189,9 @@ symbolic link should have a relative path.
       path: zshrc
 ```
 
-If the source location is omitted or NULL, dotbot will use the destination instead, without a leading `.` if present. This makes the following three config files equivalent:
+If the source location is omitted or set to `null`, Dotbot will use the
+basename of the destination, with a leading `.` stripped if present. This makes
+the following three config files equivalent:
 
 ```yaml
 - link:

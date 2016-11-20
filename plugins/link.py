@@ -47,14 +47,14 @@ class Link(dotbot.Plugin):
         return success
 
     def _default_source(self, destination, source):
-      if source == None:
-          basename = os.path.basename(destination)
-          if basename.startswith('.'):
-            return basename[1:]
-          else:
-            return basename
-      else:
-          return source
+        if source is None:
+            basename = os.path.basename(destination)
+            if basename.startswith('.'):
+                return basename[1:]
+            else:
+                return basename
+        else:
+            return source
 
     def _is_link(self, path):
         '''
