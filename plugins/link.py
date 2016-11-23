@@ -33,9 +33,9 @@ class Link(dotbot.Plugin):
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
-                path = source['path']
+                path = self._default_source(destination, source.get('path'))
             else:
-                path = source
+                path = self._default_source(destination, source)
             path = os.path.expandvars(os.path.expanduser(path))
             if not self._exists(os.path.join(self._context.base_directory(), path)):
                 success = False
@@ -52,6 +52,16 @@ class Link(dotbot.Plugin):
         else:
             self._log.error('Some links were not successfully set up')
         return success
+
+    def _default_source(self, destination, source):
+        if source is None:
+            basename = os.path.basename(destination)
+            if basename.startswith('.'):
+                return basename[1:]
+            else:
+                return basename
+        else:
+            return source
 
     def _is_link(self, path):
         '''
