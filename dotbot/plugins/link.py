@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import sys
+import errno
 
 from ..plugin import Plugin
 from ..util import shell_command
@@ -119,6 +120,28 @@ class Link(Plugin):
         if ret != 0:
             self._log.debug("Test '%s' returned false" % command)
         return ret == 0
+
+    def _move(self, link_name, path):
+        success = True
+        source = os.path.expanduser(link_name)
+        destination = os.path.join(self._context.base_directory(), path)
+        if os.path.isdir(source):
+            shutil.copytree(source, destination)
+            shutil.rmtree(source, ignore_errors=True)
+        elif os.path.isfile(source):
+            try:
+                os.makedirs(os.path.split(destination)[0])
+            except OSError as exception:
+                if exception.errno != errno.EEXIST:
+                    success = False
+                    # TODO: check what is eerno.EEXIST and replace above with pass if relevant
+            shutil.copy(source, destination)
+            os.unlink(source)
+        else:
+            self._log.warning("Config file missing %s" % source)
+            return False
+        self._log.info("Moved existing config %s" % source)
+        return success
 
     def _default_source(self, destination, source):
         if source is None:
