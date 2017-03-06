@@ -339,7 +339,7 @@ Do you have a feature request, bug report, or patch? Great! See
 License
 -------
 
-Copyright (c) 2014-2016 Anish Athalye. Released under the MIT License. See
+Copyright (c) 2014-2017 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
