@@ -13,5 +13,8 @@ indent_size = 4
 [*.bash]
 indent_size = 4
 
+[*.yml]
+indent_size = 2
+
 [*.md]
 trim_trailing_whitespace = false
