@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+set -e
+
+DEBUG=false
+# set -x
+# set -v
+
+
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+cd $BASE_DIR
+. "${BASE_DIR}/driver-lib.bash"
+
+start="$(date +%s)"
+
+CONTAINER="dotbot_test"
+
+system_check_docker () {
+  if [[ ! "$(which docker)" ]]; then
+    return 1
+  fi
+}
+
+container_command_remove () {
+  docker rm -f ${CONTAINER} > /dev/null 2>&1
+}
+
+container_command_run () {
+  docker run \
+  -v $PWD/../:/dotbot \
+  -e USE_VAGRANT='false' \
+  -e DEBUG="${DEBUG:-false}" \
+  --name "${CONTAINER}" \
+  -d "python:${1}" \
+  tail -f /dev/null \
+  > /dev/null 2>&1
+}
+
+container_execute () {
+  docker exec $CONTAINER /bin/bash -c "${1}"
+}
+
+die() {
+    >&2 echo $@
+    >&2 echo "Aborting..."
+    return 1
+}
+
+docker_start_container () {
+  IMAGE_TAG="${1}"
+  if [[ $(docker ps -q -f name=${CONTAINER}) ]]; then
+      container_command_remove
+  fi
+  system_check_docker || die "Could not find docker binary"
+  container_command_run "${IMAGE_TAG}" || die "Could not find python image with tag: ${IMAGE_TAG}"
+}
+
+
+while [[ $# > 1 ]]
+do
+    key="${1}"
+    case $key in
+        -v|--version)
+            VERSION="${2}"
+            shift && shift
+            ;;
+        *)
+            # unknown option
+            break
+            ;;
+    esac
+done
+
+initialize () {
+    echo "Initializing"
+    docker_start_container "${2}"
+    tests_run=0
+    tests_passed=0
+    tests_failed=0
+    tests_total="${1}"
+    local plural="" && [ "${tests_total}" -gt 1 ] && plural="s"
+    printf -- "Running %d test%s...\n\n" "${tests_total}" "${plural}"
+}
+
+run_test() {
+    tests_run=$((tests_run + 1))
+    printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
+    docker_start_container "${2}"
+    if container_execute "cd /dotbot/test/tests && bash ${1}" 2>/dev/null; then
+        pass
+    else
+        fail
+    fi
+}
+
+VERSION="${VERSION:-2.7.9}"
+
+declare -a tests=()
+
+if [ $# -eq 0 ]; then
+    while read file; do
+        tests+=("${file}")
+    done < <(find ${BASE_DIR}/tests -type f -name '*.bash')
+else
+    tests=("$@")
+fi
+
+initialize "${#tests[@]}" "${VERSION}"
+
+
+for file in "${tests[@]}"; do
+    run_test "$(basename "${file}")" "${VERSION}"
+done
+
+container_command_remove
+
+if report; then
+    ret=0
+else
+    ret=1
+fi
+
+echo "(tests run in $(($(date +%s) - start)) seconds)"
+exit ${ret}
