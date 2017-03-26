@@ -273,16 +273,26 @@ command itself.
 
 Clean commands specify directories that should be checked for dead symbolic
 links. These dead links are removed automatically. Only dead links that point
-to the dotfiles directory are removed.
+to the dotfiles directory are removed unless the `force` option is set to
+`true`.
 
 #### Format
 
 Clean commands are specified as an array of directories to be cleaned.
 
+Clean commands support an extended configuration syntax. In this type of
+configuration, commands are specified as directory paths mapping to options. If
+the `force` option is set to `true`, dead links are removed even if they don't
+point to a file inside the dotfiles directory.
+
 #### Example
 
 ```yaml
 - clean: ['~']
+
+- clean:
+    ~/.config:
+      force: true
 ```
 
 ### Defaults
