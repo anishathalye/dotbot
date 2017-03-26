@@ -34,7 +34,7 @@ travis_initialize() {
 travis_cleanup() {
     # Remove all dotfiles installed since the start, ignoring the main
     # dotfiles directory, and the dotbot source directory
-    find ~ -mindepth 1 -readable -newermt "${date_stamp}" \
+    find ~ -mindepth 1 -newermt "${date_stamp}" \
         -not \( -path ~ -o -path "${BASEDIR}/*" \
                 -o -path ~/dotfiles \) \
         -exec rm -rf {} +
