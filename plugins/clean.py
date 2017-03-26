@@ -19,7 +19,7 @@ class Clean(dotbot.Plugin):
         success = True
         defaults = self._context.defaults().get(self._directive, {})
         force = defaults.get('force', False)
-        for target in self._dispatch_targets(targets):
+        for target in targets:
             if isinstance(targets, dict):
                 force = targets[target].get('force', force)
             success &= self._clean(target, force)
@@ -31,8 +31,8 @@ class Clean(dotbot.Plugin):
 
     def _clean(self, target, force):
         '''
-        Cleans all the broken symbolic links in target if that point to
-        a subdirectory of the base directory or forced to clean.
+        Cleans all the broken symbolic links in target if they point to
+        a subdirectory of the base directory or if forced to clean.
         '''
         if not os.path.isdir(os.path.expanduser(target)):
             self._log.debug('Ignoring nonexistent directory %s' % target)
@@ -45,18 +45,8 @@ class Clean(dotbot.Plugin):
                     self._log.lowinfo('Removing invalid link %s -> %s' % (path, points_at))
                     os.remove(path)
                 else:
-                    self._log.lowinfo('Link %s -> %s not removed (force=%s). '\
-                                      'You can remove it manually.' % (path, points_at, force))
+                    self._log.lowinfo('Link %s -> %s not removed.' % (path, points_at))
         return True
-
-    def _dispatch_targets(self, targets):
-        '''
-        Returns list of targets to process.
-        '''
-        if isinstance(targets, list):
-            return targets
-        if isinstance(targets, dict):
-            return targets.keys()
 
     def _in_directory(self, path, directory):
         '''
