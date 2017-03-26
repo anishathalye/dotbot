@@ -17,18 +17,22 @@ class Clean(dotbot.Plugin):
 
     def _process_clean(self, targets):
         success = True
+        defaults = self._context.defaults().get(self._directive, {})
+        force = defaults.get('force', False)
         for target in targets:
-            success &= self._clean(target)
+            if isinstance(targets, dict):
+                force = targets[target].get('force', force)
+            success &= self._clean(target, force)
         if success:
             self._log.info('All targets have been cleaned')
         else:
             self._log.error('Some targets were not successfully cleaned')
         return success
 
-    def _clean(self, target):
+    def _clean(self, target, force):
         '''
-        Cleans all the broken symbolic links in target that point to
-        a subdirectory of the base directory.
+        Cleans all the broken symbolic links in target if they point to
+        a subdirectory of the base directory or if forced to clean.
         '''
         if not os.path.isdir(os.path.expanduser(target)):
             self._log.debug('Ignoring nonexistent directory %s' % target)
@@ -36,10 +40,12 @@ class Clean(dotbot.Plugin):
         for item in os.listdir(os.path.expanduser(target)):
             path = os.path.join(os.path.expanduser(target), item)
             if not os.path.exists(path) and os.path.islink(path):
-                if self._in_directory(path, self._context.base_directory()):
-                    self._log.lowinfo('Removing invalid link %s -> %s' %
-                        (path, os.path.join(os.path.dirname(path), os.readlink(path))))
+                points_at = os.path.join(os.path.dirname(path), os.readlink(path))
+                if self._in_directory(path, self._context.base_directory()) or force:
+                    self._log.lowinfo('Removing invalid link %s -> %s' % (path, points_at))
                     os.remove(path)
+                else:
+                    self._log.lowinfo('Link %s -> %s not removed.' % (path, points_at))
         return True
 
     def _in_directory(self, path, directory):

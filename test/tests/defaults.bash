@@ -4,7 +4,8 @@ test_description='defaults setting works'
 test_expect_success 'setup' '
 echo "apple" > ${DOTFILES}/f &&
 echo "grape" > ~/f &&
-ln -s ~/f ~/.f
+ln -s ~/f ~/.f &&
+ln -s /nowhere ~/.g
 '
 
 test_expect_failure 'run-fail' '
@@ -31,4 +32,28 @@ EOF
 
 test_expect_success 'test' '
 grep "apple" ~/.f
+'
+
+test_expect_success 'run-fail' '
+run_dotbot <<EOF
+- clean: ["~"]
+EOF
+'
+
+test_expect_failure 'test-fail' '
+! test -h ~/.g
+'
+
+test_expect_success 'run' '
+run_dotbot <<EOF
+- defaults:
+    clean:
+      force: true
+
+- clean: ["~"]
+EOF
+'
+
+test_expect_success 'test' '
+! test -h ~/.g
 '
