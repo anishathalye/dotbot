@@ -6,7 +6,7 @@ echo "apple" > ${DOTFILES}/f &&
 echo "grape" > ~/.f
 '
 
-test_expect_success 'run1' '
+test_expect_success 'run' '
 run_dotbot <<EOF
 - link:
     ~/.folder/f:

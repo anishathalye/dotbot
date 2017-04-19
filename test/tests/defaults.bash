@@ -34,17 +34,17 @@ test_expect_success 'test' '
 grep "apple" ~/.f
 '
 
-test_expect_success 'run-fail' '
+test_expect_success 'run-fail 2' '
 run_dotbot <<EOF
 - clean: ["~"]
 EOF
 '
 
-test_expect_failure 'test-fail' '
+test_expect_failure 'test-fail 2' '
 ! test -h ~/.g
 '
 
-test_expect_success 'run' '
+test_expect_success 'run 2' '
 run_dotbot <<EOF
 - defaults:
     clean:
@@ -54,6 +54,6 @@ run_dotbot <<EOF
 EOF
 '
 
-test_expect_success 'test' '
+test_expect_success 'test 2' '
 ! test -h ~/.g
 '
