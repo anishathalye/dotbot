@@ -31,6 +31,12 @@ if sys.version_info[0] >= 3:
 else:
     inject('pyyaml/lib')
 
+# Support ANSI sequences under windows
+if os.name == "nt":
+    inject('colorama')
+    import colorama
+    colorama.init()
+
 if os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'dotbot')):
     if PROJECT_ROOT_DIRECTORY not in sys.path:
         sys.path.insert(0, PROJECT_ROOT_DIRECTORY)

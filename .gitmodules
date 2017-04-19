@@ -2,3 +2,6 @@
 	path = lib/pyyaml
 	url = https://github.com/anishathalye/pyyaml
 	ignore = dirty
+[submodule "lib/colorama"]
+	path = lib/colorama
+	url = https://github.com/tartley/colorama.git
