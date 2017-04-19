@@ -70,8 +70,9 @@ editing the variables in the `install` script appropriately.
 Setting up Dotbot as a submodule or subrepo locks it on the current version.
 You can upgrade Dotbot at any point. If using a submodule, run `git submodule
 update --remote dotbot`, substituting `dotbot` with the path to the Dotbot
-submodule. If using a subrepo, run `git fetch && git checkout origin/master` in
-the Dotbot directory.
+submodule; be sure to commit your changes before running `./install`, otherwise
+the old version of Dotbot will be checked out by the install script. If using a
+subrepo, run `git fetch && git checkout origin/master` in the Dotbot directory.
 
 ### Full Example
 
