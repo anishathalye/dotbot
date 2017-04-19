@@ -89,8 +89,9 @@ class Link(dotbot.Plugin):
         if not self._exists(parent):
             try:
                 os.makedirs(parent)
-            except OSError:
+            except OSError as err:
                 self._log.warning('Failed to create directory %s' % parent)
+                self._log.debug('Error: %s.' % err.strerror)
                 success = False
             else:
                 self._log.lowinfo('Creating directory %s' % parent)
@@ -116,8 +117,9 @@ class Link(dotbot.Plugin):
                     else:
                         os.remove(fullpath)
                         removed = True
-            except OSError:
+            except OSError as err:
                 self._log.warning('Failed to remove %s' % path)
+                self._log.debug('Error: %s' % err.strerror)
                 success = False
             else:
                 if removed:
@@ -155,8 +157,9 @@ class Link(dotbot.Plugin):
         elif not self._exists(link_name) and self._exists(absolute_source):
             try:
                 os.symlink(source, destination)
-            except OSError:
+            except OSError as err:
                 self._log.warning('Linking failed %s -> %s' % (link_name, source))
+                self._log.debug('Error: %s' % err.strerror)
             else:
                 self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
                 success = True
