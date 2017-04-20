@@ -20,6 +20,9 @@ class Dispatcher(object):
         success = True
         for task in tasks:
             for action in task:
+                if action == 'meta':
+                    self._handle_metadata(task['meta'])
+                    continue
                 handled = False
                 if action == 'defaults':
                     self._context.set_defaults(task[action]) # replace, not update
@@ -42,6 +45,13 @@ class Dispatcher(object):
     def _load_plugins(self):
         self._plugins = [plugin(self._context)
             for plugin in Plugin.__subclasses__()]
+
+    def _handle_metadata(self, metadata):
+        print
+        if 'title' in metadata:
+            self._log.warning(metadata['title'])
+        if 'description' in metadata:
+            self._log.info(' ' + metadata['description'])
 
 class DispatchError(Exception):
     pass
