@@ -8,6 +8,19 @@ machine state. The tests are deterministic, and each test is run in a virtual
 machine with fresh state, ensuring that tests that modify system state are
 easily repeatable.
 
+Installing the Test environnement
+---------------------------------
+
+### Debian-based distributions
+
+- Install the requirements
+
+      # apt install ruby-dev vagrant
+
+- Install the [Sahara][sahara] Vagrant plugin
+
+      $ vagrant plugin install sahara
+
 Running the Tests
 -----------------
 
