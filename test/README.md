@@ -15,7 +15,7 @@ Installing the Test environnement
 
 - Install the requirements
 
-      # apt install ruby-dev vagrant
+      # apt install ruby-dev vagrant virtualbox
 
 - Install the [Sahara][sahara] Vagrant plugin
 
