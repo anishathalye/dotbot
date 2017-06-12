@@ -13,7 +13,7 @@ Installing the Test environnement
 
 ### Debian-based distributions
 
-- Install the requirements
+- Install the test requirements
 
 ```shell-session
 sudo apt install vagrant virtualbox
@@ -23,6 +23,12 @@ sudo apt install vagrant virtualbox
 
 ```shell-session
 vagrant plugin install sahara
+```
+
+- Install Dotbot dependencies
+
+```shell-session
+git submodule update --init --recursive
 ```
 
 Running the Tests
