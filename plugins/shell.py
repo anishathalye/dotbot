@@ -22,15 +22,21 @@ class Shell(dotbot.Plugin):
         with open(os.devnull, 'w') as devnull:
             for item in data:
                 stdin = stdout = stderr = devnull
+                if defaults.get('stdin', False) == True:
+                    stdin = None
+                if defaults.get('stdout', False) == True:
+                    stdout = None
+                if defaults.get('stderr', False) == True:
+                    stderr = None
                 if isinstance(item, dict):
                     cmd = item['command']
                     msg = item.get('description', None)
-                    if item.get('stdin', defaults.get('stdin', False)) is True:
-                        stdin = None
-                    if item.get('stdout', defaults.get('stdout', False)) is True:
-                        stdout = None
-                    if item.get('stderr', defaults.get('stderr', False)) is True:
-                        stderr = None
+                    if 'stdin' in item:
+                        stdin = None if item['stdin'] == True else devnull
+                    if 'stdout' in item:
+                        stdout = None if item['stdout'] == True else devnull
+                    if 'stderr' in item:
+                        stderr = None if item['stderr'] == True else devnull
                 elif isinstance(item, list):
                     cmd = item[0]
                     msg = item[1] if len(item) > 1 else None
