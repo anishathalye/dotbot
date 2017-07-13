@@ -1,7 +1,7 @@
 DEBUG=${DEBUG:-false}
 USE_VAGRANT=${USE_VAGRANT:-true}
 DOTBOT_EXEC=${DOTBOT_EXEC:-"/dotbot/bin/dotbot"}
-DOTFILES="/home/$(whoami)/dotfiles"
+DOTFILES="${HOME:-/home/$(whoami)}/dotfiles"
 INSTALL_CONF='install.conf.yaml'
 INSTALL_CONF_JSON='install.conf.json'
 
