@@ -265,6 +265,7 @@ command itself.
     command: read var && echo Your variable is $var
     stdin: true
     stdout: true
+    description: Reading and printing variable
   -
     command: read fail
     stderr: true
