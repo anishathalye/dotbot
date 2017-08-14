@@ -1,6 +1,7 @@
 import os
 import shutil
 import dotbot
+import filecmp
 
 
 class Link(dotbot.Plugin):
@@ -102,6 +103,9 @@ class Link(dotbot.Plugin):
         fullpath = os.path.expanduser(path)
         if relative:
             source = self._relative_path(source, fullpath)
+        if filecmp.cmp(source, fullpath)
+            self._log_lowinfo('Not changing unchanged file %s' %  path)
+            return success
         if ((self._is_link(path) and self._link_destination(path) != source) or
                 (self._exists(path) and not self._is_link(path))):
             removed = False
