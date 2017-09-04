@@ -30,7 +30,7 @@ class Shell(dotbot.Plugin):
                     stdout = None
                 if defaults.get('stderr', False) == True:
                     stderr = None
-                if defaults.get('suppressShellCmd', False) == True:
+                if defaults.get('quiet', False) == True:
                     suppress_shell_cmd = True
                 if isinstance(item, dict):
                     cmd = item['command']
@@ -41,8 +41,8 @@ class Shell(dotbot.Plugin):
                         stdout = None if item['stdout'] == True else devnull
                     if 'stderr' in item:
                         stderr = None if item['stderr'] == True else devnull
-                    if 'suppressShellCmd' in item:
-                        suppress_shell_cmd = True if item['suppressShellCmd'] == True else False
+                    if 'quiet' in item:
+                        suppress_shell_cmd = True if item['quiet'] == True else False
                 elif isinstance(item, list):
                     cmd = item[0]
                     msg = item[1] if len(item) > 1 else None
