@@ -18,12 +18,12 @@ class Shell(dotbot.Plugin):
 
     def _process_commands(self, data):
         success = True
-        suppress_shell_cmd = False
+        quiet_cmd = False
         defaults = self._context.defaults().get('shell', {})
         with open(os.devnull, 'w') as devnull:
             for item in data:
                 stdin = stdout = stderr = devnull
-                suppress_shell_cmd = suppress_shell_cmd = False
+                quiet_cmd = quiet_cmd = False
                 if defaults.get('stdin', False) == True:
                     stdin = None
                 if defaults.get('stdout', False) == True:
@@ -31,7 +31,7 @@ class Shell(dotbot.Plugin):
                 if defaults.get('stderr', False) == True:
                     stderr = None
                 if defaults.get('quiet', False) == True:
-                    suppress_shell_cmd = True
+                    quiet_cmd = True
                 if isinstance(item, dict):
                     cmd = item['command']
                     msg = item.get('description', None)
@@ -42,7 +42,7 @@ class Shell(dotbot.Plugin):
                     if 'stderr' in item:
                         stderr = None if item['stderr'] == True else devnull
                     if 'quiet' in item:
-                        suppress_shell_cmd = True if item['quiet'] == True else False
+                        quiet_cmd = True if item['quiet'] == True else False
                 elif isinstance(item, list):
                     cmd = item[0]
                     msg = item[1] if len(item) > 1 else None
@@ -52,7 +52,7 @@ class Shell(dotbot.Plugin):
                 if msg is None:
                     self._log.lowinfo(cmd)
                 else:
-                    if suppress_shell_cmd is False:
+                    if quiet_cmd is False:
                         self._log.lowinfo('%s [%s]' % (msg, cmd))
                     else:
                         self._log.lowinfo('%s' % (msg))
