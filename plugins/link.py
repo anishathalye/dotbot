@@ -63,13 +63,15 @@ class Link(dotbot.Plugin):
                         success &= self._delete(path, destination, relative, force)
                     success &= self._link(path, destination, relative)
                 else:
-                    self._log.lowinfo("Linking globbed items: " + str(glob_results))
+                    self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
                     glob_base = path[:glob_star_loc]
                     for glob_full_item in glob_results:
                         glob_item = glob_full_item[len(glob_base):]
                         glob_link_destination = destination + glob_item
                         if create:
                             success &= self._create(glob_link_destination)
+                        if force or relink:
+                            success &= self._delete(glob_full_item, glob_link_destination, relative, force)
                         success &= self._link(glob_full_item, glob_link_destination, relative)
             else:
                 if create:
