@@ -1,4 +1,5 @@
 import os
+import glob
 import shutil
 import dotbot
 
@@ -27,26 +28,60 @@ class Link(dotbot.Plugin):
             force = defaults.get('force', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
+            use_glob = defaults.get('use_glob', False)
             if isinstance(source, dict):
                 # extended config
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
+                use_glob = source.get('use_glob', use_glob)
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
             path = os.path.expandvars(os.path.expanduser(path))
-            if not self._exists(os.path.join(self._context.base_directory(), path)):
-                success = False
-                self._log.warning('Nonexistent target %s -> %s' %
-                    (destination, path))
-                continue
-            if create:
-                success &= self._create(destination)
-            if force or relink:
-                success &= self._delete(path, destination, relative, force)
-            success &= self._link(path, destination, relative)
+            if use_glob:
+                self._log.debug("Globbing with path: " + str(path))
+                glob_results = glob.glob(path)
+                if len(glob_results) is 0:
+                    self._log.warning("Globbing couldn't find anything matching " + str(path))
+                    success = False
+                    continue
+                glob_star_loc = path.find('*')
+                if glob_star_loc is -1 and destination[-1] is '/':
+                    self._log.error("Ambiguous action requested.")
+                    self._log.error("No wildcard in glob, directory use undefined: " +
+                        destination + " -> " + str(glob_results))
+                    self._log.warning("Did you want to link the directory or into it?")
+                    success = False
+                    continue
+                elif glob_star_loc is -1 and len(glob_results) is 1:
+                    # perform a normal link operation
+                    if create:
+                        success &= self._create(destination)
+                    if force or relink:
+                        success &= self._delete(path, destination, relative, force)
+                    success &= self._link(path, destination, relative)
+                else:
+                    self._log.lowinfo("Linking globbed items: " + str(glob_results))
+                    glob_base = path[:glob_star_loc]
+                    for glob_full_item in glob_results:
+                        glob_item = glob_full_item[len(glob_base):]
+                        glob_link_destination = destination + glob_item
+                        if create:
+                            success &= self._create(glob_link_destination)
+                        success &= self._link(glob_full_item, glob_link_destination, relative)
+            else:
+                if create:
+                    success &= self._create(destination)
+                if not self._exists(os.path.join(self._context.base_directory(), path)):
+                    success = False
+                    self._log.warning('Nonexistent target %s -> %s' %
+                        (destination, path))
+                    continue
+                if force or relink:
+                    success &= self._delete(path, destination, relative, force)
+                success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
         else:
@@ -87,6 +122,7 @@ class Link(dotbot.Plugin):
         success = True
         parent = os.path.abspath(os.path.join(os.path.expanduser(path), os.pardir))
         if not self._exists(parent):
+            self._log.debug("Try to create parent: " + str(parent))
             try:
                 os.makedirs(parent)
             except OSError:
