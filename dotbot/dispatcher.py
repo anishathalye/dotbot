@@ -43,6 +43,7 @@ class Dispatcher(object):
     def _load_plugins(self):
         self._plugins = [plugin(self._context)
             for plugin in Plugin.__subclasses__()]
+        self._log.debug("Found plugins: " + str(self._plugins))
 
 class DispatchError(Exception):
     pass

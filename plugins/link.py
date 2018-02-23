@@ -2,6 +2,8 @@ import os
 import glob
 import shutil
 import dotbot
+import subprocess
+import copy
 
 
 class Link(dotbot.Plugin):
@@ -217,3 +219,44 @@ class Link(dotbot.Plugin):
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
             success = True
         return success
+
+class Linkif(Link, dotbot.Plugin):
+    '''
+    Symbolically links dotfiles conditionally.
+    '''
+
+    _directive = 'linkif'
+    _config_key = 'if'
+
+    def handle(self, directive, data):
+        if directive != self._directive:
+            raise ValueError('LinkIf cannot handle directive %s' % directive)
+        success = True
+        data_filtered = copy.deepcopy(data)
+        for destination, config in data.items():
+            if isinstance(config, dict) and config[self._config_key] is not None:
+                commandsuccess = self._test_success(config[self._config_key])
+                if commandsuccess:
+                    del data_filtered[destination][self._config_key]
+                else:
+                    # remove the item from data
+                    del data_filtered[destination]
+            else:
+                self._log.error("Could not find valid conditional in linkif 'if'!")
+                success &= False
+
+        return self._process_links(data_filtered)
+
+    def _test_success(self, testcommand):
+        try:
+            osstdout = subprocess.check_output(
+                testcommand,
+                stderr=subprocess.STDOUT,
+                shell=True,
+                executable=os.environ.get("SHELL", "/bin/sh")
+            )
+        except subprocess.CalledProcessError as e:
+            # self._log.warning("Command failed: " + str(testcommand))
+            self._log.debug("Command returned "+str(e.returncode)+": \n" + str(testcommand))
+            return False
+        return True
