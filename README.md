@@ -40,7 +40,7 @@ If you're using Git, you can add Dotbot as a submodule:
 cd ~/.dotfiles # replace with the path to your dotfiles
 git init # initialize repository if needed
 git submodule add https://github.com/anishathalye/dotbot
-cp dotbot/tools/git-submodule/install .
+ln -s dotbot/tools/git-submodule/install install
 touch install.conf.yaml
 ```
 
@@ -52,7 +52,7 @@ hg init # initialize repository if needed
 echo "dotbot = [git]https://github.com/anishathalye/dotbot" > .hgsub
 hg add .hgsub
 git clone https://github.com/anishathalye/dotbot
-cp dotbot/tools/hg-subrepo/install .
+ln -s dotbot/tools/hg-subrepo/install install
 touch install.conf.yaml
 ```
 
