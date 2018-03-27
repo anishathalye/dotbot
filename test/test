@@ -24,7 +24,7 @@ do
             ;;
     esac
 done
-VERSION="${VERSION:-2.7.9}"
+VERSION="${VERSION:-3.6.4}"
 
 declare -a tests=()
 
