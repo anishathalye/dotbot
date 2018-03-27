@@ -31,6 +31,24 @@ vagrant plugin install sahara
 git submodule update --init --recursive
 ```
 
+### macOS
+
+- Install the test requirements
+    - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+    - [Vagrant](https://www.vagrantup.com/downloads.html)
+
+- Install the [Sahara][sahara] Vagrant plugin
+
+```bash
+vagrant plugin install sahara
+```
+
+- Install Dotbot dependencies
+
+```bash
+git submodule update --init --recursive
+```
+
 Running the Tests
 -----------------
 
