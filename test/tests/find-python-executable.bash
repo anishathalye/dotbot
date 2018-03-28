@@ -1,6 +1,10 @@
 test_description='can find python executable with different names'
 . '../test-lib.bash'
 
+if ${USE_VAGRANT}; then
+    DOTBOT_EXEC="/dotbot/bin/dotbot" # revert to calling it as a shell script
+fi
+
 # the test machine needs to have a binary named `python`
 test_expect_success 'setup' '
 mkdir ~/tmp_bin &&
@@ -26,7 +30,7 @@ test_expect_success 'setup 2' '
 touch ~/tmp_bin/python &&
 chmod +x ~/tmp_bin/python &&
 cat >> ~/tmp_bin/python <<EOF
-#!$HOME/tmp_bin/sh
+#!$HOME/tmp_bin/bash
 exec $(which python)
 EOF
 '
