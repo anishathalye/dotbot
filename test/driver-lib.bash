@@ -31,10 +31,6 @@ check_prereqs() {
         >&2 echo "vagrant vm must be running."
         return 1
     fi
-    if ! (vagrant plugin list | grep '^sahara\s\+') >/dev/null 2>&1; then
-        >&2 echo "vagrant plugin 'sahara' is not installed."
-        return 1
-    fi
 }
 
 until_success() {
@@ -56,23 +52,26 @@ wait_for_vagrant() {
     until_success vagrant ssh -c 'exit'
 }
 
-rollback() {
-    vagrant sandbox rollback >/dev/null 2>&1 &&
-        wait_for_vagrant &&
-        vagrant rsync >/dev/null 2>&1
+cleanup() {
+    vagrant ssh -c "
+        find . -not \\( \
+            -path './.pyenv' -o \
+            -path './.pyenv/*' -o \
+            -path './.bashrc' -o \
+            -path './.profile' -o \
+            -path './.ssh' -o \
+            -path './.ssh/*' \
+            \\) -delete" >/dev/null 2>&1
 }
 
 initialize() {
     echo "initializing."
-    vagrant sandbox on >/dev/null 2>&1
     if ! vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1; then
-        wait_for_vagrant && vagrant sandbox rollback >/dev/null 2>&1
-        wait_for_vagrant
         if ! vagrant ssh -c "pyenv install -s ${2} && pyenv local ${2}" >/dev/null 2>&1; then
             die "could not install python ${2}"
         fi
-        vagrant sandbox commit >/dev/null 2>&1
     fi
+    vagrant rsync >/dev/null 2>&1
     tests_run=0
     tests_passed=0
     tests_failed=0
@@ -96,7 +95,7 @@ fail() {
 run_test() {
     tests_run=$((tests_run + 1))
     printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
-    rollback || die "unable to rollback vm." # start with a clean slate
+    cleanup
     vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1
     if vagrant ssh -c "cd /dotbot/test/tests && bash ${1}" 2>/dev/null; then
         pass

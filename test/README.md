@@ -1,12 +1,8 @@
 Testing
 =======
 
-Dotbot testing code uses [Vagrant][vagrant] to run all tests inside a virtual
-machine to have tests be completely isolated from the host machine. The test
-driver relies on the [Sahara][sahara] plugin to snapshot and roll back virtual
-machine state. The tests are deterministic, and each test is run in a virtual
-machine with fresh state, ensuring that tests that modify system state are
-easily repeatable.
+Dotbot testing code uses [Vagrant] to run all tests inside a virtual machine to
+have tests be completely isolated from the host machine.
 
 Installing the Test environnement
 ---------------------------------
@@ -19,12 +15,6 @@ Installing the Test environnement
 sudo apt install vagrant virtualbox
 ```
 
-- Install the [Sahara][sahara] Vagrant plugin
-
-```bash
-vagrant plugin install sahara
-```
-
 - Install Dotbot dependencies
 
 ```bash
@@ -34,14 +24,8 @@ git submodule update --init --recursive
 ### macOS
 
 - Install the test requirements
-    - [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-    - [Vagrant](https://www.vagrantup.com/downloads.html)
-
-- Install the [Sahara][sahara] Vagrant plugin
-
-```bash
-vagrant plugin install sahara
-```
+    - [VirtualBox]
+    - [Vagrant]
 
 - Install Dotbot dependencies
 
@@ -64,5 +48,5 @@ Tests can be run with a specific Python version by running `./test --version
 When finished with testing, it is good to shut down the virtual machine by
 running `vagrant halt`.
 
-[vagrant]: https://www.vagrantup.com/
-[sahara]: https://github.com/jedi4ever/sahara
+[VirtualBox]: https://www.virtualbox.org/wiki/Downloads
+[Vagrant]: https://www.vagrantup.com/
