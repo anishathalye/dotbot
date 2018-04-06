@@ -28,14 +28,14 @@ class Link(dotbot.Plugin):
             force = defaults.get('force', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
-            use_glob = defaults.get('use_glob', False)
+            use_glob = defaults.get('glob', False)
             if isinstance(source, dict):
                 # extended config
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
-                use_glob = source.get('use_glob', use_glob)
+                use_glob = source.get('glob', use_glob)
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)

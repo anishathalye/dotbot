@@ -180,7 +180,7 @@ Available extended configuration parameters:
 | `relink` | Removes the old target if it's a symlink (default:false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
 | `relative` | Use a relative path when creating the symlink (default:false, absolute links) |
-| `use_glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
+| `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 
 #### Example
 
@@ -213,7 +213,7 @@ the following three config files equivalent:
       force: true
       path: zshrc
     ~/.config/:
-      use_glob: true
+      glob: true
       path: config/*
       relink: true
 ```
@@ -227,7 +227,7 @@ the following three config files equivalent:
     ~/.zshrc:
       force: true
     ~/.config/:
-      use_glob: true
+      glob: true
       path: config/*
       relink: true
 ```
@@ -245,7 +245,7 @@ the following three config files equivalent:
         "force": true
       },
       "~/.config/": {
-        "use_glob": true,
+        "glob": true,
         "path": "config/*",
         "relink": true
       }
