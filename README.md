@@ -165,17 +165,22 @@ files if necessary. Environment variables in paths are automatically expanded.
 
 Link commands are specified as a dictionary mapping targets to source
 locations. Source locations are specified relative to the base directory (that
-is specified when running the installer). Directory names should *not* contain
-a trailing "/" character.
+is specified when running the installer). If linking directories, *do not* include a trailing slash.
 
 Link commands support an (optional) extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
-mapped to extended configuration dictionaries. These dictionaries map `path` to
-the source path, specify `create` as `true` if the parent directory should be
-created if necessary, specify `relink` as `true` if incorrect symbolic links
-should be automatically overwritten, specify `force` as `true` if the file or
-directory should be forcibly linked, and specify `relative` as `true` if the
-symbolic link should have a relative path.
+mapped to extended configuration dictionaries.
+
+Available extended configuration parameters:
+
+| Link Option | Explanation |
+| -- | -- |
+| `path` | The target for the symlink, the same as in the shortcut syntax (default:null, automatic (see below)) |
+| `create` | When true, create parent directories to the link as needed. (default:false) |
+| `relink` | Removes the old target if it's a symlink (default:false) |
+| `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
+| `relative` | Use a relative path when creating the symlink (default:false, absolute links) |
+| `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 
 #### Example
 
@@ -207,6 +212,10 @@ the following three config files equivalent:
     ~/.zshrc:
       force: true
       path: zshrc
+    ~/.config/:
+      glob: true
+      path: config/*
+      relink: true
 ```
 
 ```yaml
@@ -217,6 +226,10 @@ the following three config files equivalent:
       relink: true
     ~/.zshrc:
       force: true
+    ~/.config/:
+      glob: true
+      path: config/*
+      relink: true
 ```
 
 ```json
@@ -230,6 +243,11 @@ the following three config files equivalent:
       },
       "~/.zshrc": {
         "force": true
+      },
+      "~/.config/": {
+        "glob": true,
+        "path": "config/*",
+        "relink": true
       }
     }
   }

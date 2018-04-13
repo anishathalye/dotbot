@@ -30,10 +30,11 @@ class Dispatcher(object):
                         try:
                             success &= plugin.handle(action, task[action])
                             handled = True
-                        except Exception:
+                        except Exception as err:
                             self._log.error(
                                 'An error was encountered while executing action %s' %
                                 action)
+                            self._log.debug(err)
                 if not handled:
                     success = False
                     self._log.error('Action %s not handled' % action)
