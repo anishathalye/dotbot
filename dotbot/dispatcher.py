@@ -34,7 +34,7 @@ class Dispatcher(object):
                             self._log.error(
                                 'An error was encountered while executing action %s' %
                                 action)
-                            self._log.debug(err)
+                            self._log.debug("Err: " + str(type(err)) + ": " + str(err))
                 if not handled:
                     success = False
                     self._log.error('Action %s not handled' % action)

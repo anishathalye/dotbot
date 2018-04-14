@@ -12,6 +12,7 @@ class Link(dotbot.Plugin):
     '''
 
     _directive = 'link'
+    _config_if_key = 'if'
 
     def can_handle(self, directive):
         return directive == self._directive
@@ -19,7 +20,19 @@ class Link(dotbot.Plugin):
     def handle(self, directive, data):
         if directive != self._directive:
             raise ValueError('Link cannot handle directive %s' % directive)
-        return self._process_links(data)
+        data_filtered = copy.deepcopy(data)
+        for destination, config in data_filtered.items():
+            if isinstance(config, dict) and self._config_if_key in config:
+                self._log.debug("testing conditional: %s" % config[self._config_if_key])
+                commandsuccess = self._test_success(config[self._config_if_key])
+                if commandsuccess:
+                    # command successful, treat as normal link
+                    del data_filtered[destination][self._config_if_key]
+                else:
+                    # remove the item from data, we aren't going to link it
+                    del data_filtered[destination]
+
+        return self._process_links(data_filtered)
 
     def _process_links(self, links):
         success = True
@@ -91,6 +104,20 @@ class Link(dotbot.Plugin):
         else:
             self._log.error('Some links were not successfully set up')
         return success
+
+    def _test_success(self, testcommand):
+        try:
+            osstdout = subprocess.check_output(
+                testcommand,
+                stderr=subprocess.STDOUT,
+                shell=True,
+                executable=os.environ.get("SHELL", "/bin/sh")
+            )
+        except subprocess.CalledProcessError as e:
+            # self._log.warning("Command failed: " + str(testcommand))
+            self._log.debug("Command returned "+str(e.returncode)+": \n" + str(testcommand))
+            return False
+        return True
 
     def _default_source(self, destination, source):
         if source is None:
@@ -219,44 +246,3 @@ class Link(dotbot.Plugin):
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
             success = True
         return success
-
-class Linkif(Link, dotbot.Plugin):
-    '''
-    Symbolically links dotfiles conditionally.
-    '''
-
-    _directive = 'linkif'
-    _config_key = 'if'
-
-    def handle(self, directive, data):
-        if directive != self._directive:
-            raise ValueError('LinkIf cannot handle directive %s' % directive)
-        success = True
-        data_filtered = copy.deepcopy(data)
-        for destination, config in data.items():
-            if isinstance(config, dict) and config[self._config_key] is not None:
-                commandsuccess = self._test_success(config[self._config_key])
-                if commandsuccess:
-                    del data_filtered[destination][self._config_key]
-                else:
-                    # remove the item from data
-                    del data_filtered[destination]
-            else:
-                self._log.error("Could not find valid conditional in linkif 'if'!")
-                success &= False
-
-        return self._process_links(data_filtered)
-
-    def _test_success(self, testcommand):
-        try:
-            osstdout = subprocess.check_output(
-                testcommand,
-                stderr=subprocess.STDOUT,
-                shell=True,
-                executable=os.environ.get("SHELL", "/bin/sh")
-            )
-        except subprocess.CalledProcessError as e:
-            # self._log.warning("Command failed: " + str(testcommand))
-            self._log.debug("Command returned "+str(e.returncode)+": \n" + str(testcommand))
-            return False
-        return True
