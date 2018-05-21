@@ -26,6 +26,7 @@ class Link(dotbot.Plugin):
         for destination, source in links.items():
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
+            canonical_path = defaults.get('canonicalize-path', True)
             force = defaults.get('force', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
@@ -36,6 +37,7 @@ class Link(dotbot.Plugin):
                 # extended config
                 test = source.get('if', test)
                 relative = source.get('relative', relative)
+                canonical_path = source.get('canonicalize-path', canonical_path)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
@@ -68,8 +70,8 @@ class Link(dotbot.Plugin):
                     if create:
                         success &= self._create(destination)
                     if force or relink:
-                        success &= self._delete(path, destination, relative, force)
-                    success &= self._link(path, destination, relative, ignore_missing)
+                        success &= self._delete(path, destination, relative, canonical_path, force)
+                    success &= self._link(path, destination, relative, canonical_path, ignore_missing)
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
                     glob_base = path[:glob_star_loc]
@@ -79,8 +81,8 @@ class Link(dotbot.Plugin):
                         if create:
                             success &= self._create(glob_link_destination)
                         if force or relink:
-                            success &= self._delete(glob_full_item, glob_link_destination, relative, force)
-                        success &= self._link(glob_full_item, glob_link_destination, relative, ignore_missing)
+                            success &= self._delete(glob_full_item, glob_link_destination, relative, canonical_path, force)
+                        success &= self._link(glob_full_item, glob_link_destination, relative, canonical_path, ignore_missing)
             else:
                 if create:
                     success &= self._create(destination)
@@ -94,8 +96,8 @@ class Link(dotbot.Plugin):
                         (destination, path))
                     continue
                 if force or relink:
-                    success &= self._delete(path, destination, relative, force)
-                success &= self._link(path, destination, relative, ignore_missing)
+                    success &= self._delete(path, destination, relative, canonical_path, force)
+                success &= self._link(path, destination, relative, canonical_path, ignore_missing)
         if success:
             self._log.info('All links have been set up')
         else:
@@ -159,9 +161,9 @@ class Link(dotbot.Plugin):
                 self._log.lowinfo('Creating directory %s' % parent)
         return success
 
-    def _delete(self, source, path, relative, force):
+    def _delete(self, source, path, relative, canonical_path, force):
         success = True
-        source = os.path.join(self._context.base_directory(), source)
+        source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
         fullpath = os.path.expanduser(path)
         if relative:
             source = self._relative_path(source, fullpath)
@@ -195,7 +197,7 @@ class Link(dotbot.Plugin):
         destination_dir = os.path.dirname(destination)
         return os.path.relpath(source, destination_dir)
 
-    def _link(self, source, link_name, relative, ignore_missing):
+    def _link(self, source, link_name, relative, canonical_path, ignore_missing):
         '''
         Links link_name to source.
 
@@ -203,7 +205,8 @@ class Link(dotbot.Plugin):
         '''
         success = False
         destination = os.path.expanduser(link_name)
-        absolute_source = os.path.join(self._context.base_directory(), source)
+        base_directory = self._context.base_directory(canonical_path=canonical_path)
+        absolute_source = os.path.join(base_directory, source)
         if relative:
             source = self._relative_path(absolute_source, destination)
         else:
