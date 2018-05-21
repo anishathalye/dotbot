@@ -4,14 +4,16 @@ from .messenger import Messenger
 from .context import Context
 
 class Dispatcher(object):
-    def __init__(self, base_directory):
+    def __init__(self, base_directory, base_directory_real_path):
         self._log = Messenger()
-        self._setup_context(base_directory)
+        self._setup_context(base_directory, base_directory_real_path)
         self._load_plugins()
 
-    def _setup_context(self, base_directory):
-        path = os.path.abspath(os.path.realpath(
-            os.path.expanduser(base_directory)))
+    def _setup_context(self, base_directory, base_directory_real_path):
+        path = os.path.abspath(
+            os.path.expanduser(base_directory))
+        if base_directory_real_path:
+            path = os.path.realpath(path)
         if not os.path.exists(path):
             raise DispatchError('Nonexistent base directory')
         self._context = Context(path)

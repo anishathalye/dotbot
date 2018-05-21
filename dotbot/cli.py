@@ -17,6 +17,8 @@ def add_options(parser):
     parser.add_argument('-d', '--base-directory', nargs=1,
         dest='base_directory', help='execute commands from within BASEDIR',
         metavar='BASEDIR', required=True)
+    parser.add_argument('-r', '--no-realpath-base', action='store_false',
+        dest='base_directory_real_path', help='Do not eliminate symbolic links encountered in BASEDIR')
     parser.add_argument('-c', '--config-file', nargs=1, dest='config_file',
         help='run commands given in CONFIGFILE', metavar='CONFIGFILE',
         required=True)
@@ -58,7 +60,7 @@ def main():
         tasks = read_config(options.config_file[0])
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
-        dispatcher = Dispatcher(options.base_directory[0])
+        dispatcher = Dispatcher(options.base_directory[0], options.base_directory_real_path)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')
