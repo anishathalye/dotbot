@@ -21,16 +21,16 @@ class Link(dotbot.Plugin):
         if directive != self._directive:
             raise ValueError('Link cannot handle directive %s' % directive)
         data_filtered = copy.deepcopy(data)
-        for destination, config in data_filtered.items():
-            if isinstance(config, dict) and self._config_if_key in config:
-                self._log.debug("testing conditional: %s" % config[self._config_if_key])
-                commandsuccess = self._test_success(config[self._config_if_key])
+        for d_key in list(data_filtered):
+            if isinstance(data_filtered[d_key], dict) and self._config_if_key in data_filtered[d_key]:
+                self._log.debug("testing conditional: %s" % data_filtered[d_key][self._config_if_key])
+                commandsuccess = self._test_success(data_filtered[d_key][self._config_if_key])
                 if commandsuccess:
                     # command successful, treat as normal link
-                    del data_filtered[destination][self._config_if_key]
+                    del data_filtered[d_key][self._config_if_key]
                 else:
                     # remove the item from data, we aren't going to link it
-                    del data_filtered[destination]
+                    del data_filtered[d_key]
 
         return self._process_links(data_filtered)
 
