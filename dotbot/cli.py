@@ -14,10 +14,10 @@ def add_options(parser):
         help='suppress most output')
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
         help='enable verbose output')
-    parser.add_argument('-d', '--base-directory', nargs=1,
+    parser.add_argument('-d', '--base-directory',
         dest='base_directory', help='execute commands from within BASEDIR',
         metavar='BASEDIR', required=True)
-    parser.add_argument('-c', '--config-file', nargs=1, dest='config_file',
+    parser.add_argument('-c', '--config-file', dest='config_file',
         help='run commands given in CONFIGFILE', metavar='CONFIGFILE',
         required=True)
     parser.add_argument('-p', '--plugin', action='append', dest='plugins', default=[],
@@ -55,10 +55,11 @@ def main():
         for plugin_path in plugin_paths:
             abspath = os.path.abspath(plugin_path)
             module.load(abspath)
-        tasks = read_config(options.config_file[0])
+        tasks = read_config(options.config_file)
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
-        dispatcher = Dispatcher(options.base_directory[0])
+        os.chdir(options.base_directory)
+        dispatcher = Dispatcher(options.base_directory)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')

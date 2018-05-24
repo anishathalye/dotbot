@@ -19,7 +19,7 @@ EOF
 '
 
 test_expect_success 'run' '
-run_dotbot --plugin-dir plugins <<EOF
+run_dotbot --plugin-dir ${DOTFILES}/plugins <<EOF
 - test: ~
 EOF
 '

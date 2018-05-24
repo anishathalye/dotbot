@@ -51,17 +51,15 @@ initialize() {
 
 run_dotbot() {
     (
-        cd "${DOTFILES}"
-        cat > "${INSTALL_CONF}"
-        ${DOTBOT_EXEC} -d . -c "${INSTALL_CONF}" "${@}"
+        cat > "${DOTFILES}/${INSTALL_CONF}"
+        ${DOTBOT_EXEC} -d "${DOTFILES}" -c "${DOTFILES}/${INSTALL_CONF}" "${@}"
     )
 }
 
 run_dotbot_json() {
     (
-        cd "${DOTFILES}"
-        cat > "${INSTALL_CONF_JSON}"
-        ${DOTBOT_EXEC} -d . -c "${INSTALL_CONF_JSON}" "${@}"
+        cat > "${DOTFILES}/${INSTALL_CONF_JSON}"
+        ${DOTBOT_EXEC} -d "${DOTFILES}" -c "${DOTFILES}/${INSTALL_CONF_JSON}" "${@}"
     )
 }
 
