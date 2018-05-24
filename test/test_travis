@@ -6,7 +6,7 @@ set -e
 # set -x
 # set -v
 
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Prevent execution outside of Travis CI builds
 if [[ "${TRAVIS}" != true || "${CI}" != true ]]; then

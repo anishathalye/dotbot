@@ -1,10 +1,6 @@
 DEBUG=${DEBUG:-false}
 USE_VAGRANT=${USE_VAGRANT:-true}
-if ${USE_VAGRANT}; then
-    DOTBOT_EXEC=${DOTBOT_EXEC:-"python /dotbot/bin/dotbot"}
-else
-    DOTBOT_EXEC=${DOTBOT_EXEC:-"/dotbot/bin/dotbot"}
-fi
+DOTBOT_EXEC=${DOTBOT_EXEC:-"python /dotbot/bin/dotbot"}
 DOTFILES="/home/$(whoami)/dotfiles"
 INSTALL_CONF='install.conf.yaml'
 INSTALL_CONF_JSON='install.conf.json'
