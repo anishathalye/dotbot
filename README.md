@@ -181,6 +181,7 @@ Available extended configuration parameters:
 | `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
 | `relative` | Use a relative path when creating the symlink (default:false, absolute links) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default:false) |
 
 #### Example
 

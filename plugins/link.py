@@ -29,6 +29,7 @@ class Link(dotbot.Plugin):
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
+            ignore_missing = defaults.get('ignore-missing', False)
             if isinstance(source, dict):
                 # extended config
                 relative = source.get('relative', relative)
@@ -36,6 +37,7 @@ class Link(dotbot.Plugin):
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
+                ignore_missing = source.get('ignore-missing', ignore_missing)
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
@@ -61,7 +63,7 @@ class Link(dotbot.Plugin):
                         success &= self._create(destination)
                     if force or relink:
                         success &= self._delete(path, destination, relative, force)
-                    success &= self._link(path, destination, relative)
+                    success &= self._link(path, destination, relative, ignore_missing)
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
                     glob_base = path[:glob_star_loc]
@@ -72,7 +74,7 @@ class Link(dotbot.Plugin):
                             success &= self._create(glob_link_destination)
                         if force or relink:
                             success &= self._delete(glob_full_item, glob_link_destination, relative, force)
-                        success &= self._link(glob_full_item, glob_link_destination, relative)
+                        success &= self._link(glob_full_item, glob_link_destination, relative, ignore_missing)
             else:
                 if create:
                     success &= self._create(destination)
@@ -83,7 +85,7 @@ class Link(dotbot.Plugin):
                     continue
                 if force or relink:
                     success &= self._delete(path, destination, relative, force)
-                success &= self._link(path, destination, relative)
+                success &= self._link(path, destination, relative, ignore_missing)
         if success:
             self._log.info('All links have been set up')
         else:
@@ -170,7 +172,7 @@ class Link(dotbot.Plugin):
         destination_dir = os.path.dirname(destination)
         return os.path.relpath(source, destination_dir)
 
-    def _link(self, source, link_name, relative):
+    def _link(self, source, link_name, relative, ignore_missing):
         '''
         Links link_name to source.
 
@@ -190,7 +192,7 @@ class Link(dotbot.Plugin):
         # we need to use absolute_source below because our cwd is the dotfiles
         # directory, and if source is relative, it will be relative to the
         # destination directory
-        elif not self._exists(link_name) and self._exists(absolute_source):
+        elif not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
             try:
                 os.symlink(source, destination)
             except OSError:
