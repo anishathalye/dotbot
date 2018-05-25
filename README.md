@@ -178,6 +178,7 @@ Available extended configuration parameters:
 | `relative` | Use a relative path to the source when creating the symlink (default:false, absolute links) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default:false) |
 
 #### Example
 
