@@ -7,25 +7,29 @@ from .messenger import Messenger
 from .messenger import Level
 from .util import module
 
+import dotbot
+import yaml
+
 def add_options(parser):
-    parser.add_argument('-Q', '--super-quiet', dest='super_quiet', action='store_true',
+    parser.add_argument('-Q', '--super-quiet', action='store_true',
         help='suppress almost all output')
-    parser.add_argument('-q', '--quiet', dest='quiet', action='store_true',
+    parser.add_argument('-q', '--quiet', action='store_true',
         help='suppress most output')
-    parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+    parser.add_argument('-v', '--verbose', action='store_true',
         help='enable verbose output')
     parser.add_argument('-d', '--base-directory',
-        dest='base_directory', help='execute commands from within BASEDIR',
-        metavar='BASEDIR', required=True)
-    parser.add_argument('-c', '--config-file', dest='config_file',
-        help='run commands given in CONFIGFILE', metavar='CONFIGFILE',
-        required=True)
+        help='execute commands from within BASEDIR',
+        metavar='BASEDIR')
+    parser.add_argument('-c', '--config-file',
+        help='run commands given in CONFIGFILE', metavar='CONFIGFILE')
     parser.add_argument('-p', '--plugin', action='append', dest='plugins', default=[],
         help='load PLUGIN as a plugin', metavar='PLUGIN')
-    parser.add_argument('--disable-built-in-plugins', dest='disable_built_in_plugins',
+    parser.add_argument('--disable-built-in-plugins',
         action='store_true', help='disable built-in plugins')
     parser.add_argument('--plugin-dir', action='append', dest='plugin_dirs', default=[],
         metavar='PLUGIN_DIR', help='load all plugins in PLUGIN_DIR')
+    parser.add_argument('--version', action='store_true',
+        help='show program\'s version number and exit')
 
 def read_config(config_file):
     reader = ConfigReader(config_file)
@@ -37,6 +41,9 @@ def main():
         parser = ArgumentParser()
         add_options(parser)
         options = parser.parse_args()
+        if options.version:
+            print('Dotbot version %s (yaml: %s)' % (dotbot.__version__, yaml.__version__))
+            exit(0)
         if options.super_quiet:
             log.set_level(Level.WARNING)
         if options.quiet:
@@ -55,11 +62,19 @@ def main():
         for plugin_path in plugin_paths:
             abspath = os.path.abspath(plugin_path)
             module.load(abspath)
+        if not options.config_file:
+            log.error('No configuration file specified')
+            exit(1)
         tasks = read_config(options.config_file)
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
-        os.chdir(options.base_directory)
-        dispatcher = Dispatcher(options.base_directory)
+        if options.base_directory:
+            base_directory = options.base_directory
+        else:
+            # default to directory of config file
+            base_directory = os.path.dirname(os.path.realpath(options.config_file))
+        os.chdir(base_directory)
+        dispatcher = Dispatcher(base_directory)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')
