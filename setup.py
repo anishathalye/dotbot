@@ -67,6 +67,11 @@ setup(
 
     packages=['dotbot'],
 
+    setup_requires=[
+        'setuptools>=38.6.0',
+        'wheel>=0.31.0',
+    ],
+
     install_requires=[
         'PyYAML>=3.12,<4',
     ],
