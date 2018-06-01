@@ -74,6 +74,17 @@ submodule; be sure to commit your changes before running `./install`, otherwise
 the old version of Dotbot will be checked out by the install script. If using a
 subrepo, run `git fetch && git checkout origin/master` in the Dotbot directory.
 
+If you prefer, you can install Dotbot from [PyPI] and call it as a command-line
+program:
+
+```bash
+pip install dotbot
+touch install.conf.yaml
+```
+
+In this case, rather than running `./install`, you can invoke Dotbot with
+`dotbot -c <path to configuration file>`.
+
 ### Full Example
 
 Here's an example of a complete configuration.
@@ -366,12 +377,22 @@ Contributing
 Do you have a feature request, bug report, or patch? Great! See
 [CONTRIBUTING.md][contributing] for information on what you can do about that.
 
+Packaging
+---------
+
+1. Update version information.
+
+2. Build the package using ``python setup.py sdist bdist_wheel``.
+
+3. Sign and upload the package using ``twine upload -s dist/*``.
+
 License
 -------
 
 Copyright (c) 2014-2018 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
+[PyPI]: https://pypi.org/project/dotbot/
 [init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotbot/wiki/Users
