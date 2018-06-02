@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from codecs import open # For a consistent encoding
 from os import path
 import re
@@ -65,7 +65,7 @@ setup(
 
     keywords='dotfiles',
 
-    packages=['dotbot'],
+    packages=find_packages(),
 
     setup_requires=[
         'setuptools>=38.6.0',
