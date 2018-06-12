@@ -52,7 +52,7 @@ def main():
             log.set_level(Level.DEBUG)
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
-          plugin_directories.append(os.path.join(os.path.dirname(__file__), '..', 'plugins'))
+            from .plugins import Clean, Link, Shell
         plugin_paths = []
         for directory in plugin_directories:
           for plugin_path in glob.glob(os.path.join(directory, '*.py')):
