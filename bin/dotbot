@@ -11,7 +11,7 @@ which python3 >/dev/null 2>&1 && exec python3 "$0" "$@"
 which python  >/dev/null 2>&1 && exec python  "$0" "$@"
 which python2 >/dev/null 2>&1 && exec python2 "$0" "$@"
 >&2 echo "error: cannot find python"
-return 1
+exit 1
 '''
 
 # python code

@@ -1,4 +1,4 @@
 [submodule "lib/pyyaml"]
 	path = lib/pyyaml
-	url = https://github.com/anishathalye/pyyaml
+	url = https://github.com/yaml/pyyaml
 	ignore = dirty
