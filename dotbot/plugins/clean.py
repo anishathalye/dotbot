@@ -34,11 +34,11 @@ class Clean(dotbot.Plugin):
         Cleans all the broken symbolic links in target if they point to
         a subdirectory of the base directory or if forced to clean.
         '''
-        if not os.path.isdir(os.path.expanduser(target)):
+        if not os.path.isdir(os.path.expandvars(os.path.expanduser(target))):
             self._log.debug('Ignoring nonexistent directory %s' % target)
             return True
-        for item in os.listdir(os.path.expanduser(target)):
-            path = os.path.join(os.path.expanduser(target), item)
+        for item in os.listdir(os.path.expandvars(os.path.expanduser(target))):
+            path = os.path.join(os.path.expandvars(os.path.expanduser(target)), item)
             if not os.path.exists(path) and os.path.islink(path):
                 points_at = os.path.join(os.path.dirname(path), os.readlink(path))
                 if self._in_directory(path, self._context.base_directory()) or force:
