@@ -28,6 +28,8 @@ def add_options(parser):
         action='store_true', help='disable built-in plugins')
     parser.add_argument('--plugin-dir', action='append', dest='plugin_dirs', default=[],
         metavar='PLUGIN_DIR', help='load all plugins in PLUGIN_DIR')
+    parser.add_argument('--no-color', dest='no_color', action='store_true',
+        help='disable color output')
     parser.add_argument('--version', action='store_true',
         help='show program\'s version number and exit')
 
@@ -50,6 +52,8 @@ def main():
             log.set_level(Level.INFO)
         if options.verbose:
             log.set_level(Level.DEBUG)
+        if options.no_color:
+            log.use_color(False)
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
             from .plugins import Clean, Link, Shell
