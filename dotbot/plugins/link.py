@@ -2,6 +2,8 @@ import os
 import glob
 import shutil
 import dotbot
+import subprocess
+import copy
 
 
 class Link(dotbot.Plugin):
@@ -10,6 +12,7 @@ class Link(dotbot.Plugin):
     '''
 
     _directive = 'link'
+    _config_if_key = 'if'
 
     def can_handle(self, directive):
         return directive == self._directive
@@ -17,7 +20,19 @@ class Link(dotbot.Plugin):
     def handle(self, directive, data):
         if directive != self._directive:
             raise ValueError('Link cannot handle directive %s' % directive)
-        return self._process_links(data)
+        data_filtered = copy.deepcopy(data)
+        for d_key in list(data_filtered):
+            if isinstance(data_filtered[d_key], dict) and self._config_if_key in data_filtered[d_key]:
+                self._log.debug("testing conditional: %s" % data_filtered[d_key][self._config_if_key])
+                commandsuccess = self._test_success(data_filtered[d_key][self._config_if_key])
+                if commandsuccess:
+                    # command successful, treat as normal link
+                    del data_filtered[d_key][self._config_if_key]
+                else:
+                    # remove the item from data, we aren't going to link it
+                    del data_filtered[d_key]
+
+        return self._process_links(data_filtered)
 
     def _process_links(self, links):
         success = True
@@ -89,6 +104,20 @@ class Link(dotbot.Plugin):
         else:
             self._log.error('Some links were not successfully set up')
         return success
+
+    def _test_success(self, testcommand):
+        try:
+            osstdout = subprocess.check_output(
+                testcommand,
+                stderr=subprocess.STDOUT,
+                shell=True,
+                executable=os.environ.get("SHELL", "/bin/sh")
+            )
+        except subprocess.CalledProcessError as e:
+            # self._log.warning("Command failed: " + str(testcommand))
+            self._log.debug("Command returned "+str(e.returncode)+": \n" + str(testcommand))
+            return False
+        return True
 
     def _default_source(self, destination, source):
         if source is None:
