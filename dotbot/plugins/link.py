@@ -30,12 +30,10 @@ class Link(dotbot.Plugin):
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
+            test = defaults.get('if', None)
             if isinstance(source, dict):
                 # extended config
-                test = source.get('if')
-                if test is not None and not self._test_success(test):
-                    self._log.lowinfo('Skipping %s' % destination)
-                    continue
+                test = source.get('if', test)
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
@@ -44,6 +42,9 @@ class Link(dotbot.Plugin):
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
+            if test is not None and not self._test_success(test):
+                self._log.lowinfo('Skipping %s' % destination)
+                continue
             path = os.path.expandvars(os.path.expanduser(path))
             if use_glob:
                 self._log.debug("Globbing with path: " + str(path))
