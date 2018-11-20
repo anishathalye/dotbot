@@ -30,3 +30,22 @@ grep "apple" ~/.f &&
 grep "apple" ~/.h &&
 ! test -f ~/.i
 '
+
+test_expect_success 'run 2' '
+run_dotbot <<EOF
+- defaults:
+    link:
+      if: "false"
+- link:
+    ~/.j:
+        path: f
+        if: "true"
+    ~/.k:
+        path: f
+EOF
+'
+
+test_expect_success 'test 2' '
+grep "apple" ~/.j &&
+! test -f ~/.k
+'
