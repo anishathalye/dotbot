@@ -281,8 +281,9 @@ shell command and the second is an optional human-readable description.
 
 Shell commands support an extended syntax as well, which provides more
 fine-grained control. A command can be specified as a dictionary that contains
-the command to be run, a description, and whether `stdin`, `stdout`, and
-`stderr` are enabled. In this syntax, all keys are optional except for the
+the command to be run, a description, whether to suppress outputting the
+command in the display via `quiet`,  and whether `stdin`, `stdout`,
+and `stderr` are enabled. In this syntax, all keys are optional except for the
 command itself.
 
 #### Example
@@ -296,6 +297,7 @@ command itself.
     stdin: true
     stdout: true
     description: Reading and printing variable
+    quiet: true
   -
     command: read fail
     stderr: true
