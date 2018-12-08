@@ -368,6 +368,27 @@ Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
 either absolute paths or paths relative to the base directory. It is
 recommended that these options are added directly to the `install` script.
 
+Additional to using `--plugin` and `--plugin-dir` options for `install` script,
+you can specify `plugins` section in your configuration file. The plugins get
+added in order to position in configation file. It is recommended to add `plugins`
+section to the top of the configuation file.
+
+#### Format
+
+Plugins are specified as a list of plugins or plugin directories.
+
+For plugins just specify absolute or relative to the base directory path to
+plugin python module. For plugin directory use `dir` attribute.
+
+#### Example
+
+```yaml
+plugins:
+    - dir:plugins/dotbot-sync
+    - plugins/asdf/asdf.py
+
+```
+
 Wiki
 ----
 
