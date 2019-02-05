@@ -2,6 +2,7 @@ import os
 import glob
 import shutil
 import dotbot
+import subprocess
 
 
 class Link(dotbot.Plugin):
@@ -29,9 +30,11 @@ class Link(dotbot.Plugin):
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
+            test = defaults.get('if', None)
             ignore_missing = defaults.get('ignore-missing', False)
             if isinstance(source, dict):
                 # extended config
+                test = source.get('if', test)
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
@@ -41,6 +44,9 @@ class Link(dotbot.Plugin):
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
+            if test is not None and not self._test_success(test):
+                self._log.lowinfo('Skipping %s' % destination)
+                continue
             path = os.path.expandvars(os.path.expanduser(path))
             if use_glob:
                 self._log.debug("Globbing with path: " + str(path))
@@ -91,6 +97,19 @@ class Link(dotbot.Plugin):
         else:
             self._log.error('Some links were not successfully set up')
         return success
+
+    def _test_success(self, command):
+        with open(os.devnull, 'w') as devnull:
+            ret = subprocess.call(
+                command,
+                shell=True,
+                stdout=devnull,
+                stderr=devnull,
+                executable=os.environ.get('SHELL'),
+            )
+        if ret != 0:
+            self._log.debug('Test \'%s\' returned false' % command)
+        return ret == 0
 
     def _default_source(self, destination, source):
         if source is None:

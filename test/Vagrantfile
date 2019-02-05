@@ -2,8 +2,7 @@ Vagrant.configure(2) do |config|
   config.vm.box = 'debian/stretch64'
 
   # sync by copying for isolation
-  config.vm.synced_folder "..", "/dotbot", type: "rsync",
-    rsync__exclude: ".git/"
+  config.vm.synced_folder "..", "/dotbot", type: "rsync"
 
   # disable default synced folder
   config.vm.synced_folder ".", "/vagrant", disabled: true

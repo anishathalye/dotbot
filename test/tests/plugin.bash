@@ -18,7 +18,7 @@ EOF
 '
 
 test_expect_success 'run' '
-run_dotbot --plugin test.py <<EOF
+run_dotbot --plugin ${DOTFILES}/test.py <<EOF
 - test: ~
 EOF
 '
