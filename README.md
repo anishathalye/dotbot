@@ -34,7 +34,7 @@ you're just looking for [some inspiration][inspiration], we've got you covered.
 
 The following will help you get set up using Dotbot in just a few steps.
 
-If you're using Git, you can add Dotbot as a submodule:
+If you're using **Git**, you can add Dotbot as a submodule:
 
 ```bash
 cd ~/.dotfiles # replace with the path to your dotfiles
@@ -44,7 +44,7 @@ cp dotbot/tools/git-submodule/install .
 touch install.conf.yaml
 ```
 
-If you're using Mercurial, you can add Dotbot as a subrepo:
+If you're using **Mercurial**, you can add Dotbot as a subrepo:
 
 ```bash
 cd ~/.dotfiles # replace with the path to your dotfiles
@@ -108,43 +108,15 @@ The conventional name for the configuration file is `install.conf.yaml`.
   - [git submodule update --init --recursive, Installing submodules]
 ```
 
-The configuration file can also be written in JSON. Here is the JSON equivalent
-of the YAML configuration given above.
-
-The conventional name for this file is `install.conf.json`.
-
-```json
-[
-    {
-        "defaults": {
-            "link": {
-                "relink": true
-            }
-        }
-    },
-    {
-        "clean": ["~"]
-    },
-    {
-        "link": {
-            "~/.dotfiles": "",
-            "~/.tmux.conf": "tmux.conf",
-            "~/.vim": "vim",
-            "~/.vimrc": "vimrc"
-        }
-    },
-    {
-        "shell": [
-            ["git submodule update --init --recursive", "Installing submodules"]
-        ]
-    }
-]
-```
+The configuration file is typically written in YAML, but it can also be written
+in JSON (which is a subset of YAML). [Here][json-equivalent] is the JSON
+[equivalent][json2yaml] of the YAML configuration given above. JSON
+configuration files are conventionally named `install.conf.json`.
 
 Configuration
 -------------
 
-Dotbot uses YAML or JSON formatted configuration files to let you specify how
+Dotbot uses YAML or JSON-formatted configuration files to let you specify how
 to set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
 folders, execute [shell](#shell) commands, and [clean](#clean) directories of
 broken symbolic links. Dotbot also supports user [plugins](#plugins) for custom
@@ -161,7 +133,9 @@ Tasks are run in the order in which they are specified. Commands within a task
 do not have a defined ordering.
 
 When writing nested constructs, keep in mind that YAML is whitespace-sensitive.
-Following the formatting used in the examples is a good idea.
+Following the formatting used in the examples is a good idea. If a YAML
+configuration file is not behaving as you expect, try inspecting the
+[equivalent JSON][json2yaml] and check that it is correct.
 
 Also, note that `~` in YAML is the same as `null` in JSON. If you want a single
 character string containing a tilde, make sure to enclose it in quotes: `'~'`
@@ -212,7 +186,7 @@ Available extended configuration parameters:
 
 If the source location is omitted or set to `null`, Dotbot will use the
 basename of the destination, with a leading `.` stripped if present. This makes
-the following three config files equivalent:
+the following config files equivalent:
 
 ```yaml
 - link:
@@ -242,28 +216,6 @@ the following three config files equivalent:
       glob: true
       path: config/*
       relink: true
-```
-
-```json
-[
-  {
-    "link": {
-      "~/bin/ack": null,
-      "~/.vim": null,
-      "~/.vimrc": {
-        "relink": true
-      },
-      "~/.zshrc": {
-        "force": true
-      },
-      "~/.config/": {
-        "glob": true,
-        "path": "config/*",
-        "relink": true
-      }
-    }
-  }
-]
 ```
 
 ### Shell
@@ -400,6 +352,8 @@ Copyright (c) 2014-2019 Anish Athalye. Released under the MIT License. See
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotbot/wiki/Users
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
+[json-equivalent]: https://gist.github.com/anishathalye/84bd6ba1dbe936e05141e07ec45f5fd4
+[json2yaml]: https://www.json2yaml.com/
 [wiki]: https://github.com/anishathalye/dotbot/wiki
 [contributing]: CONTRIBUTING.md
 [license]: LICENSE.md
