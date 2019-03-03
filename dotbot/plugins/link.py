@@ -24,6 +24,8 @@ class Link(dotbot.Plugin):
         success = True
         defaults = self._context.defaults().get('link', {})
         for destination, source in links.items():
+            destination = os.path.normpath(destination)
+            source = os.path.normpath(source)
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
             force = defaults.get('force', False)
