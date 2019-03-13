@@ -80,13 +80,19 @@ class Link(dotbot.Plugin):
                             success &= self._delete(glob_full_item, glob_link_destination, relative, force)
                         success &= self._link(glob_full_item, glob_link_destination, relative)
             else:
-                if create:
+                if (not self._exists(
+                        os.path.join(self._context.base_directory(), path))
+                    and not os.path.islink(destination)):
+                    success &= self._create_target(path, destination)
+                    if success:
+                        self._log.info('Moved %s to nonexistent target %s' %
+                                       (destination, path))
+                    else:
+                        self._log.warning('Nonexistent target %s -> %s' %
+                                          (destination, path))
+                        continue
+                elif create:
                     success &= self._create(destination)
-                if not self._exists(os.path.join(self._context.base_directory(), path)):
-                    success = False
-                    self._log.warning('Nonexistent target %s -> %s' %
-                        (destination, path))
-                    continue
                 if force or relink:
                     success &= self._delete(path, destination, relative, force)
                 success &= self._link(path, destination, relative)
@@ -151,6 +157,28 @@ class Link(dotbot.Plugin):
                 success = False
             else:
                 self._log.lowinfo('Creating directory %s' % parent)
+        return success
+
+    def _create_target(self, target, link_name):
+        """Create non-existent target by moving the file or directory at link_name"""
+        success = True
+        copy_source = os.path.expanduser(link_name)
+        copy_destination = os.path.join(self._context.base_directory(), target)
+        parent = os.path.dirname(copy_destination)
+        if not self._exists(parent):
+            self._log.debug("Try to create parent: " + str(parent))
+            try:
+                os.makedirs(parent)
+            except OSError:
+                self._log.warning('Failed to create directory %s' % parent)
+                success = False
+            else:
+                self._log.lowinfo('Creating directory %s' % parent)
+        try:
+            shutil.move(copy_source, copy_destination)
+        except Exception as ex:
+            self._log.warning("Couldn't move %s to %s:\n%s" % (link_name, target, ex))
+            success = False
         return success
 
     def _delete(self, source, path, relative, force):
