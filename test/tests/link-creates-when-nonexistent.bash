@@ -1,4 +1,4 @@
-test_description='force leaves file when target nonexistent'
+test_description='link creates target and links file when target nonexistent'
 . '../test-lib.bash'
 
 test_expect_success 'setup' '
@@ -6,7 +6,7 @@ mkdir ~/dir &&
 touch ~/file
 '
 
-test_expect_failure 'run' '
+test_expect_success 'run' '
 run_dotbot <<EOF
 - link:
     ~/dir:
@@ -19,6 +19,8 @@ EOF
 '
 
 test_expect_success 'test' '
-test -d ~/dir &&
-test -f ~/file
+test -L ~/dir &&
+test -L ~/file &&
+test -d ${DOTFILES}/dir &&
+test -f ${DOTFILES}/file
 '
