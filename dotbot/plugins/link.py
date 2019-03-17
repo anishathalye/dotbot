@@ -243,7 +243,7 @@ class Link(dotbot.Plugin):
             except OSError:
                 self._log.warning('Linking failed %s -> %s' % (link_name, source))
             else:
-                self._log.lowinfo('Creating link %s -> %s' % (link_name, source))
+                self._log.info('Creating link %s -> %s' % (link_name, source))
                 success = True
         elif self._exists(link_name) and not self._is_link(link_name):
             self._log.warning(
