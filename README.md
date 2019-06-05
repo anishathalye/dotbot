@@ -160,11 +160,11 @@ Available extended configuration parameters:
 
 | Link Option | Explanation |
 | -- | -- |
-| `path` | The target for the symlink, the same as in the shortcut syntax (default:null, automatic (see below)) |
+| `path` | The source for the symlink, the same as in the shortcut syntax (default:null, automatic (see below)) |
 | `create` | When true, create parent directories to the link as needed. (default:false) |
 | `relink` | Removes the old target if it's a symlink (default:false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
-| `relative` | Use a relative path when creating the symlink (default:false, absolute links) |
+| `relative` | Use a relative path to the source when creating the symlink (default:false, absolute links) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 
