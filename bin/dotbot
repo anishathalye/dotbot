@@ -7,8 +7,8 @@
 # is useful because we don't know the name of the python binary.
 
 ''':' # begin python string; this line is interpreted by the shell as `:`
-which python3 >/dev/null 2>&1 && exec python3 "$0" "$@"
 which python  >/dev/null 2>&1 && exec python  "$0" "$@"
+which python3 >/dev/null 2>&1 && exec python3 "$0" "$@"
 which python2 >/dev/null 2>&1 && exec python2 "$0" "$@"
 >&2 echo "error: cannot find python"
 exit 1

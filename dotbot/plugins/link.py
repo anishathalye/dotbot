@@ -84,7 +84,7 @@ class Link(dotbot.Plugin):
                     success &= self._create(destination)
                 if not self._exists(os.path.join(self._context.base_directory(), path)):
                     success = False
-                    self._log.warning('Nonexistent target %s -> %s' %
+                    self._log.warning('Nonexistent source %s -> %s' %
                         (destination, path))
                     continue
                 if force or relink:
@@ -227,10 +227,10 @@ class Link(dotbot.Plugin):
         # again, we use absolute_source to check for existence
         elif not self._exists(absolute_source):
             if self._is_link(link_name):
-                self._log.warning('Nonexistent target %s -> %s' %
+                self._log.warning('Nonexistent source %s -> %s' %
                     (link_name, source))
             else:
-                self._log.warning('Nonexistent target for %s : %s' %
+                self._log.warning('Nonexistent source for %s : %s' %
                     (link_name, source))
         else:
             self._log.lowinfo('Link exists %s -> %s' % (link_name, source))
