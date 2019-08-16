@@ -173,12 +173,14 @@ class Link(dotbot.Plugin):
                 elif force:
                     if os.path.isdir(fullpath):
                         if backup:
+                            self._log.lowinfo('Backing up %s -> %s' % (fullpath, backup))
                             shutil.copytree(fullpath, backup)
                         shutil.rmtree(fullpath)
                         removed = True
                     else:
                         if backup:
                             shutil.copyfile(fullpath, backup)
+                            self._log.lowinfo('Backing up %s -> %s' % (fullpath, backup))
                         os.remove(fullpath)
                         removed = True
             except OSError:
