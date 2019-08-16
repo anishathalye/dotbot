@@ -27,6 +27,7 @@ class Link(dotbot.Plugin):
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
             force = defaults.get('force', False)
+            backup = defaults.get('backup', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
@@ -36,6 +37,7 @@ class Link(dotbot.Plugin):
                 test = source.get('if', test)
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
+                backup = defaults.get('backup', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
@@ -66,7 +68,7 @@ class Link(dotbot.Plugin):
                     if create:
                         success &= self._create(destination)
                     if force or relink:
-                        success &= self._delete(path, destination, relative, force)
+                        success &= self._delete(path, destination, relative, force, backup)
                     success &= self._link(path, destination, relative)
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
@@ -77,7 +79,7 @@ class Link(dotbot.Plugin):
                         if create:
                             success &= self._create(glob_link_destination)
                         if force or relink:
-                            success &= self._delete(glob_full_item, glob_link_destination, relative, force)
+                            success &= self._delete(glob_full_item, glob_link_destination, relative, force, backup)
                         success &= self._link(glob_full_item, glob_link_destination, relative)
             else:
                 if create:
@@ -88,7 +90,7 @@ class Link(dotbot.Plugin):
                         (destination, path))
                     continue
                 if force or relink:
-                    success &= self._delete(path, destination, relative, force)
+                    success &= self._delete(path, destination, relative, force, backup)
                 success &= self._link(path, destination, relative)
         if success:
             self._log.info('All links have been set up')
@@ -153,7 +155,7 @@ class Link(dotbot.Plugin):
                 self._log.lowinfo('Creating directory %s' % parent)
         return success
 
-    def _delete(self, source, path, relative, force):
+    def _delete(self, source, path, relative, force, backup):
         success = True
         source = os.path.join(self._context.base_directory(), source)
         fullpath = os.path.expanduser(path)
@@ -168,9 +170,13 @@ class Link(dotbot.Plugin):
                     removed = True
                 elif force:
                     if os.path.isdir(fullpath):
+                        if backup:
+                            shutil.copytree(fullpath, backup)
                         shutil.rmtree(fullpath)
                         removed = True
                     else:
+                        if backup:
+                            shutil.copyfile(fullpath, backup)
                         os.remove(fullpath)
                         removed = True
             except OSError:
