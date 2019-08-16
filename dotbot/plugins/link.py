@@ -159,6 +159,8 @@ class Link(dotbot.Plugin):
         success = True
         source = os.path.join(self._context.base_directory(), source)
         fullpath = os.path.expanduser(path)
+        if backup:
+            backup = os.path.expanduser(backup)
         if relative:
             source = self._relative_path(source, fullpath)
         if ((self._is_link(path) and self._link_destination(path) != source) or
