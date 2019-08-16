@@ -160,7 +160,9 @@ class Link(dotbot.Plugin):
         source = os.path.join(self._context.base_directory(), source)
         fullpath = os.path.expanduser(path)
         if backup:
-            backup = os.path.expanduser(backup)
+            basename = os.path.basename(fullpath)
+            backup = os.path.join(os.path.expanduser(backup), basename)
+
         if relative:
             source = self._relative_path(source, fullpath)
         if ((self._is_link(path) and self._link_destination(path) != source) or
@@ -174,7 +176,7 @@ class Link(dotbot.Plugin):
                     if os.path.isdir(fullpath):
                         if backup:
                             self._log.lowinfo('Backing up %s -> %s' % (fullpath, backup))
-                            shutil.copytree(fullpath, backup)
+                            shutil.copytree(fullpath, backup+'/'+)
                         shutil.rmtree(fullpath)
                         removed = True
                     else:
