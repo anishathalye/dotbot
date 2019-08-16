@@ -37,7 +37,7 @@ class Link(dotbot.Plugin):
                 test = source.get('if', test)
                 relative = source.get('relative', relative)
                 force = source.get('force', force)
-                backup = defaults.get('backup', force)
+                backup = defaults.get('backup', backup)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
