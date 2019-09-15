@@ -39,10 +39,11 @@ If you're using **Git**, you can add Dotbot as a submodule:
 ```bash
 cd ~/.dotfiles # replace with the path to your dotfiles
 git init # initialize repository if needed
-git submodule add https://github.com/anishathalye/dotbot
+git submodule add -b master https://github.com/anishathalye/dotbot # Track master branch of dotbot, instead of detaching head
 cp dotbot/tools/git-submodule/install .
 touch install.conf.yaml
 ```
+Edit `.gitmodules` and add `ignore = dirty` under the dotbot submodule, to prevent tracking *dirty* commits.
 
 If you're using **Mercurial**, you can add Dotbot as a subrepo:
 
