@@ -40,6 +40,7 @@ If you're using **Git**, you can add Dotbot as a submodule:
 cd ~/.dotfiles # replace with the path to your dotfiles
 git init # initialize repository if needed
 git submodule add https://github.com/anishathalye/dotbot
+git config -f .gitmodules submodule.dotbot.ignore dirty # ignore dirty commits in the submodule
 cp dotbot/tools/git-submodule/install .
 touch install.conf.yaml
 ```
