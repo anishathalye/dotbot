@@ -267,8 +267,8 @@ command itself.
 
 ```yaml
 - shell:
-  - mkdir -p ~/src
-  - [mkdir -p ~/downloads, Creating downloads directory]
+  - chsh -s $(which zsh)
+  - [chsh -s $(which zsh), Making zsh the default shell]
   -
     command: read var && echo Your variable is $var
     stdin: true
