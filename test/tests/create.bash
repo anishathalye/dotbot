@@ -1,4 +1,4 @@
-test_description='relative creating works'
+test_description='create folders'
 . '../test-lib.bash'
 
 test_expect_success 'run' '
