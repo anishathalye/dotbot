@@ -105,6 +105,10 @@ The conventional name for the configuration file is `install.conf.yaml`.
     ~/.vim: vim
     ~/.vimrc: vimrc
 
+- create:
+    - ~/downloads
+    - ~/.vim/undo-history
+
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
 ```
@@ -119,9 +123,9 @@ Configuration
 
 Dotbot uses YAML or JSON-formatted configuration files to let you specify how
 to set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
-folders, execute [shell](#shell) commands, and [clean](#clean) directories of
-broken symbolic links. Dotbot also supports user [plugins](#plugins) for custom
-commands.
+folders, [create](#create) folders, execute [shell](#shell) commands, and
+[clean](#clean) directories of broken symbolic links. Dotbot also supports user
+[plugins](#plugins) for custom commands.
 
 **Ideally, bootstrap configurations should be idempotent. That is, the
 installer should be able to be run multiple times without causing any
@@ -219,6 +223,25 @@ the following config files equivalent:
       relink: true
 ```
 
+### Create
+
+Create commands specify empty directories to be created.  This can be useful
+for scaffolding out folders or parent folder structure required for various
+apps, plugins, shell commands, etc.
+
+#### Format
+
+Create commands are specified as an array of directories to be created.
+
+#### Example
+
+```yaml
+- create:
+    - ~/projects
+    - ~/downloads
+    - ~/.vim/undo-history
+```
+
 ### Shell
 
 Shell commands specify shell commands to be run. Shell commands are run in the
@@ -243,8 +266,8 @@ command itself.
 
 ```yaml
 - shell:
-  - mkdir -p ~/src
-  - [mkdir -p ~/downloads, Creating downloads directory]
+  - chsh -s $(which zsh)
+  - [chsh -s $(which zsh), Making zsh the default shell]
   -
     command: read var && echo Your variable is $var
     stdin: true
