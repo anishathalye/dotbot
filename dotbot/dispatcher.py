@@ -27,8 +27,8 @@ class Dispatcher(object):
                     # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
-                        success &= plugin.handle(action, task[action])
                         try:
+                            success &= plugin.handle(action, task[action])
                             handled = True
                         except Exception as err:
                             self._log.error(
