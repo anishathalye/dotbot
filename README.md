@@ -1,12 +1,28 @@
-Dotbot
-======
+# Dotbot
+
+[![Build Status](https://travis-ci.org/anishathalye/dotbot.svg?branch=master)](https://travis-ci.org/anishathalye/dotbot)
 
 Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 && ./install`, even on a freshly installed system!
 
+- [Rationale](#rationale)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Directives](#directives)
+  - [Link](#link)
+  - [Create](#create)
+  - [Shell](#shell)
+  - [Clean](#clean)
+  - [Defaults](#defaults)
+  - [Plugins](#plugins)
+- [Wiki](#wiki)
+- [Contributing](#contributing)
+- [Packaging](#packaging)
+- [License](#license)
+
 ---
 
-[![Build Status](https://travis-ci.org/anishathalye/dotbot.svg?branch=master)](https://travis-ci.org/anishathalye/dotbot)
+## Rationale
 
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
 [bo]o[t]strapper, get it?). It does *less* than you think, because version
@@ -20,8 +36,7 @@ Dotbot is VCS-agnostic -- it doesn't make any attempt to manage your dotfiles.
 If you want an in-depth tutorial about organizing your dotfiles, see this [blog
 post][managing-dotfiles-post].
 
-Get Running in 5 Minutes
-------------------------
+## Getting Started
 
 ### Starting Fresh?
 
@@ -118,8 +133,7 @@ in JSON (which is a subset of YAML). [Here][json-equivalent] is the JSON
 [equivalent][json2yaml] of the YAML configuration given above. JSON
 configuration files are conventionally named `install.conf.json`.
 
-Configuration
--------------
+## Configuration
 
 Dotbot uses YAML or JSON-formatted configuration files to let you specify how
 to set up your dotfiles. Currently, Dotbot knows how to [link](#link) files and
@@ -144,6 +158,8 @@ configuration file is not behaving as you expect, try inspecting the
 
 Also, note that `~` in YAML is the same as `null` in JSON. If you want a single
 character string containing a tilde, make sure to enclose it in quotes: `'~'`
+
+## Directives
 
 ### Link
 
@@ -344,20 +360,17 @@ Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
 either absolute paths or paths relative to the base directory. It is
 recommended that these options are added directly to the `install` script.
 
-Wiki
-----
+## Wiki
 
 Check out the [Dotbot wiki][wiki] for more information, tips and tricks,
 user-contributed plugins, and more.
 
-Contributing
-------------
+## Contributing
 
 Do you have a feature request, bug report, or patch? Great! See
 [CONTRIBUTING.md][contributing] for information on what you can do about that.
 
-Packaging
----------
+## Packaging
 
 1. Update version information.
 
@@ -365,8 +378,7 @@ Packaging
 
 3. Sign and upload the package using ``twine upload -s dist/*``.
 
-License
--------
+## License
 
 Copyright (c) 2014-2019 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
