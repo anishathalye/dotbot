@@ -6,13 +6,8 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 - [Rationale](#rationale)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
-- [Directives](#directives)
-  - [Link](#link)
-  - [Create](#create)
-  - [Shell](#shell)
-  - [Clean](#clean)
-  - [Defaults](#defaults)
-  - [Plugins](#plugins)
+- [Directives](#directives) ([Link](#link), [Create](#create), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
+- [Plugins](#plugins)
 - [Wiki][wiki]
 
 ---
