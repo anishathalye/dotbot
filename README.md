@@ -193,6 +193,9 @@ Available extended configuration parameters:
     ~/.zshrc:
       force: true
       path: zshrc
+    ~/.hammerspoon:
+      if: '[ `uname` = Darwin ]'
+      path: hammerspoon
 ```
 
 If the source location is omitted or set to `null`, Dotbot will use the
