@@ -31,7 +31,7 @@ touch ~/tmp_bin/python &&
 chmod +x ~/tmp_bin/python &&
 cat >> ~/tmp_bin/python <<EOF
 #!$HOME/tmp_bin/bash
-exec $(which python)
+exec $(command -v python)
 EOF
 '
 

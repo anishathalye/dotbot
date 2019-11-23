@@ -56,7 +56,7 @@ def main():
             log.use_color(False)
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
-            from .plugins import Clean, Link, Shell, Plugins
+            from .plugins import Clean, Create, Link, Shell, Plugins
         plugin_paths = []
         for directory in plugin_directories:
           for plugin_path in glob.glob(os.path.join(directory, '*.py')):
