@@ -18,9 +18,9 @@ class Clean(dotbot.Plugin):
     def _process_clean(self, targets):
         success = True
         defaults = self._context.defaults().get(self._directive, {})
-        force = defaults.get('force', False)
         for target in targets:
-            if isinstance(targets, dict):
+            force = defaults.get('force', False)
+            if isinstance(targets, dict) and isinstance(targets[target], dict):
                 force = targets[target].get('force', force)
             success &= self._clean(target, force)
         if success:
