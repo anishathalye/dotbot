@@ -303,7 +303,9 @@ Clean commands are specified as an array of directories to be cleaned.
 Clean commands support an extended configuration syntax. In this type of
 configuration, commands are specified as directory paths mapping to options. If
 the `force` option is set to `true`, dead links are removed even if they don't
-point to a file inside the dotfiles directory.
+point to a file inside the dotfiles directory. If `recursive` is set to `true`,
+the directory is traversed recursively (not recommended for `~` because it will
+be slow).
 
 #### Example
 
@@ -311,8 +313,10 @@ point to a file inside the dotfiles directory.
 - clean: ['~']
 
 - clean:
-    ~/.config:
+    ~/:
       force: true
+    ~/.config:
+      recursive: true
 ```
 
 ### Defaults

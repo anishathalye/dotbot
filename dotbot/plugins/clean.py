@@ -20,16 +20,18 @@ class Clean(dotbot.Plugin):
         defaults = self._context.defaults().get(self._directive, {})
         for target in targets:
             force = defaults.get('force', False)
+            recursive = defaults.get('recursive', False)
             if isinstance(targets, dict) and isinstance(targets[target], dict):
                 force = targets[target].get('force', force)
-            success &= self._clean(target, force)
+                recursive = targets[target].get('recursive', recursive)
+            success &= self._clean(target, force, recursive)
         if success:
             self._log.info('All targets have been cleaned')
         else:
             self._log.error('Some targets were not successfully cleaned')
         return success
 
-    def _clean(self, target, force):
+    def _clean(self, target, force, recursive):
         '''
         Cleans all the broken symbolic links in target if they point to
         a subdirectory of the base directory or if forced to clean.
@@ -39,6 +41,11 @@ class Clean(dotbot.Plugin):
             return True
         for item in os.listdir(os.path.expandvars(os.path.expanduser(target))):
             path = os.path.join(os.path.expandvars(os.path.expanduser(target)), item)
+            if recursive and os.path.isdir(path):
+                # isdir implies not islink -- we don't want to descend into
+                # symlinked directories. okay to do a recursive call here
+                # because depth should be fairly limited
+                self._clean(path, force, recursive)
             if not os.path.exists(path) and os.path.islink(path):
                 points_at = os.path.join(os.path.dirname(path), os.readlink(path))
                 if self._in_directory(path, self._context.base_directory()) or force:
