@@ -378,7 +378,7 @@ Do you have a feature request, bug report, or patch? Great! See
 
 ## License
 
-Copyright (c) 2014-2019 Anish Athalye. Released under the MIT License. See
+Copyright (c) 2014-2020 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [PyPI]: https://pypi.org/project/dotbot/
