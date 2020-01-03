@@ -1,6 +1,5 @@
 DEBUG=${DEBUG:-false}
-USE_VAGRANT=${USE_VAGRANT:-true}
-DOTBOT_EXEC=${DOTBOT_EXEC:-"python /dotbot/bin/dotbot"}
+DOTBOT_EXEC="${BASEDIR}/bin/dotbot"
 DOTFILES="/home/$(whoami)/dotfiles"
 INSTALL_CONF='install.conf.yaml'
 INSTALL_CONF_JSON='install.conf.json'
@@ -29,17 +28,15 @@ test_expect_failure() {
     fi
 }
 
-check_vm() {
-    if [ "$(whoami)" != "vagrant" ]; then
-        >&2 echo "test can't run outside vm!"
+check_env() {
+    if [ "${DOTBOT_TEST}" != "true" ]; then
+        >&2 echo "test must be run by test driver"
         exit 1
     fi
 }
 
 initialize() {
-    if ${USE_VAGRANT}; then
-        check_vm
-    fi
+    check_env
     echo "${test_description}"
     mkdir -p "${DOTFILES}"
     cd

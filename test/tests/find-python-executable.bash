@@ -1,18 +1,16 @@
 test_description='can find python executable with different names'
 . '../test-lib.bash'
 
-if ${USE_VAGRANT}; then
-    DOTBOT_EXEC="/dotbot/bin/dotbot" # revert to calling it as a shell script
-fi
-
 # the test machine needs to have a binary named `python`
 test_expect_success 'setup' '
 mkdir ~/tmp_bin &&
 (
     IFS=:
     for p in $PATH; do
-        find $p -maxdepth 1 -mindepth 1 -exec sh -c \
+        if [ -d $p ]; then
+            find $p -maxdepth 1 -mindepth 1 -exec sh -c \
             '"'"'ln -sf {} $HOME/tmp_bin/$(basename {})'"'"' \;
+        fi
     done
 ) &&
 rm -f ~/tmp_bin/python &&

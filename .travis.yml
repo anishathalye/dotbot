@@ -13,4 +13,4 @@ python:
 sudo: false
 
 script:
-  - ./test/test_travis
+  - ./test/test
