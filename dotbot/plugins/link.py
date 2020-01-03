@@ -51,19 +51,19 @@ class Link(dotbot.Plugin):
             if use_glob:
                 self._log.debug("Globbing with path: " + str(path))
                 glob_results = glob.glob(path)
-                if len(glob_results) is 0:
+                if len(glob_results) == 0:
                     self._log.warning("Globbing couldn't find anything matching " + str(path))
                     success = False
                     continue
                 glob_star_loc = path.find('*')
-                if glob_star_loc is -1 and destination[-1] is '/':
+                if glob_star_loc == -1 and destination[-1] == '/':
                     self._log.error("Ambiguous action requested.")
                     self._log.error("No wildcard in glob, directory use undefined: " +
                         destination + " -> " + str(glob_results))
                     self._log.warning("Did you want to link the directory or into it?")
                     success = False
                     continue
-                elif glob_star_loc is -1 and len(glob_results) is 1:
+                elif glob_star_loc == -1 and len(glob_results) == 1:
                     # perform a normal link operation
                     if create:
                         success &= self._create(destination)
