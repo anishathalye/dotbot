@@ -176,6 +176,7 @@ Available extended configuration parameters:
 | `relink` | Removes the old target if it's a symlink (default:false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
 | `relative` | Use a relative path to the source when creating the symlink (default:false, absolute links) |
+| `canonicalize-path` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default:true, real paths) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default:false) |

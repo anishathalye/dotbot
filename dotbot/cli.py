@@ -73,10 +73,10 @@ def main():
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
         if options.base_directory:
-            base_directory = options.base_directory
+            base_directory = os.path.abspath(options.base_directory)
         else:
             # default to directory of config file
-            base_directory = os.path.dirname(os.path.realpath(options.config_file))
+            base_directory = os.path.dirname(os.path.abspath(options.config_file))
         os.chdir(base_directory)
         dispatcher = Dispatcher(base_directory)
         success = dispatcher.dispatch(tasks)
