@@ -26,19 +26,23 @@ class Link(dotbot.Plugin):
         for destination, source in links.items():
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
+            canonical_path = defaults.get('canonicalize-path', True)
             force = defaults.get('force', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
             test = defaults.get('if', None)
+            ignore_missing = defaults.get('ignore-missing', False)
             if isinstance(source, dict):
                 # extended config
                 test = source.get('if', test)
                 relative = source.get('relative', relative)
+                canonical_path = source.get('canonicalize-path', canonical_path)
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
+                ignore_missing = source.get('ignore-missing', ignore_missing)
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
@@ -49,25 +53,25 @@ class Link(dotbot.Plugin):
             if use_glob:
                 self._log.debug("Globbing with path: " + str(path))
                 glob_results = glob.glob(path)
-                if len(glob_results) is 0:
+                if len(glob_results) == 0:
                     self._log.warning("Globbing couldn't find anything matching " + str(path))
                     success = False
                     continue
                 glob_star_loc = path.find('*')
-                if glob_star_loc is -1 and destination[-1] is '/':
+                if glob_star_loc == -1 and destination[-1] == '/':
                     self._log.error("Ambiguous action requested.")
                     self._log.error("No wildcard in glob, directory use undefined: " +
                         destination + " -> " + str(glob_results))
                     self._log.warning("Did you want to link the directory or into it?")
                     success = False
                     continue
-                elif glob_star_loc is -1 and len(glob_results) is 1:
+                elif glob_star_loc == -1 and len(glob_results) == 1:
                     # perform a normal link operation
                     if create:
                         success &= self._create(destination)
                     if force or relink:
-                        success &= self._delete(path, destination, relative, force)
-                    success &= self._link(path, destination, relative)
+                        success &= self._delete(path, destination, relative, canonical_path, force)
+                    success &= self._link(path, destination, relative, canonical_path, ignore_missing)
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
                     glob_base = path[:glob_star_loc]
@@ -77,19 +81,23 @@ class Link(dotbot.Plugin):
                         if create:
                             success &= self._create(glob_link_destination)
                         if force or relink:
-                            success &= self._delete(glob_full_item, glob_link_destination, relative, force)
-                        success &= self._link(glob_full_item, glob_link_destination, relative)
+                            success &= self._delete(glob_full_item, glob_link_destination, relative, canonical_path, force)
+                        success &= self._link(glob_full_item, glob_link_destination, relative, canonical_path, ignore_missing)
             else:
                 if create:
                     success &= self._create(destination)
-                if not self._exists(os.path.join(self._context.base_directory(), path)):
+                if not ignore_missing and not self._exists(os.path.join(self._context.base_directory(), path)):
+                    # we seemingly check this twice (here and in _link) because
+                    # if the file doesn't exist and force is True, we don't
+                    # want to remove the original (this is tested by
+                    # link-force-leaves-when-nonexistent.bash)
                     success = False
                     self._log.warning('Nonexistent source %s -> %s' %
                         (destination, path))
                     continue
                 if force or relink:
-                    success &= self._delete(path, destination, relative, force)
-                success &= self._link(path, destination, relative)
+                    success &= self._delete(path, destination, relative, canonical_path, force)
+                success &= self._link(path, destination, relative, canonical_path, ignore_missing)
         if success:
             self._log.info('All links have been set up')
         else:
@@ -153,9 +161,9 @@ class Link(dotbot.Plugin):
                 self._log.lowinfo('Creating directory %s' % parent)
         return success
 
-    def _delete(self, source, path, relative, force):
+    def _delete(self, source, path, relative, canonical_path, force):
         success = True
-        source = os.path.join(self._context.base_directory(), source)
+        source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
         fullpath = os.path.expanduser(path)
         if relative:
             source = self._relative_path(source, fullpath)
@@ -189,7 +197,7 @@ class Link(dotbot.Plugin):
         destination_dir = os.path.dirname(destination)
         return os.path.relpath(source, destination_dir)
 
-    def _link(self, source, link_name, relative):
+    def _link(self, source, link_name, relative, canonical_path, ignore_missing):
         '''
         Links link_name to source.
 
@@ -197,7 +205,8 @@ class Link(dotbot.Plugin):
         '''
         success = False
         destination = os.path.expanduser(link_name)
-        absolute_source = os.path.join(self._context.base_directory(), source)
+        base_directory = self._context.base_directory(canonical_path=canonical_path)
+        absolute_source = os.path.join(base_directory, source)
         if relative:
             source = self._relative_path(absolute_source, destination)
         else:
@@ -209,7 +218,7 @@ class Link(dotbot.Plugin):
         # we need to use absolute_source below because our cwd is the dotfiles
         # directory, and if source is relative, it will be relative to the
         # destination directory
-        elif not self._exists(link_name) and self._exists(absolute_source):
+        elif not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
             try:
                 os.symlink(source, destination)
             except OSError:

@@ -1,4 +1,4 @@
-# Dotbot [![Build Status](https://travis-ci.org/anishathalye/dotbot.svg?branch=master)](https://travis-ci.org/anishathalye/dotbot)
+# Dotbot [![Build Status](https://travis-ci.com/anishathalye/dotbot.svg?branch=master)](https://travis-ci.com/anishathalye/dotbot)
 
 Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 && ./install`, even on a freshly installed system!
@@ -176,8 +176,10 @@ Available extended configuration parameters:
 | `relink` | Removes the old target if it's a symlink (default:false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
 | `relative` | Use a relative path to the source when creating the symlink (default:false, absolute links) |
+| `canonicalize-path` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default:true, real paths) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default:false) |
 
 #### Example
 
@@ -302,7 +304,9 @@ Clean commands are specified as an array of directories to be cleaned.
 Clean commands support an extended configuration syntax. In this type of
 configuration, commands are specified as directory paths mapping to options. If
 the `force` option is set to `true`, dead links are removed even if they don't
-point to a file inside the dotfiles directory.
+point to a file inside the dotfiles directory. If `recursive` is set to `true`,
+the directory is traversed recursively (not recommended for `~` because it will
+be slow).
 
 #### Example
 
@@ -310,8 +314,10 @@ point to a file inside the dotfiles directory.
 - clean: ['~']
 
 - clean:
-    ~/.config:
+    ~/:
       force: true
+    ~/.config:
+      recursive: true
 ```
 
 ### Defaults
@@ -395,7 +401,7 @@ Do you have a feature request, bug report, or patch? Great! See
 
 ## License
 
-Copyright (c) 2014-2019 Anish Athalye. Released under the MIT License. See
+Copyright (c) 2014-2020 Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [PyPI]: https://pypi.org/project/dotbot/

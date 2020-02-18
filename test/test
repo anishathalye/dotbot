@@ -1,37 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
-BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${BASEDIR}"
+export BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${BASEDIR}/test"
 . "./driver-lib.bash"
 
+date_stamp="$(date --rfc-3339=ns)"
 start="$(date +%s)"
 
-check_prereqs || die "prerequisites unsatsfied."
-
-# command line options
-while [[ $# > 1 ]]
-do
-    key="${1}"
-    case $key in
-        -v|--version)
-            VERSION="${2}"
-            shift && shift
-            ;;
-        *)
-            # unknown option
-            break
-            ;;
-    esac
-done
-VERSION="${VERSION:-3.6.4}"
+check_env
 
 declare -a tests=()
 
 if [ $# -eq 0 ]; then
     while read file; do
         tests+=("${file}")
-    done < <(find tests -type f -name '*.bash')
+    done < <(find tests -type f -name '*.bash' | sort)
 else
     tests=("$@")
 fi

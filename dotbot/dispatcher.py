@@ -10,8 +10,8 @@ class Dispatcher(object):
         self._load_plugins()
 
     def _setup_context(self, base_directory):
-        path = os.path.abspath(os.path.realpath(
-            os.path.expanduser(base_directory)))
+        path = os.path.abspath(
+            os.path.expanduser(base_directory))
         if not os.path.exists(path):
             raise DispatchError('Nonexistent base directory')
         self._context = Context(path)

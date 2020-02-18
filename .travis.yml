@@ -6,10 +6,11 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8"
   - "nightly"
   - "pypy3"
 
 sudo: false
 
 script:
-  - ./test/test_travis
+  - ./test/test

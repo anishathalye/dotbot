@@ -1,6 +1,3 @@
-MAXRETRY=5
-TIMEOUT=1
-
 red() {
     if [ -t 1 ]; then
         printf "\033[31m%s\033[0m\n" "$*"
@@ -26,52 +23,35 @@ yellow() {
 }
 
 
-check_prereqs() {
-    if ! (vagrant ssh -c 'exit') >/dev/null 2>&1; then
-        >&2 echo "vagrant vm must be running."
-        return 1
+check_env() {
+    if [[ "$(whoami)" != "vagrant" && ( "${TRAVIS}" != true || "${CI}" != true ) ]]; then
+        die "tests must be run inside Travis or Vagrant"
     fi
 }
 
-until_success() {
-    local timeout=${TIMEOUT}
-    local attempt=0
-    while [ $attempt -lt $MAXRETRY ]; do
-        if ($@) >/dev/null 2>&1; then
-            return 0
-        fi
-        sleep $timeout
-        timeout=$((timeout * 2))
-        attempt=$((attempt + 1))
-    done
-
-    return 1
-}
-
-wait_for_vagrant() {
-    until_success vagrant ssh -c 'exit'
-}
-
 cleanup() {
-    vagrant ssh -c "
-        find . -not \\( \
+    (
+    if [ "$(whoami)" == "vagrant" ]; then
+        cd $HOME
+        find . -not \( \
             -path './.pyenv' -o \
             -path './.pyenv/*' -o \
             -path './.bashrc' -o \
             -path './.profile' -o \
             -path './.ssh' -o \
             -path './.ssh/*' \
-            \\) -delete" >/dev/null 2>&1
+            \) -delete >/dev/null 2>&1
+    else
+        find ~ -mindepth 1 -newermt "${date_stamp}" \
+            -not \( -path ~ -o -path "${BASEDIR}/*" \
+                -o -path ~/dotfiles \) \
+            -exec rm -rf {} +
+    fi
+    ) || true
 }
 
 initialize() {
     echo "initializing."
-    if ! vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1; then
-        if ! vagrant ssh -c "pyenv install -s ${2} && pyenv local ${2}" >/dev/null 2>&1; then
-            die "could not install python ${2}"
-        fi
-    fi
-    vagrant rsync >/dev/null 2>&1
     tests_run=0
     tests_passed=0
     tests_failed=0
@@ -96,8 +76,7 @@ run_test() {
     tests_run=$((tests_run + 1))
     printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
     cleanup
-    vagrant ssh -c "pyenv local ${2}" >/dev/null 2>&1
-    if vagrant ssh -c "cd /dotbot/test/tests && bash ${1}" 2>/dev/null; then
+    if (cd "${BASEDIR}/test/tests" && DOTBOT_TEST=true bash "${1}"); then
         pass
     else
         fail

@@ -1,8 +1,8 @@
 Vagrant.configure(2) do |config|
-  config.vm.box = 'debian/buster64'
+  config.vm.box = 'ubuntu/bionic64'
 
   # sync by copying for isolation
-  config.vm.synced_folder "..", "/dotbot", type: "rsync"
+  config.vm.synced_folder "..", "/dotbot", mount_options: ["ro"]
 
   # disable default synced folder
   config.vm.synced_folder ".", "/vagrant", disabled: true
