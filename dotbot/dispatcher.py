@@ -31,7 +31,7 @@ class Dispatcher(object):
                             success &= plugin.handle(action, task[action])
                             if action == 'plugins':
                                 self._load_plugins()
-                                self._log.lowinfo('Plugin list have been update')
+                                self._log.lowinfo('Plugin list have been updated')
                                 self._log.info('New plugin list: %s' % [type(plugin).__name__ for plugin in self._plugins])
                             handled = True
                         except Exception as err:
