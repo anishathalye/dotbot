@@ -235,6 +235,34 @@ the following config files equivalent:
       relink: true
 ```
 
+### Copy
+
+Copy command copies files or directories to destination.
+
+#### Format
+
+| Copy Option | Explanation |
+| -- | -- |
+| `path` | The source file to copy, the same as in the shortcut syntax (default:null, automatic (see below)) |
+| `create` | When true, create parent directories to the destination as needed. (default:false) |
+| `force` | Force removes the old target, file or folder, and forces a new copy (default:false) |
+| `skippable` | If old target exists, skip this copy (default:true) |
+
+#### Example
+
+```yaml
+- copy:
+    ~/.config/terminator:
+      create: true
+      path: config/terminator
+    ~/.bash_history:
+      path: bash_history
+      skippable: true
+    ~/.vimrc:
+      path: vimrc
+      force: true
+```
+
 ### Create
 
 Create commands specify empty directories to be created.  This can be useful
