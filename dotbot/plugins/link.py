@@ -2,6 +2,7 @@ import os
 import glob
 import shutil
 import dotbot
+import dotbot.util
 import subprocess
 
 
@@ -105,14 +106,7 @@ class Link(dotbot.Plugin):
         return success
 
     def _test_success(self, command):
-        with open(os.devnull, 'w') as devnull:
-            ret = subprocess.call(
-                command,
-                shell=True,
-                stdout=devnull,
-                stderr=devnull,
-                executable=os.environ.get('SHELL'),
-            )
+        ret = dotbot.util.shell_command(command, cwd=self._context.base_directory())
         if ret != 0:
             self._log.debug('Test \'%s\' returned false' % command)
         return ret == 0

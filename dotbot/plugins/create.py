@@ -1,8 +1,5 @@
 import os
-import glob
-import shutil
 import dotbot
-import subprocess
 
 
 class Create(dotbot.Plugin):
