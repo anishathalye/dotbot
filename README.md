@@ -106,7 +106,6 @@ The conventional name for the configuration file is `install.conf.yaml`.
 - clean: ['~']
 
 - link:
-    ~/.dotfiles: ''
     ~/.tmux.conf: tmux.conf
     ~/.vim: vim
     ~/.vimrc: vimrc
