@@ -119,9 +119,8 @@ The conventional name for the configuration file is `install.conf.yaml`.
 ```
 
 The configuration file is typically written in YAML, but it can also be written
-in JSON (which is a subset of YAML). [Here][json-equivalent] is the JSON
-[equivalent][json2yaml] of the YAML configuration given above. JSON
-configuration files are conventionally named `install.conf.json`.
+in JSON (which is a [subset of YAML][json2yaml]). JSON configuration files are
+conventionally named `install.conf.json`.
 
 ## Configuration
 
@@ -146,10 +145,10 @@ Following the formatting used in the examples is a good idea. If a YAML
 configuration file is not behaving as you expect, try inspecting the
 [equivalent JSON][json2yaml] and check that it is correct.
 
-Also, note that `~` in YAML is the same as `null` in JSON. If you want a single
-character string containing a tilde, make sure to enclose it in quotes: `'~'`
-
 ## Directives
+
+Most Dotbot commands support both a simplified and extended syntax, and they
+can also be configured via setting [defaults](#defaults).
 
 ### Link
 
@@ -161,25 +160,24 @@ files if necessary. Environment variables in paths are automatically expanded.
 
 Link commands are specified as a dictionary mapping targets to source
 locations. Source locations are specified relative to the base directory (that
-is specified when running the installer). If linking directories, *do not* include a trailing slash.
+is specified when running the installer). If linking directories, *do not*
+include a trailing slash.
 
-Link commands support an (optional) extended configuration. In this type of
+Link commands support an optional extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries.
 
-Available extended configuration parameters:
-
-| Link Option | Explanation |
-| -- | -- |
-| `path` | The source for the symlink, the same as in the shortcut syntax (default:null, automatic (see below)) |
-| `create` | When true, create parent directories to the link as needed. (default:false) |
-| `relink` | Removes the old target if it's a symlink (default:false) |
-| `force` | Force removes the old target, file or folder, and forces a new link (default:false) |
-| `relative` | Use a relative path to the source when creating the symlink (default:false, absolute links) |
-| `canonicalize-path` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default:true, real paths) |
-| `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default:false) |
+| Parameter | Explanation |
+| --- | --- |
+| `path` | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below)) |
+| `create` | When true, create parent directories to the link as needed. (default: false) |
+| `relink` | Removes the old target if it's a symlink (default: false) |
+| `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
+| `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
+| `canonicalize-path` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
+| `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default: false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
-| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default:false) |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
 
 #### Example
 
@@ -202,7 +200,9 @@ Available extended configuration parameters:
 
 If the source location is omitted or set to `null`, Dotbot will use the
 basename of the destination, with a leading `.` stripped if present. This makes
-the following config files equivalent:
+the following two config files equivalent.
+
+Explicit sources:
 
 ```yaml
 - link:
@@ -219,6 +219,8 @@ the following config files equivalent:
       path: config/*
       relink: true
 ```
+
+Implicit sources:
 
 ```yaml
 - link:
@@ -267,11 +269,22 @@ Another way is to specify a two element array where the first element is the
 shell command and the second is an optional human-readable description.
 
 Shell commands support an extended syntax as well, which provides more
-fine-grained control. A command can be specified as a dictionary that contains
-the command to be run, a description, whether to suppress outputting the
-command in the display via `quiet`,  and whether `stdin`, `stdout`,
-and `stderr` are enabled. In this syntax, all keys are optional except for the
-command itself.
+fine-grained control.
+
+| Parameter | Explanation |
+| --- | --- |
+| `command` | The command to be run |
+| `description` | A human-readable message describing the command (default: null) |
+| `quiet` | Show only the description but not the command in log output (default: false) |
+| `stdin` | Allow a command to read from standard input (default: false) |
+| `stdout` | Show a command's output from stdout (default: false) |
+| `stderr` | Show a command's error output from stderr (default: false) |
+
+Note that `quiet` controls whether the command (a string) is printed in log
+output, it does not control whether the output from running the command is
+printed (that is controlled by `stdout` / `stderr`). When a command's `stdin` /
+`stdout` / `stderr` is not enabled (which is the default), it's connected to
+`/dev/null`, disabling input and hiding output.
 
 #### Example
 
@@ -294,19 +307,22 @@ command itself.
 
 Clean commands specify directories that should be checked for dead symbolic
 links. These dead links are removed automatically. Only dead links that point
-to the dotfiles directory are removed unless the `force` option is set to
-`true`.
+to somewhere within the dotfiles directory are removed unless the `force`
+option is set to `true`.
 
 #### Format
 
 Clean commands are specified as an array of directories to be cleaned.
 
-Clean commands support an extended configuration syntax. In this type of
-configuration, commands are specified as directory paths mapping to options. If
-the `force` option is set to `true`, dead links are removed even if they don't
-point to a file inside the dotfiles directory. If `recursive` is set to `true`,
-the directory is traversed recursively (not recommended for `~` because it will
-be slow).
+Clean commands also support an extended configuration syntax.
+
+| Parameter | Explanation |
+| --- | --- |
+| `force` | Remove dead links even if they don't point to a file inside the dotfiles directory (default: false) |
+| `recursive` | Traverse the directory recursively looking for dead links (default: false) |
+
+Note: using the `recursive` option for `~` is not recommended because it will
+be slow.
 
 #### Example
 
@@ -326,8 +342,8 @@ Default options for plugins can be specified so that options don't have to be
 repeated many times. This can be very useful to use with the link command, for
 example.
 
-Defaults apply to all commands that follow setting the defaults. Defaults can
-be set multiple times; each change replaces the defaults with a new set of
+Defaults apply to all commands that come after setting the defaults. Defaults
+can be set multiple times; each change replaces the defaults with a new set of
 options.
 
 #### Format
@@ -358,6 +374,8 @@ default, so those can be used as a reference when writing custom plugins.
 Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
 either absolute paths or paths relative to the base directory. It is
 recommended that these options are added directly to the `install` script.
+
+See [here][plugins] for a current list of plugins.
 
 ## Command-line Arguments
 
@@ -404,8 +422,8 @@ Copyright (c) 2014-2020 Anish Athalye. Released under the MIT License. See
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotbot/wiki/Users
 [managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
-[json-equivalent]: https://gist.github.com/anishathalye/84bd6ba1dbe936e05141e07ec45f5fd4
 [json2yaml]: https://www.json2yaml.com/
+[plugins]: https://github.com/anishathalye/dotbot/wiki/Plugins
 [wiki]: https://github.com/anishathalye/dotbot/wiki
 [contributing]: CONTRIBUTING.md
 [license]: LICENSE.md
