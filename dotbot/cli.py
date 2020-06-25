@@ -74,6 +74,9 @@ def main():
             log.error('No configuration file specified')
             exit(1)
         tasks = read_config(options.config_file)
+        if tasks is None:
+            log.warning('Configuration file is empty, no work to do')
+            tasks = []
         if not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
         if options.base_directory:

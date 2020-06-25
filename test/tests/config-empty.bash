@@ -1,7 +1,7 @@
-test_description='empty config disallowed'
+test_description='empty config allowed'
 . '../test-lib.bash'
 
-test_expect_failure 'run' '
+test_expect_success 'run' '
 run_dotbot <<EOF
 EOF
 '
