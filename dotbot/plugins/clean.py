@@ -1,4 +1,6 @@
-import os, dotbot
+import os
+import dotbot
+
 
 class Clean(dotbot.Plugin):
     '''

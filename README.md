@@ -8,6 +8,7 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 - [Configuration](#configuration)
 - [Directives](#directives) ([Link](#link), [Create](#create), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
 - [Plugins](#plugins)
+- [Command-line Arguments](#command-line-arguments)
 - [Wiki][wiki]
 
 ---
@@ -380,8 +381,24 @@ plugins:
 
 ```
 
-Wiki
-----
+## Command-line Arguments
+
+Dotbot takes a number of command-line arguments; you can run Dotbot with
+`--help`, e.g. by running `./install --help`, to see the full list of options.
+Here, we highlight a couple that are particularly interesting.
+
+### `--only`
+
+You can call `./install --only [list of directives]`, such as `./install --only
+link`, and Dotbot will only run those sections of the config file.
+
+### `--except`
+
+You can call `./install --except [list of directives]`, such as `./install
+--except shell`, and Dotbot will run all the sections of the config file except
+the ones listed.
+
+## Wiki
 
 Check out the [Dotbot wiki][wiki] for more information, tips and tricks,
 user-contributed plugins, and more.
