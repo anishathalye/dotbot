@@ -20,10 +20,30 @@ class Dispatcher(object):
 
     def dispatch(self, tasks):
         success = True
+        if 'groups' in tasks:
+            success &= self._handle_groups(tasks['groups'])
+        else:
+            success &= self._handle_tasks(tasks)
+        return success
+
+    def _handle_groups(self, groups):
+        success = True
+
+        for group in groups:
+            if self._has_to_skip(group):
+                self._log.info('Skipping group %s' % group)
+                continue
+            self._log.info('Handle group %s' % group)
+            tasks = groups[group]
+            success &= self._handle_tasks(tasks)
+        return success
+
+    def _handle_tasks(self, tasks):
+        success = True
+
         for task in tasks:
             for action in task:
-                if self._only is not None and action not in self._only \
-                        or self._skip is not None and action in self._skip:
+                if self._has_to_skip(action):
                     self._log.info('Skipping action %s' % action)
                     continue
                 handled = False
@@ -45,6 +65,12 @@ class Dispatcher(object):
                     success = False
                     self._log.error('Action %s not handled' % action)
         return success
+
+    def _has_to_skip(self, action):
+        if self._only is not None and action not in self._only \
+                or self._skip is not None and action in self._skip:
+            return True
+        return False
 
     def _load_plugins(self):
         self._plugins = [plugin(self._context)

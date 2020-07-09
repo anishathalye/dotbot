@@ -77,7 +77,10 @@ def main():
         if tasks is None:
             log.warning('Configuration file is empty, no work to do')
             tasks = []
-        if not isinstance(tasks, list):
+        if isinstance(tasks, dict):
+          if not 'groups' in tasks:
+            raise ReadingError('Configuration file must contains the "groups" structure')
+        elif not isinstance(tasks, list):
             raise ReadingError('Configuration file must be a list of tasks')
         if options.base_directory:
             base_directory = os.path.abspath(options.base_directory)
