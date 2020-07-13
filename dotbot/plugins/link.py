@@ -47,7 +47,7 @@ class Link(dotbot.Plugin):
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
-            if test is not None and not self._test_success(test):
+            if test is not None and not dotbot.util.test_success(test, cwd=self._context.base_directory(), log=self._log):
                 self._log.lowinfo('Skipping %s' % destination)
                 continue
             path = os.path.expandvars(os.path.expanduser(path))
@@ -104,12 +104,6 @@ class Link(dotbot.Plugin):
         else:
             self._log.error('Some links were not successfully set up')
         return success
-
-    def _test_success(self, command):
-        ret = dotbot.util.shell_command(command, cwd=self._context.base_directory())
-        if ret != 0:
-            self._log.debug('Test \'%s\' returned false' % command)
-        return ret == 0
 
     def _default_source(self, destination, source):
         if source is None:

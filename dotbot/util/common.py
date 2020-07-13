@@ -32,3 +32,9 @@ def shell_command(command, cwd=None, enable_stdin=False, enable_stdout=False, en
             stderr=stderr,
             cwd=cwd
         )
+
+def test_success(command, cwd=None, log=None):
+    ret = shell_command(command, cwd=cwd)
+    if ret != 0 and log != None:
+        log.debug('Test \'%s\' returned false' % command)
+    return ret == 0

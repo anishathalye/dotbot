@@ -1,1 +1,1 @@
-from .common import shell_command
+from .common import shell_command, test_success

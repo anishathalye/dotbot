@@ -2,6 +2,7 @@ import os
 from .plugin import Plugin
 from .messenger import Messenger
 from .context import Context
+from .util import test_success
 
 class Dispatcher(object):
     def __init__(self, base_directory, only=None, skip=None):
@@ -21,7 +22,13 @@ class Dispatcher(object):
     def dispatch(self, tasks):
         success = True
         for task in tasks:
+            test = task.get('if', None)
+            if test is not None and not test_success(test, cwd=self._context.base_directory(), log=self._log):
+                self._log.lowinfo('Skipping task')
+                continue
             for action in task:
+                if action == 'if':
+                    continue
                 if self._only is not None and action not in self._only \
                         or self._skip is not None and action in self._skip:
                     self._log.info('Skipping action %s' % action)
