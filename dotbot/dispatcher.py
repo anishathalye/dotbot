@@ -20,8 +20,8 @@ class Dispatcher(object):
 
     def dispatch(self, tasks):
         success = True
-        if 'groups' in tasks:
-            success &= self._handle_groups(tasks['groups'])
+        if isinstance(tasks, dict):
+            success &= self._handle_groups(tasks)
         else:
             success &= self._handle_tasks(tasks)
         return success

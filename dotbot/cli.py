@@ -41,20 +41,6 @@ def read_config(config_file):
     reader = ConfigReader(config_file)
     return reader.get_config()
 
-def precheck_tasks(log, tasks):
-    if isinstance(tasks, dict):
-        if not 'groups' in tasks:
-            raise ReadingError(
-                'Configuration file must contains the structure with the name "groups"')
-        groups = tasks['groups']
-        if not isinstance(groups, dict):
-            raise ReadingError('The groups structure has to have group names')
-        for group in groups:
-            if not isinstance(groups[group], list):
-                raise ReadingError('The group %s mast contains a list of tasks' % group)
-    elif not isinstance(tasks, list):
-        raise ReadingError('Configuration file must be a list of tasks')
-
 def main():
     log = Messenger()
     try:
@@ -91,7 +77,12 @@ def main():
         if tasks is None:
             log.warning('Configuration file is empty, no work to do')
             tasks = []
-        precheck_tasks(log, tasks)
+        if isinstance(tasks, dict):
+            for group in tasks:
+                if not isinstance(tasks[group], list):
+                    raise ReadingError('The group %s mast contains a list of tasks' % group)
+        elif not isinstance(tasks, list):
+            raise ReadingError('Configuration file must be a list of tasks')
         if options.base_directory:
             base_directory = os.path.abspath(options.base_directory)
         else:
