@@ -4,12 +4,13 @@ from .messenger import Messenger
 from .context import Context
 
 class Dispatcher(object):
-    def __init__(self, base_directory, only=None, skip=None):
+    def __init__(self, base_directory, only=None, skip=None, groups=None):
         self._log = Messenger()
         self._setup_context(base_directory)
         self._load_plugins()
         self._only = only
         self._skip = skip
+        self._groups = groups
 
     def _setup_context(self, base_directory):
         path = os.path.abspath(
@@ -30,7 +31,7 @@ class Dispatcher(object):
         success = True
 
         for group in groups:
-            if self._has_to_skip(group):
+            if self._groups is not None and group not in self._groups:
                 self._log.info('Skipping group %s' % group)
                 continue
             self._log.info('Handle group %s' % group)
@@ -43,7 +44,8 @@ class Dispatcher(object):
 
         for task in tasks:
             for action in task:
-                if self._has_to_skip(action):
+                if self._only is not None and action not in self._only \
+                    or self._skip is not None and action in self._skip:
                     self._log.info('Skipping action %s' % action)
                     continue
                 handled = False
@@ -65,12 +67,6 @@ class Dispatcher(object):
                     success = False
                     self._log.error('Action %s not handled' % action)
         return success
-
-    def _has_to_skip(self, action):
-        if self._only is not None and action not in self._only \
-                or self._skip is not None and action in self._skip:
-            return True
-        return False
 
     def _load_plugins(self):
         self._plugins = [plugin(self._context)

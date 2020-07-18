@@ -29,9 +29,11 @@ def add_options(parser):
     parser.add_argument('--plugin-dir', action='append', dest='plugin_dirs', default=[],
         metavar='PLUGIN_DIR', help='load all plugins in PLUGIN_DIR')
     parser.add_argument('--only', nargs='+',
-            help='only run specified directives', metavar='DIRECTIVE')
+        help='only run specified directives', metavar='DIRECTIVE')
     parser.add_argument('--except', nargs='+', dest='skip',
-            help='skip specified directives', metavar='DIRECTIVE')
+        help='skip specified directives', metavar='DIRECTIVE')
+    parser.add_argument('--groups', nargs='+', help='only run specified groups',
+        dest='groups', metavar='GROUP')
     parser.add_argument('--no-color', dest='no_color', action='store_true',
         help='disable color output')
     parser.add_argument('--version', action='store_true',
@@ -89,7 +91,8 @@ def main():
             # default to directory of config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file))
         os.chdir(base_directory)
-        dispatcher = Dispatcher(base_directory, only=options.only, skip=options.skip)
+        dispatcher = Dispatcher(base_directory, only=options.only,
+            skip=options.skip, groups=options.groups)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')
