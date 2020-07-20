@@ -22,35 +22,43 @@ class Dispatcher(object):
     def dispatch(self, tasks):
         success = True
         for task in tasks:
-            test = task.get('if', None)
-            if test is not None and not test_success(test, cwd=self._context.base_directory(), log=self._log):
-                self._log.lowinfo('Skipping task')
-                continue
-            for action in task:
-                if action == 'if':
-                    continue
+            actions = task
+            name = task.get('task', None)
+            if name is not None:
+                test = task.get('if', None)
+                if test is not None and not test_success(test, cwd=self._context.base_directory(), log=self._log):
+                    self._log.info('Skipping task %s' % name)
+                    actions = []
+                else:
+                    actions = task.get('actions', [])
+                    if not actions:
+                        self._log.info('Task %s has no actions' % name)
+                    else:
+                        self._log.info('Starting task %s' % name)
+            for action in actions:
                 if self._only is not None and action not in self._only \
                         or self._skip is not None and action in self._skip:
                     self._log.info('Skipping action %s' % action)
                     continue
                 handled = False
                 if action == 'defaults':
-                    self._context.set_defaults(task[action]) # replace, not update
+                    self._context.set_defaults(actions[action]) # replace, not update
                     handled = True
                     # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
                         try:
-                            success &= plugin.handle(action, task[action])
+                            success &= plugin.handle(action, actions[action])
                             handled = True
                         except Exception as err:
                             self._log.error(
                                 'An error was encountered while executing action %s' %
                                 action)
-                            self._log.debug(err)
                 if not handled:
                     success = False
                     self._log.error('Action %s not handled' % action)
+            if name and actions:
+                self._log.info('Task %s completed' % name)
         return success
 
     def _load_plugins(self):
