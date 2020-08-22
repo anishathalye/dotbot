@@ -1,4 +1,5 @@
 import os, glob
+import sys
 
 from argparse import ArgumentParser
 from .config import ConfigReader, ReadingError
@@ -32,6 +33,8 @@ def add_options(parser):
             help='only run specified directives', metavar='DIRECTIVE')
     parser.add_argument('--except', nargs='+', dest='skip',
             help='skip specified directives', metavar='DIRECTIVE')
+    parser.add_argument('--force-color', dest='force_color', action='store_true',
+        help='force color output')
     parser.add_argument('--no-color', dest='no_color', action='store_true',
         help='disable color output')
     parser.add_argument('--version', action='store_true',
@@ -56,8 +59,17 @@ def main():
             log.set_level(Level.INFO)
         if options.verbose:
             log.set_level(Level.DEBUG)
-        if options.no_color:
+
+        if options.force_color and options.no_color:
+            log.error("`--force-color` and `--no-color` cannot both be provided")
+            exit(1)
+        elif options.force_color:
+            log.use_color(True)
+        elif options.no_color:
             log.use_color(False)
+        else:
+            log.use_color(sys.stdout.isatty())
+
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
             from .plugins import Clean, Create, Link, Shell
