@@ -214,7 +214,7 @@ class Link(dotbot.Plugin):
         # destination directory
         elif not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
             try:
-                os.symlink(source, destination)
+                os.symlink(source, destination, os.path.isdir(source))
             except OSError:
                 self._log.warning('Linking failed %s -> %s' % (link_name, source))
             else:
