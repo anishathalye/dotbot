@@ -92,7 +92,7 @@ touch install.conf.yaml
 In this case, rather than running `./install`, you can invoke Dotbot with
 `dotbot -c <path to configuration file>`.
 
-### Full Example
+### Awesome Full Example
 
 Here's an example of a complete configuration.
 
@@ -360,7 +360,7 @@ are dictionaries from option names to values.
       relink: true
 ```
 
-### Plugins
+### Awesome Plugins
 
 Dotbot also supports custom directives implemented by plugins. Plugins are
 implemented as subclasses of `dotbot.Plugin`, so they must implement
@@ -377,7 +377,7 @@ recommended that these options are added directly to the `install` script.
 
 See [here][plugins] for a current list of plugins.
 
-## Command-line Arguments
+## Awesome Command-line Arguments
 
 Dotbot takes a number of command-line arguments; you can run Dotbot with
 `--help`, e.g. by running `./install --help`, to see the full list of options.
@@ -394,7 +394,7 @@ You can call `./install --except [list of directives]`, such as `./install
 --except shell`, and Dotbot will run all the sections of the config file except
 the ones listed.
 
-## Wiki
+## Awesome Wiki
 
 Check out the [Dotbot wiki][wiki] for more information, tips and tricks,
 user-contributed plugins, and more.
