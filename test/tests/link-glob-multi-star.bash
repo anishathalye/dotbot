@@ -1,4 +1,4 @@
-test_description='link glob'
+test_description='link glob multi star'
 . '../test-lib.bash'
 
 test_expect_success 'setup' '

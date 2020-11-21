@@ -76,6 +76,8 @@ class Link(dotbot.Plugin):
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
                     glob_base = path[:glob_star_loc]
+                    if glob_base.endswith('/.') or glob_base == '.':
+                        glob_base = path[:glob_star_loc - 1]
                     for glob_full_item in glob_results:
                         glob_item = glob_full_item[len(glob_base):]
                         glob_link_destination = os.path.join(destination, glob_item)
