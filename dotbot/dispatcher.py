@@ -22,8 +22,9 @@ class Dispatcher(object):
         success = True
         for task in tasks:
             for action in task:
-                if self._only is not None and action not in self._only \
-                        or self._skip is not None and action in self._skip:
+                if (self._only is not None and action not in self._only \
+                        or self._skip is not None and action in self._skip) \
+                        and action != 'defaults':
                     self._log.info('Skipping action %s' % action)
                     continue
                 handled = False
