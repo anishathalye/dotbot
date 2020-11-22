@@ -236,6 +236,13 @@ Implicit sources:
       relink: true
 ```
 
+#### Limitations of `glob`
+
+Dotbot uses [glob()](https://docs.python.org/3.9/library/glob.html) to resolve
+glob paths. However, due to its design, using a glob path such as `config/*` for
+example, will not match items that being with `.`. To specifically capture
+items that being with `.`, you will need to use a path like this: `config/.*`.
+
 ### Create
 
 Create commands specify empty directories to be created.  This can be useful
