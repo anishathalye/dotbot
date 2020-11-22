@@ -178,6 +178,7 @@ mapped to extended configuration dictionaries.
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default: false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
+| `exclude` | Array of paths to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
 
 #### Example
 
@@ -218,6 +219,12 @@ Explicit sources:
       glob: true
       path: config/*
       relink: true
+      exclude: [ config/Code ]
+    ~/.config/Code/User/:
+      create: true
+      glob: true
+      path: config/Code/User/*
+      relink: true
 ```
 
 Implicit sources:
@@ -233,6 +240,12 @@ Implicit sources:
     ~/.config/:
       glob: true
       path: config/*
+      relink: true
+      exclude: [ config/Code ]
+    ~/.config/Code/User/:
+      create: true
+      glob: true
+      path: config/Code/User/*
       relink: true
 ```
 

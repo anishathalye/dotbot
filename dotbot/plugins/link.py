@@ -34,6 +34,7 @@ class Link(dotbot.Plugin):
             use_glob = defaults.get('glob', False)
             test = defaults.get('if', None)
             ignore_missing = defaults.get('ignore-missing', False)
+            exclude_paths = defaults.get('exclude', [])
             if isinstance(source, dict):
                 # extended config
                 test = source.get('if', test)
@@ -44,6 +45,7 @@ class Link(dotbot.Plugin):
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
                 ignore_missing = source.get('ignore-missing', ignore_missing)
+                exclude_paths = source.get('exclude', exclude_paths)
                 path = self._default_source(destination, source.get('path'))
             else:
                 path = self._default_source(destination, source)
@@ -52,8 +54,7 @@ class Link(dotbot.Plugin):
                 continue
             path = os.path.expandvars(os.path.expanduser(path))
             if use_glob:
-                self._log.debug("Globbing with path: " + str(path))
-                glob_results = glob.glob(path)
+                glob_results = self._create_glob_results(path, exclude_paths)
                 if len(glob_results) == 0:
                     self._log.warning("Globbing couldn't find anything matching " + str(path))
                     success = False
@@ -120,6 +121,17 @@ class Link(dotbot.Plugin):
                 return basename
         else:
             return source
+    
+    def _create_glob_results(self, path, exclude_paths):
+        self._log.debug("Globbing with path: " + str(path))
+        base_include = glob.glob(path)
+        to_exclude = []
+        for expath in exclude_paths:
+            self._log.debug("Excluding globs with path: " + str(expath))
+            to_exclude.extend(glob.glob(expath))
+        self._log.debug("Excluded globs from '" + path + "': " + str(to_exclude))
+        ret = set(base_include) - set(to_exclude)
+        return list(ret)
 
     def _is_link(self, path):
         '''
