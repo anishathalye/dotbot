@@ -66,6 +66,9 @@ cp dotbot/tools/hg-subrepo/install .
 touch install.conf.yaml
 ```
 
+If you are using PowerShell instead of a POSIX shell, you can use the provided
+`install.ps1` script instead of `install`.
+
 To get started, you just need to fill in the `install.conf.yaml` and Dotbot
 will take care of the rest. To help you get started we have [an
 example](#full-example) config file as well as [configuration
