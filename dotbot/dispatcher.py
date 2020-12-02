@@ -1,22 +1,23 @@
 import os
+from argparse import Namespace
 from .plugin import Plugin
 from .messenger import Messenger
 from .context import Context
 
 class Dispatcher(object):
-    def __init__(self, base_directory, only=None, skip=None):
+    def __init__(self, base_directory, only=None, skip=None, options=Namespace()):
         self._log = Messenger()
-        self._setup_context(base_directory)
+        self._setup_context(base_directory, options)
         self._load_plugins()
         self._only = only
         self._skip = skip
 
-    def _setup_context(self, base_directory):
+    def _setup_context(self, base_directory, options):
         path = os.path.abspath(
             os.path.expanduser(base_directory))
         if not os.path.exists(path):
             raise DispatchError('Nonexistent base directory')
-        self._context = Context(path)
+        self._context = Context(path, options)
 
     def dispatch(self, tasks):
         success = True

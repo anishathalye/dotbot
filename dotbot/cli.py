@@ -97,7 +97,7 @@ def main():
             # default to directory of config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file))
         os.chdir(base_directory)
-        dispatcher = Dispatcher(base_directory, only=options.only, skip=options.skip)
+        dispatcher = Dispatcher(base_directory, only=options.only, skip=options.skip, options=options)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')
