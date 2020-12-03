@@ -10,6 +10,7 @@ class Shell(dotbot.Plugin):
     '''
 
     _directive = 'shell'
+    _has_shown_override_message = False
 
     def can_handle(self, directive):
         return directive == self._directive
@@ -23,6 +24,7 @@ class Shell(dotbot.Plugin):
     def _process_commands(self, data):
         success = True
         defaults = self._context.defaults().get('shell', {})
+        options = self._get_option_overrides()
         for item in data:
             stdin = defaults.get('stdin', False)
             stdout = defaults.get('stdout', False)
@@ -47,6 +49,8 @@ class Shell(dotbot.Plugin):
                 self._log.lowinfo('%s' % msg)
             else:
                 self._log.lowinfo('%s [%s]' % (msg, cmd))
+            stdout = options.get('stdout', stdout)
+            stderr = options.get('stderr', stderr)
             ret = dotbot.util.shell_command(
                 cmd,
                 cwd=self._context.base_directory(),
@@ -62,3 +66,14 @@ class Shell(dotbot.Plugin):
         else:
             self._log.error('Some commands were not successfully executed')
         return success
+
+    def _get_option_overrides(self):
+        ret = {}
+        options = self._context.options()
+        if options.verbose > 1:
+            ret['stderr'] = True
+            ret['stdout'] = True
+            if not self._has_shown_override_message:
+                self._log.debug("Shell: Found cli option to force show stderr and stdout.")
+                self._has_shown_override_message = True
+        return ret
