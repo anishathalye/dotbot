@@ -1,19 +1,16 @@
 import os
+from argparse import Namespace
 from .plugin import Plugin
 from .messenger import Messenger
 from .context import Context
 
 class Dispatcher(object):
-    def __init__(self, base_directory, only=None, skip=None, options=None):
+    def __init__(self, base_directory, only=None, skip=None, options=Namespace()):
         self._log = Messenger()
         self._setup_context(base_directory, options)
         self._load_plugins()
-        if options is not None:
-            self._only = options.only
-            self._skip = options.skip
-        else:
-            self._only = only
-            self._skip = skip
+        self._only = options.only or only
+        self._skip = options.skip or skip
 
     def _setup_context(self, base_directory, options):
         path = os.path.abspath(

@@ -1,12 +1,13 @@
 import copy
 import os
+from argparse import Namespace
 
 class Context(object):
     '''
     Contextual data and information for plugins.
     '''
 
-    def __init__(self, base_directory, options):
+    def __init__(self, base_directory, options=Namespace()):
         self._base_directory = base_directory
         self._defaults = {}
         self._options = options
@@ -28,6 +29,4 @@ class Context(object):
         return copy.deepcopy(self._defaults)
 
     def options(self):
-        if self._options is not None:
-            return copy.deepcopy(self._options)
-        return None
+        return copy.deepcopy(self._options)

@@ -40,9 +40,6 @@ class Test(dotbot.Plugin):
     def handle(self, directive, data):
         self._log.debug("Attempting to get options from Context")
         options = self._context.options()
-        if options is None:
-            self._log.debug("Context.options is None, expected not None")
-            return False
         if len(options.plugins) != 1:
             self._log.debug("Context.options.plugins length is %i, expected 1" % len(options.plugins))
             return False
