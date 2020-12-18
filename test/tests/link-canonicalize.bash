@@ -16,5 +16,5 @@ ${DOTBOT_EXEC} -c dotfiles-symlink/${INSTALL_CONF}
 '
 
 test_expect_success 'test' '
-[ "$(readlink ~/.f | cut -d/ -f4-)" = "dotfiles/f" ]
+[ "$(readlink ~/.f | cut -d/ -f5-)" = "dotfiles/f" ]
 '

@@ -1,0 +1,20 @@
+name: CI
+on:
+  push:
+  schedule:
+    - cron: '0 8 * * 6'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [2.7, pypy2, 3.4, 3.5, 3.6, 3.7, 3.8, pypy3]
+    name: Python ${{ matrix.python }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: ./test/test

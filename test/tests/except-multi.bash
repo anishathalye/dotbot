@@ -16,6 +16,6 @@ EOF
 '
 
 test_expect_success 'test' '
-[ "$(readlink ~/bad | cut -d/ -f4-)" = "dotfiles/nonexistent" ] &&
+[ "$(readlink ~/bad | cut -d/ -f5-)" = "dotfiles/nonexistent" ] &&
     ! test -f ~/x && test -f ~/y
 '

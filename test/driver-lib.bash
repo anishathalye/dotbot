@@ -24,30 +24,14 @@ yellow() {
 
 
 check_env() {
-    if [[ "$(whoami)" != "vagrant" && ( "${TRAVIS}" != true || "${CI}" != true ) ]]; then
-        die "tests must be run inside Travis or Vagrant"
+    if [[ "$(whoami)" != "vagrant" && "${CI}" != true ]]; then
+        die "tests must be run inside Vagrant or CI"
     fi
 }
 
 cleanup() {
-    (
-    if [ "$(whoami)" == "vagrant" ]; then
-        cd $HOME
-        find . -not \( \
-            -path './.pyenv' -o \
-            -path './.pyenv/*' -o \
-            -path './.bashrc' -o \
-            -path './.profile' -o \
-            -path './.ssh' -o \
-            -path './.ssh/*' \
-            \) -delete >/dev/null 2>&1
-    else
-        find ~ -mindepth 1 -newermt "${date_stamp}" \
-            -not \( -path ~ -o -path "${BASEDIR}/*" \
-                -o -path ~/dotfiles \) \
-            -exec rm -rf {} +
-    fi
-    ) || true
+    rm -rf ~/fakehome
+    mkdir -p ~/fakehome
 }
 
 initialize() {
@@ -76,7 +60,7 @@ run_test() {
     tests_run=$((tests_run + 1))
     printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
     cleanup
-    if (cd "${BASEDIR}/test/tests" && DOTBOT_TEST=true bash "${1}"); then
+    if (cd "${BASEDIR}/test/tests" && HOME=~/fakehome DOTBOT_TEST=true bash "${1}"); then
         pass
     else
         fail

@@ -17,7 +17,7 @@ run_dotbot <<EOF
         if: "false"
     ~/.h:
         path: f
-        if: "[[ -d ~/d ]]"
+        if: "[ -d ~/d ]"
     ~/.i:
         path: f
         if: "badcommand"
