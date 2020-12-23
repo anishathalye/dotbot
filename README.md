@@ -404,14 +404,6 @@ user-contributed plugins, and more.
 Do you have a feature request, bug report, or patch? Great! See
 [CONTRIBUTING.md][contributing] for information on what you can do about that.
 
-## Packaging
-
-1. Update version information.
-
-2. Build the package using ``python setup.py sdist bdist_wheel``.
-
-3. Sign and upload the package using ``twine upload -s dist/*``.
-
 ## License
 
 Copyright (c) 2014-2020 Anish Athalye. Released under the MIT License. See
