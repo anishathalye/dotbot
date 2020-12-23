@@ -24,8 +24,11 @@ dependencies and no installation required. Dotbot can also be a drop-in
 replacement for any other tool you were using to manage your dotfiles, and
 Dotbot is VCS-agnostic -- it doesn't make any attempt to manage your dotfiles.
 
-If you want an in-depth tutorial about organizing your dotfiles, see this [blog
-post][managing-dotfiles-post].
+See [this blog
+post](https://www.anishathalye.com/2014/08/03/managing-your-dotfiles/) or more
+resources on the [tutorials
+page](https://github.com/anishathalye/dotbot/wiki/Tutorials) for more detailed
+explanations of how to organize your dotfiles.
 
 ## Getting Started
 
