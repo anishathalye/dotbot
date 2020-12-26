@@ -188,6 +188,7 @@ class Link(dotbot.Plugin):
         Returns the relative path to get to the source file from the
         destination file.
         '''
+        destination = os.path.realpath(destination)
         destination_dir = os.path.dirname(destination)
         return os.path.relpath(source, destination_dir)
 
