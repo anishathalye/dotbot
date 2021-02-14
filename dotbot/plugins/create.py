@@ -20,7 +20,7 @@ class Create(dotbot.Plugin):
     def _process_paths(self, paths):
         success = True
         for path in paths:
-            path = os.path.expandvars(os.path.expanduser(path))
+            path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
             success &= self._create(path)
         if success:
             self._log.info('All paths have been set up')
