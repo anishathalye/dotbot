@@ -2,6 +2,7 @@ import os
 from .plugin import Plugin
 from .messenger import Messenger
 from .context import Context
+import traceback
 
 class Dispatcher(object):
     def __init__(self, base_directory, only=None, skip=None):
@@ -21,30 +22,35 @@ class Dispatcher(object):
     def dispatch(self, tasks):
         success = True
         for task in tasks:
-            for action in task:
+            for action in task.keys():
                 if (self._only is not None and action not in self._only \
                         or self._skip is not None and action in self._skip) \
                         and action != 'defaults':
                     self._log.info('Skipping action %s' % action)
                     continue
                 handled = False
+                # print("\tcurrent action", action)
                 if action == 'defaults':
                     self._context.set_defaults(task[action]) # replace, not update
                     handled = True
                     # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
+
                     if plugin.can_handle(action):
+                        # print("Action:", action)
                         try:
                             success &= plugin.handle(action, task[action])
                             handled = True
                         except Exception as err:
+                            print("failure", err)
+                            traceback.print_exception(type(err), err, err.__traceback__)
                             self._log.error(
-                                'An error was encountered while executing action %s' %
+                                'An error was encountered while executing action "%s"' %
                                 action)
                             self._log.debug(err)
                 if not handled:
                     success = False
-                    self._log.error('Action %s not handled' % action)
+                    self._log.error('Action "%s" not handled' % action)
         return success
 
     def _load_plugins(self):
