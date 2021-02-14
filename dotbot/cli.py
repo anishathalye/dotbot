@@ -44,12 +44,15 @@ def read_config(config_file):
     reader = ConfigReader(config_file)
     return reader.get_config()
 
-def main():
+def main(additional_args=None):
     log = Messenger()
     try:
         parser = ArgumentParser()
         add_options(parser)
         options = parser.parse_args()
+        if additional_args is not None:
+            print("got explicit argumenets")
+            options = parser.parse_args(additional_args)
         if options.version:
             print('Dotbot version %s (yaml: %s)' % (dotbot.__version__, yaml.__version__))
             exit(0)
@@ -85,6 +88,7 @@ def main():
         if not options.config_file:
             log.error('No configuration file specified')
             exit(1)
+        # read tasks from config file
         tasks = read_config(options.config_file)
         if tasks is None:
             log.warning('Configuration file is empty, no work to do')
