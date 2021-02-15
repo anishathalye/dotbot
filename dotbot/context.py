@@ -1,10 +1,11 @@
 import copy
 import os
 
+
 class Context(object):
-    '''
+    """
     Contextual data and information for plugins.
-    '''
+    """
 
     def __init__(self, base_directory):
         self._base_directory = base_directory
