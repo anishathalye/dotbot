@@ -26,7 +26,7 @@ class Link(dotbot.Plugin):
         success = True
         defaults = self._context.defaults().get('link', {})
         for destination, source in links.items():
-            destination = os.path.normpath(os.path.expandvars(destination))
+            destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
             canonical_path = defaults.get('canonicalize-path', True)
             force = defaults.get('force', False)
@@ -51,7 +51,7 @@ class Link(dotbot.Plugin):
             if test is not None and not self._test_success(test):
                 self._log.lowinfo('Skipping %s' % destination)
                 continue
-            path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
+            path = os.path.expandvars(os.path.expanduser(path))
             if use_glob:
                 self._log.debug("Globbing with path: " + str(path))
                 glob_results = glob.glob(path)
