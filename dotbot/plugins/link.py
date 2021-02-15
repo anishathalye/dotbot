@@ -228,9 +228,8 @@ class Link(dotbot.Plugin):
             dotfile_source = absolute_source
 
         target_path_exists: bool = self._exists(target_path_to_link_at)
-
         target_file_is_link: bool = self._is_link(target_path_to_link_at)
-        symlink_dest_at_target_path = self._link_destination(target_path_to_link_at)
+        symlink_dest_at_target_path: str = self._link_destination(target_path_to_link_at)
         if (not target_path_exists and target_file_is_link and
                 symlink_dest_at_target_path != dotfile_source):
             self._log.warning('Invalid link %s -> %s' %
