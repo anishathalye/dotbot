@@ -22,6 +22,7 @@ class Link(dotbot.Plugin):
         return self._process_links(data)
 
     def _process_links(self, links):
+        # print("symlinking\n\t", links)
         success = True
         defaults = self._context.defaults().get('link', {})
         for destination, source in links.items():
@@ -129,10 +130,28 @@ class Link(dotbot.Plugin):
 
     def _link_destination(self, path):
         '''
-        Returns the destination of the symbolic link.
+        Returns the destination of the symbolic link. Truncates the  \\?\ start to a path if it
+        is present. This is an identifier which allows >255 character file name links to work.
+        Since this function is for the point of comparison, it is okay to truncate
         '''
+        # path = os.path.normpath(path)
         path = os.path.expanduser(path)
-        return os.readlink(path)
+        try:
+            read_link = os.readlink(path)
+            # Read link can return paths starting with \\?\ - this allows over the 255 file name
+            # limit
+        except OSError as e:
+            if "[WinError 4390] The file or directory is not a reparse point" in str(e) and \
+                os.path.isdir(path):
+                return "UNLINKED_DIR"
+            return "OSERROR_READING_LINK"
+        except Exception as e:
+            print(e)
+            return 'GENERAL_EXCEPTION_READING_LINK'
+        else:
+            if read_link.startswith("\\\\?\\"):
+                read_link = read_link.replace("\\\\?\\", "")
+            return read_link
 
     def _exists(self, path):
         '''
