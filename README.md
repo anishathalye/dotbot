@@ -182,6 +182,12 @@ mapped to extended configuration dictionaries.
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
 
+Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob)
+to resolve glob paths. However, due to its design, using a glob path such as
+`config/*` for example, will not match items that being with `.`. To
+specifically capture items that being with `.`, you will need to use a path
+like this: `config/.*`.
+
 #### Example
 
 ```yaml
