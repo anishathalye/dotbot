@@ -27,7 +27,8 @@ class Link(dotbot.Plugin):
         for destination, source in links.items():
             destination = os.path.expandvars(destination)
             relative = defaults.get('relative', False)
-            canonical_path = defaults.get('canonicalize-path', True)
+            # support old "canonicalize-path" key for compatibility
+            canonical_path = defaults.get('canonicalize', defaults.get('canonicalize-path', True))
             force = defaults.get('force', False)
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
@@ -39,7 +40,7 @@ class Link(dotbot.Plugin):
                 # extended config
                 test = source.get('if', test)
                 relative = source.get('relative', relative)
-                canonical_path = source.get('canonicalize-path', canonical_path)
+                canonical_path = source.get('canonicalize', source.get('canonicalize-path', canonical_path))
                 force = source.get('force', force)
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
@@ -123,7 +124,7 @@ class Link(dotbot.Plugin):
                 return basename
         else:
             return source
-    
+
     def _create_glob_results(self, path, exclude_paths):
         self._log.debug("Globbing with path: " + str(path))
         base_include = glob.glob(path)
