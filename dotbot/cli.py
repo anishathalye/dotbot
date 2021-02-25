@@ -1,7 +1,7 @@
 import os, glob
 import sys
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from .config import ConfigReader, ReadingError
 from .dispatcher import Dispatcher, DispatchError
 from .messenger import Messenger
@@ -16,8 +16,10 @@ def add_options(parser):
         help='suppress almost all output')
     parser.add_argument('-q', '--quiet', action='store_true',
         help='suppress most output')
-    parser.add_argument('-v', '--verbose', action='store_true',
-        help='enable verbose output')
+    parser.add_argument('-v', '--verbose', action='count', default=0,
+        help='enable verbose output\n'
+             '-v: typical verbose\n'
+             '-vv: also, set shell commands stderr/stdout to true')
     parser.add_argument('-d', '--base-directory',
         help='execute commands from within BASEDIR',
         metavar='BASEDIR')
@@ -47,7 +49,7 @@ def read_config(config_file):
 def main():
     log = Messenger()
     try:
-        parser = ArgumentParser()
+        parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
         add_options(parser)
         options = parser.parse_args()
         if options.version:
@@ -57,7 +59,7 @@ def main():
             log.set_level(Level.WARNING)
         if options.quiet:
             log.set_level(Level.INFO)
-        if options.verbose:
+        if options.verbose > 0:
             log.set_level(Level.DEBUG)
 
         if options.force_color and options.no_color:
