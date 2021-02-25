@@ -10,6 +10,23 @@ start="$(date +%s)"
 
 check_env
 
+# parse flags; must come before positional arguments
+POSITIONAL=()
+DEBUG=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -d|--debug)
+            DEBUG=true
+            shift
+            ;;
+        *)
+            POSITIONAL+=("$1")
+            shift
+            ;;
+    esac
+done
+set -- "${POSITIONAL[@]}" # restore positional arguments
+
 declare -a tests=()
 
 if [ $# -eq 0 ]; then
@@ -20,10 +37,10 @@ else
     tests=("$@")
 fi
 
-initialize "${#tests[@]}" "${VERSION}"
+initialize "${#tests[@]}"
 
 for file in "${tests[@]}"; do
-    run_test "$(basename "${file}")" "${VERSION}"
+    run_test "$(basename "${file}")" "${DEBUG}"
 done
 
 if report; then

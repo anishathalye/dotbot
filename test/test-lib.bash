@@ -1,4 +1,3 @@
-DEBUG=${DEBUG:-false}
 DOTBOT_EXEC="${BASEDIR}/bin/dotbot"
 DOTFILES="${HOME}/dotfiles"
 INSTALL_CONF='install.conf.yaml'

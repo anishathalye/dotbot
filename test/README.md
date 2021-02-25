@@ -51,8 +51,8 @@ edits on your host machine). You can run the test suite by `cd /dotbot/test`
 and then running `./test`. Selected tests can be run by passing paths to the
 tests as arguments, e.g. `./test tests/create.bash tests/defaults.bash`.
 
-To debug tests, you can prepend the line `DEBUG=true` as the first line to any
-individual test (a `.bash` file inside `test/tests`). This will enable printing
+To debug tests, you can run the test driver with the `--debug` (or `-d` short
+form) flag, e.g. `./test --debug tests/link-if.bash`. This will enable printing
 stdout/stderr.
 
 When finished with testing, it is good to shut down the virtual machine by
