@@ -247,15 +247,30 @@ apps, plugins, shell commands, etc.
 
 #### Format
 
-Create commands are specified as an array of directories to be created.
+Create commands are specified as an array of directories to be created. If you
+want to use the optional extended configuration, create commands are specified
+as dictionaries. For convenience, it's permissible to leave the options blank
+(null) in the dictionary syntax.
+
+| Parameter | Explanation |
+| --- | --- |
+| `mode` | The file mode to use for creating the leaf directory (default: 0777) |
+
+The `mode` parameter is treated in the same way as in Python's
+[os.mkdir](https://docs.python.org/3/library/os.html#mkdir-modebits). Its
+behavior is platform-dependent. On Unix systems, the current umask value is
+first masked out.
 
 #### Example
 
 ```yaml
 - create:
-    - ~/projects
     - ~/downloads
     - ~/.vim/undo-history
+- create:
+    ~/.ssh:
+      mode: 0700
+    ~/projects:
 ```
 
 ### Shell

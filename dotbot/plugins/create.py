@@ -19,9 +19,15 @@ class Create(dotbot.Plugin):
 
     def _process_paths(self, paths):
         success = True
-        for path in paths:
-            path = os.path.expandvars(os.path.expanduser(path))
-            success &= self._create(path)
+        defaults = self._context.defaults().get('create', {})
+        for key in paths:
+            path = os.path.expandvars(os.path.expanduser(key))
+            mode = defaults.get('mode', 0o777)  # same as the default for os.makedirs
+            if isinstance(paths, dict):
+                options = paths[key]
+                if options:
+                    mode = options.get('mode', mode)
+            success &= self._create(path, mode)
         if success:
             self._log.info('All paths have been set up')
         else:
@@ -35,13 +41,13 @@ class Create(dotbot.Plugin):
         path = os.path.expanduser(path)
         return os.path.exists(path)
 
-    def _create(self, path):
+    def _create(self, path, mode):
         success = True
         if not self._exists(path):
-            self._log.debug('Trying to create path %s' % path)
+            self._log.debug('Trying to create path %s with mode %o' % (path, mode))
             try:
                 self._log.lowinfo('Creating path %s' % path)
-                os.makedirs(path)
+                os.makedirs(path, mode)
             except OSError:
                 self._log.warning('Failed to create path %s' % path)
                 success = False
