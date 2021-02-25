@@ -24,6 +24,7 @@ run_dotbot --only link <<EOF
   - echo "pear" > ~/z
 - link:
     ~/x: x
+EOF
 '
 
 test_expect_success 'test' '
