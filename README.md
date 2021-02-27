@@ -66,6 +66,9 @@ cp dotbot/tools/hg-subrepo/install .
 touch install.conf.yaml
 ```
 
+If you are using PowerShell instead of a POSIX shell, you can use the provided
+`install.ps1` script instead of `install`.
+
 To get started, you just need to fill in the `install.conf.yaml` and Dotbot
 will take care of the rest. To help you get started we have [an
 example](#full-example) config file as well as [configuration
@@ -177,10 +180,17 @@ mapped to extended configuration dictionaries.
 | `relink` | Removes the old target if it's a symlink (default: false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
 | `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
-| `canonicalize-path` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
+| `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
 | `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default: false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
+| `exclude` | Array of paths to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
+
+Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob)
+to resolve glob paths. However, due to its design, using a glob path such as
+`config/*` for example, will not match items that being with `.`. To
+specifically capture items that being with `.`, you will need to use a path
+like this: `config/.*`.
 
 #### Example
 
@@ -221,6 +231,12 @@ Explicit sources:
       glob: true
       path: config/*
       relink: true
+      exclude: [ config/Code ]
+    ~/.config/Code/User/:
+      create: true
+      glob: true
+      path: config/Code/User/*
+      relink: true
 ```
 
 Implicit sources:
@@ -237,6 +253,12 @@ Implicit sources:
       glob: true
       path: config/*
       relink: true
+      exclude: [ config/Code ]
+    ~/.config/Code/User/:
+      create: true
+      glob: true
+      path: config/Code/User/*
+      relink: true
 ```
 
 ### Create
@@ -247,15 +269,30 @@ apps, plugins, shell commands, etc.
 
 #### Format
 
-Create commands are specified as an array of directories to be created.
+Create commands are specified as an array of directories to be created. If you
+want to use the optional extended configuration, create commands are specified
+as dictionaries. For convenience, it's permissible to leave the options blank
+(null) in the dictionary syntax.
+
+| Parameter | Explanation |
+| --- | --- |
+| `mode` | The file mode to use for creating the leaf directory (default: 0777) |
+
+The `mode` parameter is treated in the same way as in Python's
+[os.mkdir](https://docs.python.org/3/library/os.html#mkdir-modebits). Its
+behavior is platform-dependent. On Unix systems, the current umask value is
+first masked out.
 
 #### Example
 
 ```yaml
 - create:
-    - ~/projects
     - ~/downloads
     - ~/.vim/undo-history
+- create:
+    ~/.ssh:
+      mode: 0700
+    ~/projects:
 ```
 
 ### Shell

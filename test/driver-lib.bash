@@ -60,7 +60,7 @@ run_test() {
     tests_run=$((tests_run + 1))
     printf '[%d/%d] (%s)\n' "${tests_run}" "${tests_total}" "${1}"
     cleanup
-    if (cd "${BASEDIR}/test/tests" && HOME=~/fakehome DOTBOT_TEST=true bash "${1}"); then
+    if (cd "${BASEDIR}/test/tests" && HOME=~/fakehome DEBUG=${2} DOTBOT_TEST=true bash "${1}"); then
         pass
     else
         fail

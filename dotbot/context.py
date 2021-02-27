@@ -1,5 +1,6 @@
 import copy
 import os
+from argparse import Namespace
 
 
 class Context(object):
@@ -7,9 +8,10 @@ class Context(object):
     Contextual data and information for plugins.
     """
 
-    def __init__(self, base_directory):
+    def __init__(self, base_directory, options=Namespace()):
         self._base_directory = base_directory
         self._defaults = {}
+        self._options = options
         pass
 
     def set_base_directory(self, base_directory):
@@ -26,3 +28,6 @@ class Context(object):
 
     def defaults(self):
         return copy.deepcopy(self._defaults)
+
+    def options(self):
+        return copy.deepcopy(self._options)
