@@ -13,28 +13,28 @@ import yaml
 
 
 def add_options(parser):
-    parser.add_argument("-Q", "--super-quiet", action="store_true", help="suppress almost all output")
-    parser.add_argument("-q", "--quiet", action="store_true", help="suppress most output")
-    parser.add_argument("-v", "--verbose", action="store_true", help="enable verbose output")
-    parser.add_argument("-d", "--base-directory", help="execute commands from within BASEDIR", metavar="BASEDIR")
-    parser.add_argument("-c", "--config-file", help="run commands given in CONFIGFILE", metavar="CONFIGFILE")
+    parser.add_argument('-Q', '--super-quiet', action='store_true', help='suppress almost all output')
+    parser.add_argument('-q', '--quiet', action='store_true', help='suppress most output')
+    parser.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
+    parser.add_argument('-d', '--base-directory', help='execute commands from within BASEDIR', metavar='BASEDIR')
+    parser.add_argument('-c', '--config-file', help='run commands given in CONFIGFILE', metavar='CONFIGFILE')
     parser.add_argument(
-        "-p", "--plugin", action="append", dest="plugins", default=[], help="load PLUGIN as a plugin", metavar="PLUGIN"
+        '-p', '--plugin', action='append', dest='plugins', default=[], help='load PLUGIN as a plugin', metavar='PLUGIN'
     )
-    parser.add_argument("--disable-built-in-plugins", action="store_true", help="disable built-in plugins")
+    parser.add_argument('--disable-built-in-plugins', action='store_true', help='disable built-in plugins')
     parser.add_argument(
-        "--plugin-dir",
-        action="append",
-        dest="plugin_dirs",
+        '--plugin-dir',
+        action='append',
+        dest='plugin_dirs',
         default=[],
-        metavar="PLUGIN_DIR",
-        help="load all plugins in PLUGIN_DIR",
+        metavar='PLUGIN_DIR',
+        help='load all plugins in PLUGIN_DIR',
     )
-    parser.add_argument("--only", nargs="+", help="only run specified directives", metavar="DIRECTIVE")
-    parser.add_argument("--except", nargs="+", dest="skip", help="skip specified directives", metavar="DIRECTIVE")
-    parser.add_argument("--force-color", dest="force_color", action="store_true", help="force color output")
-    parser.add_argument("--no-color", dest="no_color", action="store_true", help="disable color output")
-    parser.add_argument("--version", action="store_true", help="show program's version number and exit")
+    parser.add_argument('--only', nargs='+', help='only run specified directives', metavar='DIRECTIVE')
+    parser.add_argument('--except', nargs='+', dest='skip', help='skip specified directives', metavar='DIRECTIVE')
+    parser.add_argument('--force-color', dest='force_color', action='store_true', help='force color output')
+    parser.add_argument('--no-color', dest='no_color', action='store_true', help='disable color output')
+    parser.add_argument('--version', action='store_true', help="show program's version number and exit")
 
 
 def read_config(config_file):
@@ -49,7 +49,7 @@ def main(additional_args=None):
         add_options(parser)
         options = parser.parse_args()
         if additional_args is not None:
-            print("got explicit argumenets")
+            print("got explicit arguments")
             options = parser.parse_args(additional_args)
         if options.version:
             print("Dotbot version %s (yaml: %s)" % (dotbot.__version__, yaml.__version__))
