@@ -240,7 +240,7 @@ class Link(dotbot.Plugin):
         Returns true if successfully linked files.
         """
         success_flag = False
-        destination = os.path.expanduser(target_path_to_link_at)
+        destination = os.path.normpath(os.path.expanduser(target_path_to_link_at))
         base_directory = self._context.base_directory(canonical_path=canonical_path)
         absolute_source = os.path.join(base_directory, dotfile_source)
         # Check source directory exists unless we ignore missing
@@ -253,6 +253,7 @@ class Link(dotbot.Plugin):
             dotfile_source = self._relative_path(absolute_source, destination)
         else:
             dotfile_source = absolute_source
+        dotfile_source = os.path.normpath(dotfile_source)
 
         target_path_exists: bool = self._exists(target_path_to_link_at)
         target_file_is_link: bool = self._is_link(target_path_to_link_at)
@@ -264,6 +265,7 @@ class Link(dotbot.Plugin):
             if target_path_exists:
                 self._log.warning("Incorrect link (link exists but target is incorrect) %s -> %s"
                                   % (target_path_to_link_at, symlink_dest_at_target_path))
+                print("Link found:", symlink_dest_at_target_path, "expected", dotfile_source)
             else:
                 # Symlink is broken or dangling
                 self._log.warning("Symlink Invalid %s -> %s" % (target_path_to_link_at,
@@ -283,6 +285,7 @@ class Link(dotbot.Plugin):
         else:
             # target path doesn't exist already, so we try to create the symlink
             try:
+                print(f"running symlink with args '{dotfile_source}', '{destination}'")
                 os.symlink(dotfile_source, destination)
             except OSError:
                 self._log.warning("Linking failed %s -> %s" % (target_path_to_link_at, dotfile_source))
