@@ -305,8 +305,8 @@ class Link(dotbot.Plugin):
             try:
                 print(f"running symlink with args '{dotfile_source}', '{destination}'")
                 os.symlink(dotfile_source, destination)
-            except OSError:
-                self._log.warning("Linking failed %s -> %s" % (target_path_to_link_at, dotfile_source))
+            except OSError as e:
+                self._log.warning("Linking failed, throwing OSEerror %s -> %s\n (%s)" % (target_path_to_link_at, dotfile_source, e))
             except Exception as e:
                 print(
                     f"SYMLINK FAILED with arguments os.symlink({dotfile_source}, {destination})",
