@@ -4,6 +4,7 @@ import shutil
 import dotbot
 import dotbot.util
 import subprocess
+import textwrap
 
 
 class Link(dotbot.Plugin):
@@ -286,8 +287,7 @@ class Link(dotbot.Plugin):
                 print("Link found:", symlink_dest_at_target_path, "expected", dotfile_source)
             else:
                 # Symlink is broken or dangling
-                self._log.warning("Symlink Invalid %s -> %s" % (target_path_to_link_at,
-                                                            symlink_dest_at_target_path))
+                self._log.warning("Symlink Invalid %s -> %s" % (target_path_to_link_at, symlink_dest_at_target_path))
             return success_flag
 
         if target_path_exists:  # file/ folder we want to put symlink in already exists
@@ -305,8 +305,11 @@ class Link(dotbot.Plugin):
             try:
                 print(f"running symlink with args '{dotfile_source}', '{destination}'")
                 os.symlink(dotfile_source, destination)
-            except OSError:
-                self._log.warning("Linking failed %s -> %s" % (target_path_to_link_at, dotfile_source))
+            except OSError as e:
+                msg = textwrap.fill(
+                    f"Linking failed {target_path_to_link_at} -> {dotfile_source}\n ({e})", width=80, subsequent_indent="    ")
+
+                self._log.warning(msg)
             except Exception as e:
                 print(
                     f"SYMLINK FAILED with arguments os.symlink({dotfile_source}, {destination})",
