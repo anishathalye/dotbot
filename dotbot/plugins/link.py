@@ -60,15 +60,14 @@ class Link(dotbot.Plugin):
                     self._log.warning("Globbing couldn't find anything matching " + str(path))
                     success = False
                     continue
-                glob_star_loc = path.find('*')
-                if glob_star_loc == -1 and destination[-1] == '/':
+                if len(glob_results) == 1 and destination[-1] == '/':
                     self._log.error("Ambiguous action requested.")
                     self._log.error("No wildcard in glob, directory use undefined: " +
                         destination + " -> " + str(glob_results))
                     self._log.warning("Did you want to link the directory or into it?")
                     success = False
                     continue
-                elif glob_star_loc == -1 and len(glob_results) == 1:
+                elif len(glob_results) == 1 and destination[-1] != '/':
                     # perform a normal link operation
                     if create:
                         success &= self._create(destination)
@@ -77,11 +76,11 @@ class Link(dotbot.Plugin):
                     success &= self._link(path, destination, relative, canonical_path, ignore_missing)
                 else:
                     self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
-                    glob_base = path[:glob_star_loc]
-                    if glob_base.endswith('/.') or glob_base == '.':
-                        glob_base = path[:glob_star_loc - 1]
                     for glob_full_item in glob_results:
-                        glob_item = glob_full_item[len(glob_base):]
+                        # Find common dirname between pattern and the item:
+                        glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
+                        glob_item = (glob_full_item if len(glob_dirname) == 0 else glob_full_item[len(glob_dirname) + 1:])
+                        # where is it going
                         glob_link_destination = os.path.join(destination, glob_item)
                         if create:
                             success &= self._create(glob_link_destination)
