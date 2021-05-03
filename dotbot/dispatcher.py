@@ -1,5 +1,7 @@
 import os
 from argparse import Namespace
+from pprint import pprint
+
 from .plugin import Plugin
 from .messenger import Messenger
 from .context import Context
@@ -7,6 +9,7 @@ import traceback
 
 
 class Dispatcher(object):
+    """Actually processes the yaml data. Delegates to specialised classes"""
     def __init__(self, base_directory, only=None, skip=None, options=Namespace()):
         self._log = Messenger()
         self._setup_context(base_directory, options)
@@ -21,6 +24,7 @@ class Dispatcher(object):
         self._context = Context(path, options)
 
     def dispatch(self, tasks):
+        pprint(tasks)
         success = True
         for task in tasks:
             for action in task.keys():

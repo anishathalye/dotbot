@@ -1,12 +1,12 @@
 import os
 import glob
 import shutil
-from pathlib import Path
 
 import dotbot
 import dotbot.util
-import subprocess
 import textwrap
+
+from dotbot.util.common import on_permitted_os
 
 
 class Link(dotbot.Plugin):
@@ -36,7 +36,9 @@ class Link(dotbot.Plugin):
         test = defaults.get("if", None)
         ignore_missing = defaults.get("ignore-missing", False)
         exclude_paths = defaults.get('exclude', [])
-        return relative, canonical_path, force, relink, create, use_glob, test, ignore_missing, exclude_paths
+        os_constraint = defaults.get("os-constraint", None)
+        return relative, canonical_path, force, relink, create, use_glob, test, ignore_missing, \
+               exclude_paths, os_constraint
 
 
     def _process_links(self, links_dict):
@@ -44,12 +46,13 @@ class Link(dotbot.Plugin):
         success = True
         (relative_default, canonical_path_default, force_flag_default, relink_flag_default,
          create_dir_flag_default, use_glob_default, shell_command_default,
-         ignore_missing_default, exclude_paths_default) = self._get_default_flags()
+         ignore_missing_default, exclude_paths_default, os_constraint_default) = \
+            self._get_default_flags()
 
         for destination, source_dict in links_dict.items():
             destination = os.path.expandvars(destination)
 
-            if isinstance(source_dict, dict):
+            if isinstance(source_dict, dict):  # user supplied a "dict" of keys in addition to path
                 path = self._default_source(destination, source_dict.get("path"))
                 # extended config
                 shell_command = source_dict.get("if", shell_command_default)
@@ -63,8 +66,13 @@ class Link(dotbot.Plugin):
                 use_glob = source_dict.get("glob", use_glob_default)
                 ignore_missing = source_dict.get("ignore-missing", ignore_missing_default)
                 exclude_paths = source_dict.get("exclude", exclude_paths_default)
+                os_constraint = source_dict.get("os-constraint", os_constraint_default)
+                if on_permitted_os(os_constraint, log=None) is False:
+                    expanded_dest = os.path.normpath(os.path.expanduser(destination))
+                    self._log.lowinfo(f"Skipping link {expanded_dest} ({os_constraint} only)")
+                    continue
 
-            else:
+            else:  # user only supplied a path
                 path = self._default_source(destination, source_dict)
 
                 (shell_command, relative, canonical_path, force_flag, relink_flag,
