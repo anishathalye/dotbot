@@ -181,16 +181,22 @@ mapped to extended configuration dictionaries.
 | `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
 | `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
 | `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
-| `glob` | Treat a `*` character as a wildcard, and perform link operations on all of those matches (default: false) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
-| `exclude` | Array of paths to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
+| `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files** matched. (default: false) |
+| `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
 
-Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob)
-to resolve glob paths. However, due to its design, using a glob path such as
-`config/*` for example, will not match items that begin with `.`. To
-specifically capture items that begin with `.`, you will need to use a path
-like this: `config/.*`.
+When `glob: True`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
+
+| Pattern  | Meaning                                                |
+|:---------|:-------------------------------------------------------|
+| `*`      | matches anything                                       |
+| `**`     | matches any **file**, recursively (Python >= 3.5 only) |
+| `?`      | matches any single character                           |
+| `[seq]`  | matches any character in `seq`                         |
+| `[!seq]` | matches any character not in `seq`                     |
+
+However, due to the design of `glob.glob`, using a glob pattern such as `config/*`, will **not** match items that being with `.`. To specifically capture items that being with `.`, you will need to include the `.` in the pattern, like this: `config/.*`.
 
 #### Example
 
@@ -209,6 +215,8 @@ like this: `config/.*`.
     ~/.hammerspoon:
       if: '[ `uname` = Darwin ]'
       path: hammerspoon
+    ~/.config/:
+      path: dotconf/config/**
 ```
 
 If the source location is omitted or set to `null`, Dotbot will use the

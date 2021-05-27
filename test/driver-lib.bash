@@ -39,6 +39,7 @@ initialize() {
     tests_run=0
     tests_passed=0
     tests_failed=0
+    tests_skipped=0
     tests_total="${1}"
     local plural="" && [ "${tests_total}" -gt 1 ] && plural="s"
     printf -- "running %d test%s...\n\n" "${tests_total}" "${plural}"
@@ -52,7 +53,13 @@ pass() {
 
 fail() {
     tests_failed=$((tests_failed + 1))
-    yellow "-> fail!"
+    red "-> fail!"
+    echo
+}
+
+skip() {
+    tests_skipped=$((tests_skipped + 1))
+    yellow "-> skipped."
     echo
 }
 
@@ -62,6 +69,8 @@ run_test() {
     cleanup
     if (cd "${BASEDIR}/test/tests" && HOME=~/fakehome DEBUG=${2} DOTBOT_TEST=true bash "${1}"); then
         pass
+    elif [ $? -eq 42 ]; then
+        skip
     else
         fail
     fi
@@ -72,14 +81,13 @@ report() {
     printf -- "-----------\n"
     printf -- "- %3d run\n" ${tests_run}
     printf -- "- %3d passed\n" ${tests_passed}
+    printf -- "- %3d skipped\n" ${tests_skipped}
+    printf -- "- %3d failed\n" ${tests_failed}
     if [ ${tests_failed} -gt 0 ]; then
-        printf -- "- %3d failed\n" ${tests_failed}
-        echo
-        red "==> not ok!"
+        red "==> FAIL! "
         return 1
     else
-        echo
-        green "==> all ok."
+        green "==> PASS. "
         return 0
     fi
 }

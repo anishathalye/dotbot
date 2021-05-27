@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import shutil
 import dotbot
@@ -124,15 +125,35 @@ class Link(dotbot.Plugin):
         else:
             return source
 
+    def _glob(self, path):
+        '''
+        Wrap `glob.glob` in a python agnostic way, catching errors in usage.
+        '''
+        if (sys.version_info < (3, 5) and '**' in path):
+            self._log.error('Link cannot handle recursive glob ("**") for Python < version 3.5: "%s"' % path)
+            return []
+        # call glob.glob; only python >= 3.5 supports recursive globs
+        found = ( glob.glob(path)
+                    if (sys.version_info < (3, 5)) else
+                  glob.glob(path, recursive=True) )
+        # if using recursive glob (`**`), filter results to return only files:
+        if '**' in path and not path.endswith(str(os.sep)):
+          self._log.debug("Excluding directories from recursive glob: " + str(path))
+          found = [f for f in found if os.path.isfile(f)]
+        # return matched results
+        return found
+
     def _create_glob_results(self, path, exclude_paths):
-        self._log.debug("Globbing with path: " + str(path))
-        base_include = glob.glob(path)
-        to_exclude = []
-        for expath in exclude_paths:
-            self._log.debug("Excluding globs with path: " + str(expath))
-            to_exclude.extend(glob.glob(expath))
-        self._log.debug("Excluded globs from '" + path + "': " + str(to_exclude))
-        ret = set(base_include) - set(to_exclude)
+        self._log.debug("Globbing with pattern: " + str(path))
+        include = self._glob(path)
+        self._log.debug("Glob found : " + str(include))
+        # filter out any paths matching the exclude globs:
+        exclude = []
+        for expat in exclude_paths:
+            self._log.debug("Excluding globs with pattern: " + str(expat))
+            exclude.extend( self._glob(expat) )
+        self._log.debug("Excluded globs from '" + path + "': " + str(exclude))
+        ret = set(include) - set(exclude)
         return list(ret)
 
     def _is_link(self, path):
