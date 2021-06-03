@@ -34,6 +34,7 @@ class Link(dotbot.Plugin):
             relink = defaults.get('relink', False)
             create = defaults.get('create', False)
             use_glob = defaults.get('glob', False)
+            base_prefix = defaults.get('prefix', '')
             test = defaults.get('if', None)
             ignore_missing = defaults.get('ignore-missing', False)
             exclude_paths = defaults.get('exclude', [])
@@ -46,6 +47,7 @@ class Link(dotbot.Plugin):
                 relink = source.get('relink', relink)
                 create = source.get('create', create)
                 use_glob = source.get('glob', use_glob)
+                base_prefix = source.get('prefix', base_prefix)
                 ignore_missing = source.get('ignore-missing', ignore_missing)
                 exclude_paths = source.get('exclude', exclude_paths)
                 path = self._default_source(destination, source.get('path'))
@@ -81,6 +83,9 @@ class Link(dotbot.Plugin):
                         # Find common dirname between pattern and the item:
                         glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
                         glob_item = (glob_full_item if len(glob_dirname) == 0 else glob_full_item[len(glob_dirname) + 1:])
+                        # Add prefix to basepath, if provided
+                        if base_prefix:
+                          glob_item = base_prefix + glob_item
                         # where is it going
                         glob_link_destination = os.path.join(destination, glob_item)
                         if create:

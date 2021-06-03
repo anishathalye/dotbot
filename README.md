@@ -185,6 +185,7 @@ mapped to extended configuration dictionaries.
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
 | `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files** matched. (default: false) |
 | `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
+| `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
 
 When `glob: True`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
 
@@ -217,6 +218,10 @@ However, due to the design of `glob.glob`, using a glob pattern such as `config/
       path: hammerspoon
     ~/.config/:
       path: dotconf/config/**
+    ~/:
+      glob: true
+      path: dotconf/*
+      prefix: '.'
 ```
 
 If the source location is omitted or set to `null`, Dotbot will use the
