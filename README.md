@@ -183,7 +183,7 @@ mapped to extended configuration dictionaries.
 | `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
-| `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files** matched. (default: false) |
+| `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files* matched. (default: false) |
 | `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
 | `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
 

@@ -85,7 +85,7 @@ class Link(dotbot.Plugin):
                         glob_item = (glob_full_item if len(glob_dirname) == 0 else glob_full_item[len(glob_dirname) + 1:])
                         # Add prefix to basepath, if provided
                         if base_prefix:
-                          glob_item = base_prefix + glob_item
+                            glob_item = base_prefix + glob_item
                         # where is it going
                         glob_link_destination = os.path.join(destination, glob_item)
                         if create:
