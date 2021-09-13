@@ -42,6 +42,8 @@ def add_options(parser):
         help='disable color output')
     parser.add_argument('--version', action='store_true',
         help='show program\'s version number and exit')
+    parser.add_argument('-x', '--exit-on-failure', dest='exit_on_failure', action='store_true',
+        help='exit after first failed directive')
 
 def read_config(config_file):
     reader = ConfigReader(config_file)
@@ -107,7 +109,8 @@ def main():
             # default to directory of config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file))
         os.chdir(base_directory)
-        dispatcher = Dispatcher(base_directory, only=options.only, skip=options.skip, options=options)
+        dispatcher = Dispatcher(base_directory, only=options.only, skip=options.skip,
+                                exit_on_failure=options.exit_on_failure, options=options)
         success = dispatcher.dispatch(tasks)
         if success:
             log.info('\n==> All tasks executed successfully')

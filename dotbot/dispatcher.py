@@ -5,12 +5,14 @@ from .messenger import Messenger
 from .context import Context
 
 class Dispatcher(object):
-    def __init__(self, base_directory, only=None, skip=None, options=Namespace()):
+    def __init__(self, base_directory, only=None, skip=None, exit_on_failure=False,
+                 options=Namespace()):
         self._log = Messenger()
         self._setup_context(base_directory, options)
         self._load_plugins()
         self._only = only
         self._skip = skip
+        self._exit = exit_on_failure
 
     def _setup_context(self, base_directory, options):
         path = os.path.abspath(
@@ -36,16 +38,27 @@ class Dispatcher(object):
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
                         try:
-                            success &= plugin.handle(action, task[action])
+                            local_success = plugin.handle(action, task[action])
+                            if not local_success and self._exit:
+                                # The action has failed exit
+                                self._log.error('Action %s failed' % action)
+                                return False
+                            success &= local_success
                             handled = True
                         except Exception as err:
                             self._log.error(
                                 'An error was encountered while executing action %s' %
                                 action)
                             self._log.debug(err)
+                            if self._exit:
+                                # There was an execption exit
+                                return False
                 if not handled:
                     success = False
                     self._log.error('Action %s not handled' % action)
+                    if self._exit:
+                        # Invalid action exit
+                        return False
         return success
 
     def _load_plugins(self):
