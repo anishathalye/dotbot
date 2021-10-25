@@ -197,7 +197,7 @@ When `glob: True`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glo
 | `[seq]`  | matches any character in `seq`                         |
 | `[!seq]` | matches any character not in `seq`                     |
 
-However, due to the design of `glob.glob`, using a glob pattern such as `config/*`, will **not** match items that being with `.`. To specifically capture items that being with `.`, you will need to include the `.` in the pattern, like this: `config/.*`.
+However, due to the design of `glob.glob`, using a glob pattern such as `config/*`, will **not** match items that begin with `.`. To specifically capture items that being with `.`, you will need to include the `.` in the pattern, like this: `config/.*`.
 
 #### Example
 
