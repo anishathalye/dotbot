@@ -13,7 +13,7 @@ feature request][issue]. It's great to hear about new ideas.
 
 If you are inclined to do so, you're welcome to [fork][fork] Dotbot, work on
 implementing the feature yourself, and submit a patch. In this case, it's
-*highly recommended* that you first [open an issue][issue] describing your
+_highly recommended_ that you first [open an issue][issue] describing your
 enhancement to get early feedback on the new feature that you are implementing.
 This will help avoid wasted efforts and ensure that your work is incorporated
 into the code base.
@@ -35,7 +35,7 @@ Want to hack on Dotbot? Awesome!
 If there are [open issues][issues], you're more than welcome to work on those -
 this is probably the best way to contribute to Dotbot. If you have your own
 ideas, that's great too! In that case, before working on substantial changes to
-the code base, it is *highly recommended* that you first [open an issue][issue]
+the code base, it is _highly recommended_ that you first [open an issue][issue]
 describing what you intend to work on.
 
 **Patches are generally submitted as pull requests.** Patches are also
