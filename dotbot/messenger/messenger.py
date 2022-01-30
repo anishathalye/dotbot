@@ -3,8 +3,9 @@ from ..util.compat import with_metaclass
 from .color import Color
 from .level import Level
 
+
 class Messenger(with_metaclass(Singleton, object)):
-    def __init__(self, level = Level.LOWINFO):
+    def __init__(self, level=Level.LOWINFO):
         self.set_level(level)
         self.use_color(True)
 
@@ -15,8 +16,8 @@ class Messenger(with_metaclass(Singleton, object)):
         self._use_color = yesno
 
     def log(self, level, message):
-        if (level >= self._level):
-            print('%s%s%s' % (self._color(level), message, self._reset()))
+        if level >= self._level:
+            print("%s%s%s" % (self._color(level), message, self._reset()))
 
     def debug(self, message):
         self.log(Level.DEBUG, message)
@@ -34,13 +35,13 @@ class Messenger(with_metaclass(Singleton, object)):
         self.log(Level.ERROR, message)
 
     def _color(self, level):
-        '''
+        """
         Get a color (terminal escape sequence) according to a level.
-        '''
+        """
         if not self._use_color:
-            return ''
+            return ""
         elif level < Level.DEBUG:
-            return ''
+            return ""
         elif Level.DEBUG <= level < Level.LOWINFO:
             return Color.YELLOW
         elif Level.LOWINFO <= level < Level.INFO:
@@ -53,10 +54,10 @@ class Messenger(with_metaclass(Singleton, object)):
             return Color.RED
 
     def _reset(self):
-        '''
+        """
         Get a reset color (terminal escape sequence).
-        '''
+        """
         if not self._use_color:
-            return ''
+            return ""
         else:
             return Color.RESET
