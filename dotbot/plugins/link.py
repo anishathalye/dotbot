@@ -4,7 +4,6 @@ import glob
 import shutil
 import dotbot
 import dotbot.util
-import subprocess
 
 
 class Link(dotbot.Plugin):
