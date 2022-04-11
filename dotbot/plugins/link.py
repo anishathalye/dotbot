@@ -196,7 +196,10 @@ class Link(dotbot.Plugin):
         Returns the destination of the symbolic link.
         """
         path = os.path.expanduser(path)
-        return os.readlink(path)
+        path = os.readlink(path)
+        if sys.platform[:5] == "win32" and path[:4] == "\\\\?\\":
+            return path[4:]
+        return path
 
     def _exists(self, path):
         """
