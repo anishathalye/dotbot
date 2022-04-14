@@ -1,4 +1,7 @@
 *.egg-info
 *.pyc
+.idea/
+.tox/
+.venv/
 build/
 dist/
