@@ -4,7 +4,6 @@ import glob
 import shutil
 import dotbot
 import dotbot.util
-import subprocess
 
 
 class Link(dotbot.Plugin):
@@ -58,7 +57,7 @@ class Link(dotbot.Plugin):
             if test is not None and not self._test_success(test):
                 self._log.lowinfo("Skipping %s" % destination)
                 continue
-            path = os.path.expandvars(os.path.expanduser(path))
+            path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
             if use_glob:
                 glob_results = self._create_glob_results(path, exclude_paths)
                 if len(glob_results) == 0:
@@ -166,6 +165,8 @@ class Link(dotbot.Plugin):
             return []
         # call glob.glob; only python >= 3.5 supports recursive globs
         found = glob.glob(path) if (sys.version_info < (3, 5)) else glob.glob(path, recursive=True)
+        # normalize paths to ensure cross-platform compatibility
+        found = [os.path.normpath(p) for p in found]
         # if using recursive glob (`**`), filter results to return only files:
         if "**" in path and not path.endswith(str(os.sep)):
             self._log.debug("Excluding directories from recursive glob: " + str(path))
@@ -197,7 +198,10 @@ class Link(dotbot.Plugin):
         Returns the destination of the symbolic link.
         """
         path = os.path.expanduser(path)
-        return os.readlink(path)
+        path = os.readlink(path)
+        if sys.platform[:5] == "win32" and path.startswith("\\\\?\\"):
+            path = path[4:]
+        return path
 
     def _exists(self, path):
         """
@@ -223,7 +227,7 @@ class Link(dotbot.Plugin):
     def _delete(self, source, path, relative, canonical_path, force):
         success = True
         source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
-        fullpath = os.path.expanduser(path)
+        fullpath = os.path.abspath(os.path.expanduser(path))
         if relative:
             source = self._relative_path(source, fullpath)
         if (self._is_link(path) and self._link_destination(path) != source) or (
@@ -264,9 +268,10 @@ class Link(dotbot.Plugin):
         Returns true if successfully linked files.
         """
         success = False
-        destination = os.path.expanduser(link_name)
+        destination = os.path.abspath(os.path.expanduser(link_name))
         base_directory = self._context.base_directory(canonical_path=canonical_path)
         absolute_source = os.path.join(base_directory, source)
+        link_name = os.path.normpath(link_name)
         if relative:
             source = self._relative_path(absolute_source, destination)
         else:
