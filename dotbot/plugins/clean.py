@@ -1,4 +1,6 @@
 import os
+import sys
+
 import dotbot
 
 
@@ -42,7 +44,7 @@ class Clean(dotbot.Plugin):
             self._log.debug("Ignoring nonexistent directory %s" % target)
             return True
         for item in os.listdir(os.path.expandvars(os.path.expanduser(target))):
-            path = os.path.join(os.path.expandvars(os.path.expanduser(target)), item)
+            path = os.path.abspath(os.path.join(os.path.expandvars(os.path.expanduser(target)), item))
             if recursive and os.path.isdir(path):
                 # isdir implies not islink -- we don't want to descend into
                 # symlinked directories. okay to do a recursive call here
@@ -50,6 +52,8 @@ class Clean(dotbot.Plugin):
                 self._clean(path, force, recursive)
             if not os.path.exists(path) and os.path.islink(path):
                 points_at = os.path.join(os.path.dirname(path), os.readlink(path))
+                if sys.platform[:5] == "win32" and points_at.startswith("\\\\?\\"):
+                    points_at = points_at[4:]
                 if self._in_directory(path, self._context.base_directory()) or force:
                     self._log.lowinfo("Removing invalid link %s -> %s" % (path, points_at))
                     os.remove(path)
