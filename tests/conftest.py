@@ -2,8 +2,8 @@ import json
 import os
 import shutil
 import sys
-from shutil import rmtree
 import tempfile
+from shutil import rmtree
 
 import pytest
 import yaml

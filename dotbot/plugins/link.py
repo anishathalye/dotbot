@@ -1,7 +1,7 @@
-import os
-import sys
 import glob
+import os
 import shutil
+import sys
 
 from ..plugin import Plugin
 from ..util import shell_command

@@ -1,6 +1,6 @@
 import os
-import subprocess
 import platform
+import subprocess
 
 
 def shell_command(command, cwd=None, enable_stdin=False, enable_stdout=False, enable_stderr=False):

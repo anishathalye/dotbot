@@ -3,7 +3,6 @@ import sys
 
 import pytest
 
-
 # Python 2.7 on Windows does not have an `os.symlink()` function.
 # PyPy on Windows raises NotImplementedError when `os.symlink()` is called.
 # Older Python 3 versions on Windows require admin rights to create symlinks.

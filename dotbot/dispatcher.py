@@ -1,8 +1,9 @@
 import os
 from argparse import Namespace
-from .plugin import Plugin
-from .messenger import Messenger
+
 from .context import Context
+from .messenger import Messenger
+from .plugin import Plugin
 
 
 class Dispatcher(object):

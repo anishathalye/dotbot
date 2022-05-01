@@ -4,8 +4,9 @@ This file is copied to a location with the name "file.py",
 and is then loaded from within the `test_cli.py` code.
 """
 
-import dotbot
 import os.path
+
+import dotbot
 
 
 class File(dotbot.Plugin):

@@ -1,17 +1,16 @@
 import glob
-import sys
-
-from argparse import ArgumentParser, RawTextHelpFormatter
-from .config import ConfigReader, ReadingError
-from .dispatcher import Dispatcher, DispatchError
-from .messenger import Messenger
-from .messenger import Level
-from .plugins import Clean, Create, Link, Shell
-from .util import module
-
-import dotbot
 import os
 import subprocess
+import sys
+from argparse import ArgumentParser, RawTextHelpFormatter
+
+import dotbot
+
+from .config import ConfigReader, ReadingError
+from .dispatcher import Dispatcher, DispatchError
+from .messenger import Level, Messenger
+from .plugins import Clean, Create, Link, Shell
+from .util import module
 
 
 def add_options(parser):
