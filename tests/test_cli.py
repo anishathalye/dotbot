@@ -7,12 +7,16 @@ import pytest
 def test_except_create(capfd, home, dotfiles, run_dotbot):
     """Verify that `--except` works as intended."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": [
-            {"command": "echo success", "stdout": True},
-        ]},
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {
+                "shell": [
+                    {"command": "echo success", "stdout": True},
+                ]
+            },
+        ]
+    )
     run_dotbot("--except", "create")
 
     assert not os.path.exists(os.path.join(home, "a"))
@@ -23,12 +27,16 @@ def test_except_create(capfd, home, dotfiles, run_dotbot):
 def test_except_shell(capfd, home, dotfiles, run_dotbot):
     """Verify that `--except` works as intended."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": [
-            {"command": "echo failure", "stdout": True},
-        ]},
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {
+                "shell": [
+                    {"command": "echo failure", "stdout": True},
+                ]
+            },
+        ]
+    )
     run_dotbot("--except", "shell")
 
     assert os.path.exists(os.path.join(home, "a"))
@@ -39,12 +47,16 @@ def test_except_shell(capfd, home, dotfiles, run_dotbot):
 def test_except_multiples(capfd, home, dotfiles, run_dotbot):
     """Verify that `--except` works with multiple exceptions."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": [
-            {"command": "echo failure", "stdout": True},
-        ]},
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {
+                "shell": [
+                    {"command": "echo failure", "stdout": True},
+                ]
+            },
+        ]
+    )
     run_dotbot("--except", "create", "shell")
 
     assert not os.path.exists(os.path.join(home, "a"))
@@ -55,11 +67,13 @@ def test_except_multiples(capfd, home, dotfiles, run_dotbot):
 def test_exit_on_failure(capfd, home, dotfiles, run_dotbot):
     """Verify that processing can halt immediately on failures."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": ["this_is_not_a_command"]},
-        {"create": ["~/b"]},
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {"shell": ["this_is_not_a_command"]},
+            {"create": ["~/b"]},
+        ]
+    )
     with pytest.raises(SystemExit):
         run_dotbot("-x")
 
@@ -70,10 +84,12 @@ def test_exit_on_failure(capfd, home, dotfiles, run_dotbot):
 def test_only(capfd, home, dotfiles, run_dotbot):
     """Verify that `--only` works as intended."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": [{"command": "echo success", "stdout": True}]},
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {"shell": [{"command": "echo success", "stdout": True}]},
+        ]
+    )
     run_dotbot("--only", "shell")
 
     assert not os.path.exists(os.path.join(home, "a"))
@@ -84,11 +100,13 @@ def test_only(capfd, home, dotfiles, run_dotbot):
 def test_only_with_defaults(capfd, home, dotfiles, run_dotbot):
     """Verify that `--only` does not suppress defaults."""
 
-    dotfiles.write_config([
-        {"defaults": {"shell": {"stdout": True}}},
-        {"create": ["~/a"]},
-        {"shell": [{"command": "echo success"}]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"shell": {"stdout": True}}},
+            {"create": ["~/a"]},
+            {"shell": [{"command": "echo success"}]},
+        ]
+    )
     run_dotbot("--only", "shell")
 
     assert not os.path.exists(os.path.join(home, "a"))
@@ -99,11 +117,13 @@ def test_only_with_defaults(capfd, home, dotfiles, run_dotbot):
 def test_only_with_multiples(capfd, home, dotfiles, run_dotbot):
     """Verify that `--only` works as intended."""
 
-    dotfiles.write_config([
-        {"create": ["~/a"]},
-        {"shell": [{"command": "echo success", "stdout": True}]},
-        {"link": ["~/.f"]}
-    ])
+    dotfiles.write_config(
+        [
+            {"create": ["~/a"]},
+            {"shell": [{"command": "echo success", "stdout": True}]},
+            {"link": ["~/.f"]},
+        ]
+    )
     run_dotbot("--only", "create", "shell")
 
     assert os.path.isdir(os.path.join(home, "a"))
@@ -128,7 +148,9 @@ def test_plugin_loading_directory(home, dotfiles, run_dotbot):
     """Verify that plugins can be loaded from a directory."""
 
     dotfiles.makedirs("plugins")
-    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
+    plugin_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
+    )
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config([{"plugin_directory": "~"}])
     run_dotbot("--plugin-dir", os.path.join(dotfiles.directory, "plugins"))

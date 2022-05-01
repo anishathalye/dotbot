@@ -7,7 +7,13 @@ from .context import Context
 
 class Dispatcher(object):
     def __init__(
-        self, base_directory, only=None, skip=None, exit_on_failure=False, options=Namespace(), plugins=None,
+        self,
+        base_directory,
+        only=None,
+        skip=None,
+        exit_on_failure=False,
+        options=Namespace(),
+        plugins=None,
     ):
         self._log = Messenger()
         self._setup_context(base_directory, options)

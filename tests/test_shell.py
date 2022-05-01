@@ -1,12 +1,18 @@
 def test_shell_allow_stdout(capfd, dotfiles, run_dotbot):
     """Verify shell command STDOUT works."""
 
-    dotfiles.write_config([{
-        "shell": [{
-            "command": "echo apple",
-            "stdout": True,
-        }],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "echo apple",
+                        "stdout": True,
+                    }
+                ],
+            }
+        ]
+    )
     run_dotbot()
 
     output = capfd.readouterr()
@@ -36,10 +42,12 @@ def test_shell_cli_verbosity_overrides_2(capfd, dotfiles, run_dotbot):
 def test_shell_cli_verbosity_overrides_3(capfd, dotfiles, run_dotbot):
     """Verify that '-vv' overrides an explicit defaults:shell:stdout=False."""
 
-    dotfiles.write_config([
-        {"defaults": {"shell": {"stdout": False}}},
-        {"shell": [{"command": "echo apple"}]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"shell": {"stdout": False}}},
+            {"shell": [{"command": "echo apple"}]},
+        ]
+    )
     run_dotbot("-vv")
 
     stdout = capfd.readouterr().out.splitlines()
@@ -59,12 +67,18 @@ def test_shell_cli_verbosity_stderr(capfd, dotfiles, run_dotbot):
 def test_shell_cli_verbosity_stderr_with_explicit_stdout_off(capfd, dotfiles, run_dotbot):
     """Verify that commands can output to STDERR with STDOUT explicitly off."""
 
-    dotfiles.write_config([{
-        "shell": [{
-            "command": "echo apple >&2",
-            "stdout": False,
-        }],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "echo apple >&2",
+                        "stdout": False,
+                    }
+                ],
+            }
+        ]
+    )
     run_dotbot("-vv")
 
     stderr = capfd.readouterr().err.splitlines()
@@ -74,20 +88,22 @@ def test_shell_cli_verbosity_stderr_with_explicit_stdout_off(capfd, dotfiles, ru
 def test_shell_cli_verbosity_stderr_with_defaults_stdout_off(capfd, dotfiles, run_dotbot):
     """Verify that commands can output to STDERR with defaults:shell:stdout=False."""
 
-    dotfiles.write_config([
-        {
-            "defaults": {
-                "shell": {
-                    "stdout": False,
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "shell": {
+                        "stdout": False,
+                    },
                 },
             },
-        },
-        {
-            "shell": [
-                {"command": "echo apple >&2"},
-            ],
-        },
-    ])
+            {
+                "shell": [
+                    {"command": "echo apple >&2"},
+                ],
+            },
+        ]
+    )
     run_dotbot("-vv")
 
     stderr = capfd.readouterr().err.splitlines()
@@ -117,10 +133,12 @@ def test_shell_single_v_verbosity_stderr(capfd, dotfiles, run_dotbot):
 def test_shell_compact_stdout_1(capfd, dotfiles, run_dotbot):
     """Verify that shell command stdout works in compact form."""
 
-    dotfiles.write_config([
-        {"defaults": {"shell": {"stdout": True}}},
-        {"shell": ["echo apple"]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"shell": {"stdout": True}}},
+            {"shell": ["echo apple"]},
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -130,10 +148,12 @@ def test_shell_compact_stdout_1(capfd, dotfiles, run_dotbot):
 def test_shell_compact_stdout_2(capfd, dotfiles, run_dotbot):
     """Verify that shell command stdout works in compact form."""
 
-    dotfiles.write_config([
-        {"defaults": {"shell": {"stdout": True}}},
-        {"shell": [["echo apple", "echoing message"]]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"shell": {"stdout": True}}},
+            {"shell": [["echo apple", "echoing message"]]},
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -144,9 +164,13 @@ def test_shell_compact_stdout_2(capfd, dotfiles, run_dotbot):
 def test_shell_stdout_disabled_by_default(capfd, dotfiles, run_dotbot):
     """Verify that the shell command disables stdout by default."""
 
-    dotfiles.write_config([{
-        "shell": ["echo banana"],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": ["echo banana"],
+            }
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -156,10 +180,12 @@ def test_shell_stdout_disabled_by_default(capfd, dotfiles, run_dotbot):
 def test_shell_can_override_defaults(capfd, dotfiles, run_dotbot):
     """Verify that the shell command can override defaults."""
 
-    dotfiles.write_config([
-        {"defaults": {"shell": {"stdout": True}}},
-        {"shell": [{"command": "echo apple", "stdout": False}]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"shell": {"stdout": True}}},
+            {"shell": [{"command": "echo apple", "stdout": False}]},
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -169,12 +195,18 @@ def test_shell_can_override_defaults(capfd, dotfiles, run_dotbot):
 def test_shell_quiet_default(capfd, dotfiles, run_dotbot):
     """Verify that quiet is off by default."""
 
-    dotfiles.write_config([{
-        "shell": [{
-            "command": "echo banana",
-            "description": "echoing a thing...",
-        }],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "echo banana",
+                        "description": "echoing a thing...",
+                    }
+                ],
+            }
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -186,13 +218,19 @@ def test_shell_quiet_default(capfd, dotfiles, run_dotbot):
 def test_shell_quiet_enabled_with_description(capfd, dotfiles, run_dotbot):
     """Verify that only the description is shown when quiet is enabled."""
 
-    dotfiles.write_config([{
-        "shell": [{
-            "command": "echo banana",
-            "description": "echoing a thing...",
-            "quiet": True,
-        }],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "echo banana",
+                        "description": "echoing a thing...",
+                        "quiet": True,
+                    }
+                ],
+            }
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()
@@ -204,12 +242,18 @@ def test_shell_quiet_enabled_with_description(capfd, dotfiles, run_dotbot):
 def test_shell_quiet_enabled_without_description(capfd, dotfiles, run_dotbot):
     """Verify the command is shown when quiet is enabled with no description."""
 
-    dotfiles.write_config([{
-        "shell": [{
-            "command": "echo banana",
-            "quiet": True,
-        }],
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "echo banana",
+                        "quiet": True,
+                    }
+                ],
+            }
+        ]
+    )
     run_dotbot()
 
     stdout = capfd.readouterr().out.splitlines()

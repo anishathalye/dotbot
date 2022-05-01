@@ -44,7 +44,9 @@ class Clean(Plugin):
             self._log.debug("Ignoring nonexistent directory %s" % target)
             return True
         for item in os.listdir(os.path.expandvars(os.path.expanduser(target))):
-            path = os.path.abspath(os.path.join(os.path.expandvars(os.path.expanduser(target)), item))
+            path = os.path.abspath(
+                os.path.join(os.path.expandvars(os.path.expanduser(target)), item)
+            )
             if recursive and os.path.isdir(path):
                 # isdir implies not islink -- we don't want to descend into
                 # symlinked directories. okay to do a recursive call here

@@ -24,10 +24,7 @@ def test_default_mode(home, dotfiles, run_dotbot):
     """
 
     read_only = 0o777 - stat.S_IWUSR - stat.S_IWGRP - stat.S_IWOTH
-    config = [
-        {"defaults": {"create": {"mode": read_only}}},
-        {"create": ["~/a"]}
-    ]
+    config = [{"defaults": {"create": {"mode": read_only}}}, {"create": ["~/a"]}]
     dotfiles.write_config(config)
     run_dotbot()
 

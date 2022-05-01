@@ -15,10 +15,7 @@ import pytest
 # For these reasons, if the tests are running on Windows with Python < 3.8
 # or with PyPy, the entire link test suite must be skipped.
 #
-if (
-    sys.platform[:5] == "win32"
-    and (sys.version_info < (3, 8) or "pypy" in sys.version.lower())
-):
+if sys.platform[:5] == "win32" and (sys.version_info < (3, 8) or "pypy" in sys.version.lower()):
     reason = "It is impossible to perform link tests on this platform"
     pytestmark = pytest.mark.skip(reason=reason)
 
@@ -98,7 +95,9 @@ def test_link_environment_variable_expansion_source(monkeypatch, root, home, dot
         assert file.read() == "grape"
 
 
-def test_link_environment_variable_expansion_source_extended(monkeypatch, root, home, dotfiles, run_dotbot):
+def test_link_environment_variable_expansion_source_extended(
+    monkeypatch, root, home, dotfiles, run_dotbot
+):
     """Verify link expands environment variables in extended config syntax."""
 
     monkeypatch.setenv("APPLE", "h")
@@ -198,10 +197,12 @@ def test_link_glob_1(home, dotfiles, run_dotbot):
     dotfiles.write("bin/a", "apple")
     dotfiles.write("bin/b", "banana")
     dotfiles.write("bin/c", "cherry")
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/bin": "bin/*"}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/bin": "bin/*"}},
+        ]
+    )
     run_dotbot()
 
     with open(os.path.join(home, "bin", "a")) as file:
@@ -218,10 +219,12 @@ def test_link_glob_2(home, dotfiles, run_dotbot):
     dotfiles.write("bin/a", "apple")
     dotfiles.write("bin/b", "banana")
     dotfiles.write("bin/c", "cherry")
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/bin/": "bin/*"}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/bin/": "bin/*"}},
+        ]
+    )
     run_dotbot()
 
     with open(os.path.join(home, "bin", "a")) as file:
@@ -238,10 +241,12 @@ def test_link_glob_3(home, dotfiles, run_dotbot):
     dotfiles.write("bin/.a", "dot-apple")
     dotfiles.write("bin/.b", "dot-banana")
     dotfiles.write("bin/.c", "dot-cherry")
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/bin/": "bin/.*"}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/bin/": "bin/.*"}},
+        ]
+    )
     run_dotbot()
 
     with open(os.path.join(home, "bin", ".a")) as file:
@@ -258,14 +263,18 @@ def test_link_glob_4(home, dotfiles, run_dotbot):
     dotfiles.write(".a", "dot-apple")
     dotfiles.write(".b", "dot-banana")
     dotfiles.write(".c", "dot-cherry")
-    dotfiles.write_config([{
-        "link": {
-            "~": {
-                "path": ".*",
-                "glob": True,
-            },
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~": {
+                        "path": ".*",
+                        "glob": True,
+                    },
+                },
+            }
+        ]
+    )
     run_dotbot()
 
     with open(os.path.join(home, ".a")) as file:
@@ -281,14 +290,18 @@ def test_link_glob_ambiguous_failure(path, home, dotfiles, run_dotbot):
     """Verify ambiguous link globbing fails."""
 
     dotfiles.makedirs("foo")
-    dotfiles.write_config([{
-        "link": {
-            "~/foo/": {
-                "path": path,
-                "glob": True,
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/foo/": {
+                        "path": path,
+                        "glob": True,
+                    }
+                }
             }
-        }
-    }])
+        ]
+    )
     with pytest.raises(SystemExit):
         run_dotbot()
     assert not os.path.exists(os.path.join(home, "foo"))
@@ -298,14 +311,18 @@ def test_link_glob_ambiguous_success(home, dotfiles, run_dotbot):
     """Verify the case where ambiguous link globbing succeeds."""
 
     dotfiles.makedirs("foo")
-    dotfiles.write_config([{
-        "link": {
-            "~/foo": {
-                "path": "foo",
-                "glob": True,
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/foo": {
+                        "path": "foo",
+                        "glob": True,
+                    }
+                }
             }
-        }
-    }])
+        ]
+    )
     run_dotbot()
     assert os.path.exists(os.path.join(home, "foo"))
 
@@ -317,24 +334,26 @@ def test_link_glob_exclude_1(home, dotfiles, run_dotbot):
     dotfiles.write("config/bar/b", "banana")
     dotfiles.write("config/bar/c", "cherry")
     dotfiles.write("config/baz/d", "donut")
-    dotfiles.write_config([
-        {
-            "defaults": {
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "glob": True,
+                        "create": True,
+                    },
+                },
+            },
+            {
                 "link": {
-                    "glob": True,
-                    "create": True,
+                    "~/.config/": {
+                        "path": "config/*",
+                        "exclude": ["config/baz"],
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.config/": {
-                    "path": "config/*",
-                    "exclude": ["config/baz"],
-                },
-            },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".config", "baz"))
@@ -358,24 +377,26 @@ def test_link_glob_exclude_2(home, dotfiles, run_dotbot):
     dotfiles.write("config/bar/c", "cherry")
     dotfiles.write("config/baz/d", "donut")
     dotfiles.write("config/baz/buzz/e", "egg")
-    dotfiles.write_config([
-        {
-            "defaults": {
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "glob": True,
+                        "create": True,
+                    },
+                },
+            },
+            {
                 "link": {
-                    "glob": True,
-                    "create": True,
+                    "~/.config/": {
+                        "path": "config/*/*",
+                        "exclude": ["config/baz/*"],
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.config/": {
-                    "path": "config/*/*",
-                    "exclude": ["config/baz/*"],
-                },
-            },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".config", "baz"))
@@ -401,24 +422,26 @@ def test_link_glob_exclude_3(home, dotfiles, run_dotbot):
     dotfiles.write("config/baz/d", "donut")
     dotfiles.write("config/baz/buzz/e", "egg")
     dotfiles.write("config/baz/bizz/g", "grape")
-    dotfiles.write_config([
-        {
-            "defaults": {
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "glob": True,
+                        "create": True,
+                    },
+                },
+            },
+            {
                 "link": {
-                    "glob": True,
-                    "create": True,
+                    "~/.config/": {
+                        "path": "config/*/*",
+                        "exclude": ["config/baz/buzz"],
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.config/": {
-                    "path": "config/*/*",
-                    "exclude": ["config/baz/buzz"],
-                },
-            },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".config", "baz", "buzz"))
@@ -451,24 +474,26 @@ def test_link_glob_exclude_4(home, dotfiles, run_dotbot):
     dotfiles.write("config/baz/buzz/e", "egg")
     dotfiles.write("config/baz/bizz/g", "grape")
     dotfiles.write("config/fiz/f", "fig")
-    dotfiles.write_config([
-        {
-            "defaults": {
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "glob": True,
+                        "create": True,
+                    },
+                },
+            },
+            {
                 "link": {
-                    "glob": True,
-                    "create": True,
+                    "~/.config/": {
+                        "path": "config/*/*",
+                        "exclude": ["config/baz/*", "config/fiz/*"],
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.config/": {
-                    "path": "config/*/*",
-                    "exclude": ["config/baz/*", "config/fiz/*"],
-                },
-            },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".config", "baz"))
@@ -492,10 +517,12 @@ def test_link_glob_multi_star(home, dotfiles, run_dotbot):
     dotfiles.write("config/foo/a", "apple")
     dotfiles.write("config/bar/b", "banana")
     dotfiles.write("config/bar/c", "cherry")
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/.config/": "config/*/*"}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/.config/": "config/*/*"}},
+        ]
+    )
     run_dotbot()
 
     assert not os.path.islink(os.path.join(home, ".config"))
@@ -518,7 +545,7 @@ def test_link_glob_multi_star(home, dotfiles, run_dotbot):
         ("conf/[bc]*", lambda fruit: fruit if fruit[0] in "bc" else None),
         ("conf/*e", lambda fruit: fruit if fruit[-1] == "e" else None),
         ("conf/??r*", lambda fruit: fruit if fruit[2] == "r" else None),
-    )
+    ),
 )
 def test_link_glob_patterns(pattern, expect_file, home, dotfiles, run_dotbot):
     """Verify link glob pattern matching."""
@@ -526,10 +553,12 @@ def test_link_glob_patterns(pattern, expect_file, home, dotfiles, run_dotbot):
     fruits = ["apple", "apricot", "banana", "cherry", "currant", "cantalope"]
     [dotfiles.write("conf/" + fruit, fruit) for fruit in fruits]
     [dotfiles.write("conf/." + fruit, "dot-" + fruit) for fruit in fruits]
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/globtest": pattern}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/globtest": pattern}},
+        ]
+    )
     run_dotbot()
 
     for fruit in fruits:
@@ -554,10 +583,12 @@ def test_link_glob_recursive(home, dotfiles, run_dotbot):
     dotfiles.write("config/foo/bar/a", "apple")
     dotfiles.write("config/foo/bar/b", "banana")
     dotfiles.write("config/foo/bar/c", "cherry")
-    dotfiles.write_config([
-        {"defaults": {"link": {"glob": True, "create": True}}},
-        {"link": {"~/.config/": {"path": "config/**", "exclude": ["config/**/b"]}}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/.config/": {"path": "config/**", "exclude": ["config/**/b"]}}},
+        ]
+    )
     run_dotbot()
 
     assert not os.path.islink(os.path.join(home, ".config"))
@@ -581,14 +612,18 @@ def test_link_if(home, dotfiles, run_dotbot):
 
     os.mkdir(os.path.join(home, "d"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([{
-        "link": {
-            "~/.f": {"path": "f", "if": "true"},
-            "~/.g": {"path": "f", "if": "false"},
-            "~/.h": {"path": "f", "if": "[ -d ~/d ]"},
-            "~/.i": {"path": "f", "if": "badcommand"},
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {"path": "f", "if": "true"},
+                    "~/.g": {"path": "f", "if": "false"},
+                    "~/.h": {"path": "f", "if": "[ -d ~/d ]"},
+                    "~/.i": {"path": "f", "if": "badcommand"},
+                },
+            }
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".g"))
@@ -608,21 +643,23 @@ def test_link_if_defaults(home, dotfiles, run_dotbot):
 
     os.mkdir(os.path.join(home, "d"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([
-        {
-            "defaults": {
-                "link": {
-                    "if": "false",
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "if": "false",
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.j": {"path": "f", "if": "true"},
-                "~/.k": {"path": "f"},  # default is false
+            {
+                "link": {
+                    "~/.j": {"path": "f", "if": "true"},
+                    "~/.k": {"path": "f"},  # default is false
+                },
             },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".k"))
@@ -639,14 +676,18 @@ def test_link_if_windows(home, dotfiles, run_dotbot):
 
     os.mkdir(os.path.join(home, "d"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([{
-        "link": {
-            "~/.f": {"path": "f", "if": 'cmd /c "exit 0"'},
-            "~/.g": {"path": "f", "if": 'cmd /c "exit 1"'},
-            "~/.h": {"path": "f", "if": 'cmd /c "dir %USERPROFILE%\\d'},
-            "~/.i": {"path": "f", "if": 'cmd /c "badcommand"'},
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {"path": "f", "if": 'cmd /c "exit 0"'},
+                    "~/.g": {"path": "f", "if": 'cmd /c "exit 1"'},
+                    "~/.h": {"path": "f", "if": 'cmd /c "dir %USERPROFILE%\\d'},
+                    "~/.i": {"path": "f", "if": 'cmd /c "badcommand"'},
+                },
+            }
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".g"))
@@ -666,21 +707,23 @@ def test_link_if_defaults_windows(home, dotfiles, run_dotbot):
 
     os.mkdir(os.path.join(home, "d"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([
-        {
-            "defaults": {
-                "link": {
-                    "if": 'cmd /c "exit 1"',
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "if": 'cmd /c "exit 1"',
+                    },
                 },
             },
-        },
-        {
-            "link": {
-                "~/.j": {"path": "f", "if": 'cmd /c "exit 0"'},
-                "~/.k": {"path": "f"},  # default is false
+            {
+                "link": {
+                    "~/.j": {"path": "f", "if": 'cmd /c "exit 0"'},
+                    "~/.k": {"path": "f"},  # default is false
+                },
             },
-        },
-    ])
+        ]
+    )
     run_dotbot()
 
     assert not os.path.exists(os.path.join(home, ".k"))
@@ -692,14 +735,18 @@ def test_link_if_defaults_windows(home, dotfiles, run_dotbot):
 def test_link_ignore_missing(ignore_missing, home, dotfiles, run_dotbot):
     """Verify link 'ignore_missing' is respected when the target is missing."""
 
-    dotfiles.write_config([{
-        "link": {
-            "~/missing_link": {
-                "path": "missing",
-                "ignore-missing": ignore_missing,
-            },
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/missing_link": {
+                        "path": "missing",
+                        "ignore-missing": ignore_missing,
+                    },
+                },
+            }
+        ]
+    )
 
     if ignore_missing:
         run_dotbot()
@@ -728,10 +775,7 @@ def test_link_no_canonicalize(key, home, dotfiles, run_dotbot):
     """Verify link canonicalization can be disabled."""
 
     dotfiles.write("f", "apple")
-    dotfiles.write_config([
-        {"defaults": {"link": {key: False}}},
-        {"link": {"~/.f": {"path": "f"}}}
-    ])
+    dotfiles.write_config([{"defaults": {"link": {key: False}}}, {"link": {"~/.f": {"path": "f"}}}])
     try:
         os.symlink(
             dotfiles.directory,
@@ -759,15 +803,19 @@ def test_link_prefix(home, dotfiles, run_dotbot):
     dotfiles.write("conf/a", "apple")
     dotfiles.write("conf/b", "banana")
     dotfiles.write("conf/c", "cherry")
-    dotfiles.write_config([{
-        "link": {
-            "~/": {
-                "glob": True,
-                "path": "conf/*",
-                "prefix": ".",
-            },
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/": {
+                        "glob": True,
+                        "path": "conf/*",
+                        "prefix": ".",
+                    },
+                },
+            }
+        ]
+    )
     run_dotbot()
     with open(os.path.join(home, ".a")) as file:
         assert file.read() == "apple"
@@ -782,26 +830,30 @@ def test_link_relative(home, dotfiles, run_dotbot):
 
     dotfiles.write("f", "apple")
     dotfiles.write("d/e", "grape")
-    dotfiles.write_config([{
-        "link": {
-            "~/.f": {
-                "path": "f",
-            },
-            "~/.frel": {
-                "path": "f",
-                "relative": True,
-            },
-            "~/nested/.frel": {
-                "path": "f",
-                "relative": True,
-                "create": True,
-            },
-            "~/.d": {
-                "path": "d",
-                "relative": True,
-            },
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {
+                        "path": "f",
+                    },
+                    "~/.frel": {
+                        "path": "f",
+                        "relative": True,
+                    },
+                    "~/nested/.frel": {
+                        "path": "f",
+                        "relative": True,
+                        "create": True,
+                    },
+                    "~/.d": {
+                        "path": "d",
+                        "relative": True,
+                    },
+                },
+            }
+        ]
+    )
     run_dotbot()
 
     f = os.readlink(os.path.join(home, ".f"))
@@ -866,15 +918,17 @@ def test_link_relink_relative_leaves_file(home, dotfiles, run_dotbot):
     dotfiles.write("f", "apple")
     with open(os.path.join(home, ".f"), "w") as file:
         file.write("grape")
-    config = [{
-        "link": {
-            "~/.folder/f": {
-                "path": "f",
-                "create": True,
-                "relative": True,
+    config = [
+        {
+            "link": {
+                "~/.folder/f": {
+                    "path": "f",
+                    "create": True,
+                    "relative": True,
+                },
             },
-        },
-    }]
+        }
+    ]
     dotfiles.write_config(config)
     run_dotbot()
 
@@ -895,9 +949,13 @@ def test_link_defaults_1(home, dotfiles, run_dotbot):
         file.write("grape")
     os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([{
-        "link": {"~/.f": "f"},
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "link": {"~/.f": "f"},
+            }
+        ]
+    )
     with pytest.raises(SystemExit):
         run_dotbot()
 
@@ -912,10 +970,12 @@ def test_link_defaults_2(home, dotfiles, run_dotbot):
         file.write("grape")
     os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config([
-        {"defaults": {"link": {"relink": True}}},
-        {"link": {"~/.f": "f"}},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"relink": True}}},
+            {"link": {"~/.f": "f"}},
+        ]
+    )
     run_dotbot()
 
     with open(os.path.join(home, ".f"), "r") as file:

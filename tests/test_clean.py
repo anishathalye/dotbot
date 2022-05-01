@@ -15,10 +15,7 @@ import pytest
 # For these reasons, if the tests are running on Windows with Python < 3.8
 # or with PyPy, the entire link test suite must be skipped.
 #
-if (
-    sys.platform[:5] == "win32"
-    and (sys.version_info < (3, 8) or "pypy" in sys.version.lower())
-):
+if sys.platform[:5] == "win32" and (sys.version_info < (3, 8) or "pypy" in sys.version.lower()):
     reason = "It is impossible to perform link tests on this platform"
     pytestmark = pytest.mark.skip(reason=reason)
 
@@ -27,12 +24,16 @@ def test_clean_default(root, home, dotfiles, run_dotbot):
     """Verify clean uses default unless overridden."""
 
     os.symlink(os.path.join(root, "nowhere"), os.path.join(home, ".g"))
-    dotfiles.write_config([{
-        "clean": {
-            "~/nonexistent": {"force": True},
-            "~/": None,
-        },
-    }])
+    dotfiles.write_config(
+        [
+            {
+                "clean": {
+                    "~/nonexistent": {"force": True},
+                    "~/": None,
+                },
+            }
+        ]
+    )
     run_dotbot()
 
     assert not os.path.isdir(os.path.join(home, "nonexistent"))
@@ -140,10 +141,12 @@ def test_clean_defaults_2(root, home, dotfiles, run_dotbot):
     """Verify that explicit clean defaults override the implicit default."""
 
     os.symlink(os.path.join(root, "nowhere"), os.path.join(home, ".g"))
-    dotfiles.write_config([
-        {"defaults": {"clean": {"force": True}}},
-        {"clean": ["~"]},
-    ])
+    dotfiles.write_config(
+        [
+            {"defaults": {"clean": {"force": True}}},
+            {"clean": ["~"]},
+        ]
+    )
     run_dotbot()
 
     assert not os.path.islink(os.path.join(home, ".g"))

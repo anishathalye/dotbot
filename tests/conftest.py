@@ -45,7 +45,7 @@ def wrap_function(function, function_path, arg_index, kwarg_key, root):
 
         msg = "The '{0}' argument to {1}() must be rooted in {2}"
         msg = msg.format(kwarg_key, function_path, root)
-        assert value[:len(str(root))] == str(root), msg
+        assert value[: len(str(root))] == str(root), msg
 
         return function(*args, **kwargs)
 
@@ -78,7 +78,7 @@ def wrap_open(root):
         msg = "The 'file' argument to open() must be rooted in {0}"
         msg = msg.format(root)
         if value != os.devnull and "w" in mode:
-            assert value[:len(str(root))] == str(root), msg
+            assert value[: len(str(root))] == str(root), msg
 
         return wrapped(*args, **kwargs)
 
@@ -161,9 +161,7 @@ def root():
         # to ensure the variable closures work correctly.
         function_path = "{0}.{1}".format(module.__name__, function_name)
         function = getattr(module, function_name)
-        wrapped = wrap_function(
-            function, function_path, arg_index, kwarg_key, current_root
-        )
+        wrapped = wrap_function(function, function_path, arg_index, kwarg_key, current_root)
         patches.append(mock.patch(function_path, wrapped))
 
     # open() must be separately wrapped.
@@ -251,7 +249,7 @@ class Dotfiles(object):
 
             msg = "The config file path must be rooted in {0}"
             msg = msg.format(root)
-            assert path[:len(str(root))] == str(root), msg
+            assert path[: len(str(root))] == str(root), msg
 
             self.config_filename = path
         else:

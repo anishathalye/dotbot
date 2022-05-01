@@ -16,7 +16,9 @@ class Directory(dotbot.Plugin):
         self._log.debug("Attempting to get options from Context")
         options = self._context.options()
         if len(options.plugin_dirs) != 1:
-            self._log.debug("Context.options.plugins length is %i, expected 1" % len(options.plugins))
+            self._log.debug(
+                "Context.options.plugins length is %i, expected 1" % len(options.plugins)
+            )
             return False
 
         with open(os.path.abspath(os.path.expanduser("~/flag")), "w") as file:
