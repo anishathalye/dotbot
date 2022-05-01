@@ -2,11 +2,12 @@ import os
 import sys
 import glob
 import shutil
-import dotbot
-import dotbot.util
+
+from ..plugin import Plugin
+from ..util import shell_command
 
 
-class Link(dotbot.Plugin):
+class Link(Plugin):
     """
     Symbolically links dotfiles.
     """
@@ -139,7 +140,7 @@ class Link(dotbot.Plugin):
         return success
 
     def _test_success(self, command):
-        ret = dotbot.util.shell_command(command, cwd=self._context.base_directory())
+        ret = shell_command(command, cwd=self._context.base_directory())
         if ret != 0:
             self._log.debug("Test '%s' returned false" % command)
         return ret == 0

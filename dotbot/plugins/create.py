@@ -1,8 +1,9 @@
 import os
-import dotbot
+
+from ..plugin import Plugin
 
 
-class Create(dotbot.Plugin):
+class Create(Plugin):
     """
     Create empty paths.
     """

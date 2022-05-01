@@ -1,10 +1,10 @@
 import os
 import sys
 
-import dotbot
+from ..plugin import Plugin
 
 
-class Clean(dotbot.Plugin):
+class Clean(Plugin):
     """
     Cleans broken symbolic links.
     """

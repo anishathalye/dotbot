@@ -1,4 +1,4 @@
-import os, glob
+import glob
 import sys
 
 from argparse import ArgumentParser, RawTextHelpFormatter
@@ -6,6 +6,7 @@ from .config import ConfigReader, ReadingError
 from .dispatcher import Dispatcher, DispatchError
 from .messenger import Messenger
 from .messenger import Level
+from .plugins import Clean, Create, Link, Shell
 from .util import module
 
 import dotbot
@@ -118,9 +119,10 @@ def main():
         else:
             log.use_color(sys.stdout.isatty())
 
+        plugins = []
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
-            from .plugins import Clean, Create, Link, Shell
+            plugins.extend([Clean, Create, Link, Shell])
         plugin_paths = []
         for directory in plugin_directories:
             for plugin_path in glob.glob(os.path.join(directory, "*.py")):
@@ -129,7 +131,7 @@ def main():
             plugin_paths.append(plugin_path)
         for plugin_path in plugin_paths:
             abspath = os.path.abspath(plugin_path)
-            module.load(abspath)
+            plugins.extend(module.load(abspath))
         if not options.config_file:
             log.error("No configuration file specified")
             exit(1)
@@ -151,6 +153,7 @@ def main():
             skip=options.skip,
             exit_on_failure=options.exit_on_failure,
             options=options,
+            plugins=plugins,
         )
         success = dispatcher.dispatch(tasks)
         if success:
