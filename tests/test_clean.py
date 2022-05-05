@@ -3,21 +3,6 @@ import sys
 
 import pytest
 
-# Python 2.7 on Windows does not have an `os.symlink()` function.
-# PyPy on Windows raises NotImplementedError when `os.symlink()` is called.
-# Older Python 3 versions on Windows require admin rights to create symlinks.
-#
-# In addition, functions like `os.path.realpath()` on Windows Pythons < 3.8
-# do not resolve symlinks and directory junctions correctly,
-# and `shutil.rmtree()` will fail to delete directory junctions.
-#
-# For these reasons, if the tests are running on Windows with Python < 3.8
-# or with PyPy, the entire link test suite must be skipped.
-#
-if sys.platform[:5] == "win32" and (sys.version_info < (3, 8) or "pypy" in sys.version.lower()):
-    reason = "It is impossible to perform link tests on this platform"
-    pytestmark = pytest.mark.skip(reason=reason)
-
 
 def test_clean_default(root, home, dotfiles, run_dotbot):
     """Verify clean uses default unless overridden."""
