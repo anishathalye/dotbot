@@ -6,22 +6,33 @@ on:
     - cron: '0 8 * * 6'
 jobs:
   test:
-    runs-on: ubuntu-latest
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
     strategy:
+      fail-fast: false
       matrix:
+        os: ["ubuntu-latest", "macos-latest"]
         python: ["2.7", "pypy2", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy3"]
-    name: "Test: Python ${{ matrix.python }}"
+        include:
+          - os: "windows-latest"
+            python: "3.8"
+          - os: "windows-latest"
+            python: "3.9"
+          - os: "windows-latest"
+            python: "3.10"
+    runs-on: ${{ matrix.os }}
+    name: "Python ${{ matrix.python }} on ${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - run: ./test/test
-  fmt:
-    name: Format
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: psf/black@stable
+      - name: "Install dependencies"
+        run: |
+          python -m pip install --disable-pip-version-check --upgrade pip setuptools
+          python -m pip install --disable-pip-version-check tox tox-gh-actions
+      - name: "Run tests"
+        run: |
+          python -m tox
