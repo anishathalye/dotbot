@@ -1,3 +1,4 @@
+import ctypes
 import json
 import os
 import shutil
@@ -18,6 +19,20 @@ except ImportError:
     builtins = None
     import __builtin__
     import mock  # noqa: module not found
+
+
+def get_long_path(path):
+    """Get the long path for a given path."""
+
+    # Do nothing for non-Windows platforms.
+    if sys.platform[:5] != "win32":
+        return path
+
+    buffer_size = 1000
+    buffer = ctypes.create_unicode_buffer(buffer_size)
+    get_long_path_name = ctypes.windll.kernel32.GetLongPathNameW
+    get_long_path_name(path, buffer, buffer_size)
+    return buffer.value
 
 
 # Python 2.7 compatibility:
@@ -94,8 +109,35 @@ def rmtree_error_handler(_, path, __):
         os.unlink(path)
 
 
+@pytest.fixture(autouse=True, scope="session")
+def standardize_tmp():
+    r"""Standardize the temporary directory path.
+
+    On MacOS, `/var` is a symlink to `/private/var`.
+    This creates issues with link canonicalization and relative link tests,
+    so this fixture rewrites environment variables and Python variables
+    to ensure the tests work the same as on Linux and Windows.
+
+    On Windows in GitHub CI, the temporary directory may be a short path.
+    For example, `C:\Users\RUNNER~1\...` instead of `C:\Users\runneradmin\...`.
+    This causes string-based path comparisons to fail.
+    """
+
+    tmp = tempfile.gettempdir()
+    # MacOS: `/var` is a symlink.
+    tmp = os.path.abspath(os.path.realpath(tmp))
+    # Windows: The temporary directory may be a short path.
+    if sys.platform[:5] == "win32":
+        tmp = get_long_path(tmp)
+    os.environ["TMP"] = tmp
+    os.environ["TEMP"] = tmp
+    os.environ["TMPDIR"] = tmp
+    tempfile.tempdir = tmp
+    yield
+
+
 @pytest.fixture(autouse=True)
-def root():
+def root(standardize_tmp):
     """Create a temporary directory for the duration of each test."""
 
     # Reset allowed_tempfile_internal_unlink_calls.
