@@ -332,6 +332,7 @@ fine-grained control.
 | `stdin` | Allow a command to read from standard input (default: false) |
 | `stdout` | Show a command's output from stdout (default: false) |
 | `stderr` | Show a command's error output from stderr (default: false) |
+| `if` | Run command if a condition is true (default: true) (optional) |
 
 Note that `quiet` controls whether the command (a string) is printed in log
 output, it does not control whether the output from running the command is
@@ -354,6 +355,19 @@ printed (that is controlled by `stdout` / `stderr`). When a command's `stdin` /
   -
     command: read fail
     stderr: true
+```
+
+##### Running shell command conditionally
+
+```yaml
+- shell:
+    - command: apt update && apt upgrade -y
+      if: lsb_release -i | grep -io 'debian'
+      description: Update APT package repository
+
+    - command: dnf update -y
+      if: lsb_release -i | grep -io 'fedora'
+      description: Update DNF package repository
 ```
 
 ### Clean
