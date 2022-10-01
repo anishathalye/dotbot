@@ -1,0 +1,26 @@
+- defaults:
+    link:
+      relink: true
+      create: true
+
+- clean: ['~']
+
+- conditional:
+    if:
+      tty: true
+    then:
+      - shell:
+        - 'echo "Running from a TTY"'
+
+- conditional:
+    if:
+      shell: "command -v python"
+    then:
+      - shell:
+        - 'echo "python is available"'
+
+- conditional:
+    if: "command -v foo"
+    else:
+      - shell:
+        - 'echo "foo is not available"'

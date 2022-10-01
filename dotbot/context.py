@@ -8,10 +8,11 @@ class Context(object):
     Contextual data and information for plugins.
     """
 
-    def __init__(self, base_directory, options=Namespace()):
+    def __init__(self, base_directory, options=Namespace(), dispatcher=None):
         self._base_directory = base_directory
         self._defaults = {}
         self._options = options
+        self._dispatcher = dispatcher
         pass
 
     def set_base_directory(self, base_directory):
