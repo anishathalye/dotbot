@@ -42,10 +42,11 @@ class Shell(dotbot.Plugin):
             else:
                 cmd = item
                 msg = None
-            if msg is None:
+            if quiet:
+                if msg is not None:
+                    self._log.lowinfo("%s" % msg)
+            elif msg is None:
                 self._log.lowinfo(cmd)
-            elif quiet:
-                self._log.lowinfo("%s" % msg)
             else:
                 self._log.lowinfo("%s [%s]" % (msg, cmd))
             stdout = options.get("stdout", stdout)
