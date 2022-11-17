@@ -20,9 +20,9 @@ test_expect_success 'run 2' '
 EOF
 '
 
-# when no description, expect to see command
+# when no description, expect no output
 test_expect_success 'run 3' '
-(run_dotbot | grep "echo banana") <<EOF
+(run_dotbot | (! grep "echo banana")) <<EOF
 - shell:
   - command: echo banana
     quiet: true
