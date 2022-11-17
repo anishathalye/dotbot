@@ -2,6 +2,7 @@ test_description='install shim works'
 . '../test-lib.bash'
 
 test_expect_success 'setup' '
+git config --global protocol.file.allow always
 cd ${DOTFILES}
 git init
 git submodule add ${BASEDIR} dotbot
