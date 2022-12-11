@@ -52,87 +52,103 @@ class Link(dotbot.Plugin):
                 base_prefix = source.get("prefix", base_prefix)
                 ignore_missing = source.get("ignore-missing", ignore_missing)
                 exclude_paths = source.get("exclude", exclude_paths)
-                path = self._default_source(destination, source.get("path"))
+                paths = self._default_sources(destination, source.get("path"))
             else:
-                path = self._default_source(destination, source)
+                paths = self._default_sources(destination, source)
             if test is not None and not self._test_success(test):
                 self._log.lowinfo("Skipping %s" % destination)
                 continue
-            path = os.path.expandvars(os.path.expanduser(path))
-            if use_glob:
-                glob_results = self._create_glob_results(path, exclude_paths)
-                if len(glob_results) == 0:
-                    self._log.warning("Globbing couldn't find anything matching " + str(path))
-                    success = False
-                    continue
-                if len(glob_results) == 1 and destination[-1] == "/":
-                    self._log.error("Ambiguous action requested.")
-                    self._log.error(
-                        "No wildcard in glob, directory use undefined: "
-                        + destination
-                        + " -> "
-                        + str(glob_results)
-                    )
-                    self._log.warning("Did you want to link the directory or into it?")
-                    success = False
-                    continue
-                elif len(glob_results) == 1 and destination[-1] != "/":
-                    # perform a normal link operation
+            for path in paths:
+                if len(paths) > 1:
+                    self._log.lowinfo("Multiple paths given, processing path " + path)
+                path = os.path.expandvars(os.path.expanduser(path))
+                if use_glob:
+                    glob_results = self._create_glob_results(path, exclude_paths)
+                    if len(glob_results) == 0:
+                        self._log.warning("Globbing couldn't find anything matching " + str(path))
+                        success = False
+                        continue
+                    if len(glob_results) == 1 and destination[-1] == "/" and len(paths) == 1:
+                        # Note: if there is more than one path, we can assume that the user meant to link *into* the directory - the opposite wouldn't make sense
+                        self._log.error("Ambiguous action requested.")
+                        self._log.error(
+                            "No wildcard in glob, directory use undefined: "
+                            + destination
+                            + " -> "
+                            + str(glob_results)
+                        )
+                        self._log.warning("Did you want to link the directory or into it?")
+                        success = False
+                        break
+                    elif len(glob_results) == 1 and destination[-1] != "/" and len(paths) == 1:
+                        # perform a normal link operation.
+                        # again, if more than one path is given, want to link into the directory
+                        if create:
+                            success &= self._create(destination)
+                        if force or relink:
+                            success &= self._delete(
+                                path, destination, relative, canonical_path, force
+                            )
+                        success &= self._link(
+                            path, destination, relative, canonical_path, ignore_missing
+                        )
+                    else:
+                        self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
+                        for glob_full_item in glob_results:
+                            # Find common dirname between pattern and the item:
+                            glob_dirname = os.path.dirname(
+                                os.path.commonprefix([path, glob_full_item])
+                            )
+                            glob_item = (
+                                glob_full_item
+                                if len(glob_dirname) == 0
+                                else glob_full_item[len(glob_dirname) + 1 :]
+                            )
+                            # Add prefix to basepath, if provided
+                            if base_prefix:
+                                glob_item = base_prefix + glob_item
+                            # Where is it going
+                            glob_link_destination = os.path.join(destination, glob_item)
+                            if create:
+                                success &= self._create(glob_link_destination)
+                            if force or relink:
+                                success &= self._delete(
+                                    glob_full_item,
+                                    glob_link_destination,
+                                    relative,
+                                    canonical_path,
+                                    force,
+                                )
+                            success &= self._link(
+                                glob_full_item,
+                                glob_link_destination,
+                                relative,
+                                canonical_path,
+                                ignore_missing,
+                            )
+                else:
+                    if len(paths) > 1:
+                        # Multiple paths were given, so the destination is a directory into which the files need to be linked.
+                        destination = os.path.join(destination, os.path.basename(path))
+                    # Only one path was given, so the destination is a file
                     if create:
                         success &= self._create(destination)
+                    if not ignore_missing and not self._exists(
+                        os.path.join(self._context.base_directory(), path)
+                    ):
+                        # we seemingly check this twice (here and in _link) because
+                        # if the file doesn't exist and force is True, we don't
+                        # want to remove the original (this is tested by
+                        # link-force-leaves-when-nonexistent.bash)
+                        success = False
+                        self._log.warning("Nonexistent source %s -> %s" % (destination, path))
+                        break
                     if force or relink:
                         success &= self._delete(path, destination, relative, canonical_path, force)
                     success &= self._link(
                         path, destination, relative, canonical_path, ignore_missing
                     )
-                else:
-                    self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
-                    for glob_full_item in glob_results:
-                        # Find common dirname between pattern and the item:
-                        glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
-                        glob_item = (
-                            glob_full_item
-                            if len(glob_dirname) == 0
-                            else glob_full_item[len(glob_dirname) + 1 :]
-                        )
-                        # Add prefix to basepath, if provided
-                        if base_prefix:
-                            glob_item = base_prefix + glob_item
-                        # where is it going
-                        glob_link_destination = os.path.join(destination, glob_item)
-                        if create:
-                            success &= self._create(glob_link_destination)
-                        if force or relink:
-                            success &= self._delete(
-                                glob_full_item,
-                                glob_link_destination,
-                                relative,
-                                canonical_path,
-                                force,
-                            )
-                        success &= self._link(
-                            glob_full_item,
-                            glob_link_destination,
-                            relative,
-                            canonical_path,
-                            ignore_missing,
-                        )
-            else:
-                if create:
-                    success &= self._create(destination)
-                if not ignore_missing and not self._exists(
-                    os.path.join(self._context.base_directory(), path)
-                ):
-                    # we seemingly check this twice (here and in _link) because
-                    # if the file doesn't exist and force is True, we don't
-                    # want to remove the original (this is tested by
-                    # link-force-leaves-when-nonexistent.bash)
-                    success = False
-                    self._log.warning("Nonexistent source %s -> %s" % (destination, path))
-                    continue
-                if force or relink:
-                    success &= self._delete(path, destination, relative, canonical_path, force)
-                success &= self._link(path, destination, relative, canonical_path, ignore_missing)
+
         if success:
             self._log.info("All links have been set up")
         else:
@@ -145,15 +161,17 @@ class Link(dotbot.Plugin):
             self._log.debug("Test '%s' returned false" % command)
         return ret == 0
 
-    def _default_source(self, destination, source):
+    def _default_sources(self, destination, source):
         if source is None:
             basename = os.path.basename(destination)
             if basename.startswith("."):
-                return basename[1:]
+                return [basename[1:]]
             else:
-                return basename
-        else:
+                return [basename]
+        elif isinstance(source, list):
             return source
+        else:
+            return [source]
 
     def _glob(self, path):
         """
