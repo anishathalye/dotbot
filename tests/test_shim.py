@@ -42,7 +42,9 @@ def test_shim(root, home, dotfiles, run_dotbot):
     git_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(dotfiles.directory)
     subprocess.check_call([git, "init"])
-    subprocess.check_call([git, "submodule", "add", git_directory, "dotbot"])
+    subprocess.check_call(
+        [git, "-c", "protocol.file.allow=always", "submodule", "add", git_directory, "dotbot"]
+    )
     shutil.copy(install, shim)
     dotfiles.write("foo", "pear")
     dotfiles.write_config([{"link": {"~/.foo": "foo"}}])

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest"]
+        os: ["ubuntu-20.04", "macos-latest"]
         python: ["2.7", "pypy-2.7", "3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy-3.9"]
         include:
           - os: "windows-latest"
@@ -21,12 +21,12 @@ jobs:
           - os: "windows-latest"
             python: "3.10"
     runs-on: ${{ matrix.os }}
-    name: "Python ${{ matrix.python }} on ${{ matrix.os }}"
+    name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: recursive
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - name: "Install dependencies"
@@ -36,3 +36,10 @@ jobs:
       - name: "Run tests"
         run: |
           python -m tox
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: psf/black@stable

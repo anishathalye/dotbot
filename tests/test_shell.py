@@ -240,7 +240,7 @@ def test_shell_quiet_enabled_with_description(capfd, dotfiles, run_dotbot):
 
 
 def test_shell_quiet_enabled_without_description(capfd, dotfiles, run_dotbot):
-    """Verify the command is shown when quiet is enabled with no description."""
+    """Verify nothing is shown when quiet is enabled with no description."""
 
     dotfiles.write_config(
         [
@@ -258,4 +258,4 @@ def test_shell_quiet_enabled_without_description(capfd, dotfiles, run_dotbot):
 
     stdout = capfd.readouterr().out.splitlines()
     assert not any(line.startswith("banana") for line in stdout)
-    assert any(line.startswith("echo banana") for line in stdout)
+    assert not any(line.startswith("echo banana") for line in stdout)
