@@ -1,8 +1,8 @@
-from setuptools import setup, find_packages
+import re
 from codecs import open  # For a consistent encoding
 from os import path
-import re
 
+from setuptools import find_packages, setup
 
 here = path.dirname(__file__)
 
