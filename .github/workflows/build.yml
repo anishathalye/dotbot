@@ -36,6 +36,8 @@ jobs:
       - name: "Run tests"
         run: |
           python -m tox
+          python -m tox -e coverage_report
+      - uses: codecov/codecov-action@v3
 
   fmt:
     name: Format

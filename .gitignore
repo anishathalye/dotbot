@@ -6,5 +6,6 @@
 .tox/
 .venv/
 build/
+coverage.xml
 dist/
 htmlcov/
