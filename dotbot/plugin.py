@@ -1,5 +1,5 @@
-from .messenger import Messenger
 from .context import Context
+from .messenger import Messenger
 
 
 class Plugin(object):

@@ -1,4 +1,10 @@
 *.egg-info
 *.pyc
+.coverage*
+.eggs/
+.idea/
+.tox/
+.venv/
 build/
 dist/
+htmlcov/

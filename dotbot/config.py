@@ -1,6 +1,8 @@
-import yaml
 import json
 import os.path
+
+import yaml
+
 from .util import string
 
 

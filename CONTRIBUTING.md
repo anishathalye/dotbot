@@ -50,6 +50,31 @@ used in the rest of the project. The version history should be clean, and
 commit messages should be descriptive and [properly
 formatted][commit-messages].
 
+When preparing a patch, it's recommended that you add unit tests
+that demonstrate the bug is fixed (or that the feature works).
+You can run the tests on your local machine by installing the `dev` extras.
+The steps below do this using a virtual environment:
+
+```shell
+# Create a local virtual environment
+$ python -m venv .venv
+
+# Activate the virtual environment
+# Cygwin, Linux, and MacOS:
+$ . .venv/bin/activate
+# Windows Powershell:
+$ & .venv\Scripts\Activate.ps1
+
+# Update pip and setuptools
+(.venv) $ python -m pip install -U pip setuptools
+
+# Install dotbot and its development dependencies
+(.venv) $ python -m pip install -e .[dev]
+
+# Run the unit tests
+(.venv) $ tox
+```
+
 ---
 
 If you have any questions about anything, feel free to [ask][email]!

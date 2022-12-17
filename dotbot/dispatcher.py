@@ -1,17 +1,25 @@
 import os
 from argparse import Namespace
-from .plugin import Plugin
-from .messenger import Messenger
+
 from .context import Context
+from .messenger import Messenger
+from .plugin import Plugin
 
 
 class Dispatcher(object):
     def __init__(
-        self, base_directory, only=None, skip=None, exit_on_failure=False, options=Namespace()
+        self,
+        base_directory,
+        only=None,
+        skip=None,
+        exit_on_failure=False,
+        options=Namespace(),
+        plugins=None,
     ):
         self._log = Messenger()
         self._setup_context(base_directory, options)
-        self._load_plugins()
+        plugins = plugins or []
+        self._plugins = [plugin(self._context) for plugin in plugins]
         self._only = only
         self._skip = skip
         self._exit = exit_on_failure
@@ -64,9 +72,6 @@ class Dispatcher(object):
                         # Invalid action exit
                         return False
         return success
-
-    def _load_plugins(self):
-        self._plugins = [plugin(self._context) for plugin in Plugin.__subclasses__()]
 
 
 class DispatchError(Exception):

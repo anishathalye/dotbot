@@ -1,8 +1,9 @@
 import os
-import dotbot
+
+from ..plugin import Plugin
 
 
-class Create(dotbot.Plugin):
+class Create(Plugin):
     """
     Create empty paths.
     """
@@ -21,7 +22,7 @@ class Create(dotbot.Plugin):
         success = True
         defaults = self._context.defaults().get("create", {})
         for key in paths:
-            path = os.path.expandvars(os.path.expanduser(key))
+            path = os.path.abspath(os.path.expandvars(os.path.expanduser(key)))
             mode = defaults.get("mode", 0o777)  # same as the default for os.makedirs
             if isinstance(paths, dict):
                 options = paths[key]
@@ -48,6 +49,9 @@ class Create(dotbot.Plugin):
             try:
                 self._log.lowinfo("Creating path %s" % path)
                 os.makedirs(path, mode)
+                # On Windows, the *mode* argument to `os.makedirs()` is ignored.
+                # The mode must be set explicitly in a follow-up call.
+                os.chmod(path, mode)
             except OSError:
                 self._log.warning("Failed to create path %s" % path)
                 success = False

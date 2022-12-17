@@ -1,2 +1,2 @@
-from .messenger import Messenger
 from .level import Level
+from .messenger import Messenger

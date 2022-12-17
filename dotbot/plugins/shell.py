@@ -1,10 +1,8 @@
-import os
-import subprocess
-import dotbot
-import dotbot.util
+from ..plugin import Plugin
+from ..util import shell_command
 
 
-class Shell(dotbot.Plugin):
+class Shell(Plugin):
     """
     Run arbitrary shell commands.
     """
@@ -51,7 +49,7 @@ class Shell(dotbot.Plugin):
                 self._log.lowinfo("%s [%s]" % (msg, cmd))
             stdout = options.get("stdout", stdout)
             stderr = options.get("stderr", stderr)
-            ret = dotbot.util.shell_command(
+            ret = shell_command(
                 cmd,
                 cwd=self._context.base_directory(),
                 enable_stdin=stdin,

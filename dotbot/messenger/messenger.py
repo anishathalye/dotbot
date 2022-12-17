@@ -1,5 +1,5 @@
-from ..util.singleton import Singleton
 from ..util.compat import with_metaclass
+from ..util.singleton import Singleton
 from .color import Color
 from .level import Level
 
