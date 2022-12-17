@@ -67,7 +67,9 @@ touch install.conf.yaml
 ```
 
 If you are using PowerShell instead of a POSIX shell, you can use the provided
-`install.ps1` script instead of `install`.
+`install.ps1` script instead of `install`. On Windows, Dotbot only supports
+Python 3.8+, and it requires that your account is [allowed to create symbolic
+links][windows-symlinks].
 
 To get started, you just need to fill in the `install.conf.yaml` and Dotbot
 will take care of the rest. To help you get started we have [an
@@ -466,7 +468,7 @@ Copyright (c) 2014-2021 Anish Athalye. Released under the MIT License. See
 [init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotbot/wiki/Users
-[managing-dotfiles-post]: http://www.anishathalye.com/2014/08/03/managing-your-dotfiles/
+[windows-symlinks]: https://learn.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/create-symbolic-links
 [json2yaml]: https://www.json2yaml.com/
 [plugins]: https://github.com/anishathalye/dotbot/wiki/Plugins
 [wiki]: https://github.com/anishathalye/dotbot/wiki
