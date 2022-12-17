@@ -75,6 +75,16 @@ $ & .venv\Scripts\Activate.ps1
 (.venv) $ tox
 ```
 
+If you prefer to run the tests in an isolated container using Docker, you can
+do so with the following:
+
+```
+docker run -it --rm -v "${PWD}:/dotbot" -w /dotbot python:3.10-alpine /bin/sh
+```
+
+After spawning the container, follow the same instructions as above (create a
+virtualenv, ..., run the tests).
+
 ---
 
 If you have any questions about anything, feel free to [ask][email]!
