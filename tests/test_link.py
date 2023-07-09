@@ -270,7 +270,7 @@ def test_link_glob_4(home, dotfiles, run_dotbot):
 
 
 @pytest.mark.parametrize("path", ("foo", "foo/"))
-def test_link_glob_ambiguous_failure(path, home, dotfiles, run_dotbot):
+def test_link_glob_ignore_no_glob_chars(path, home, dotfiles, run_dotbot):
     """Verify ambiguous link globbing fails."""
 
     dotfiles.makedirs("foo")
@@ -286,28 +286,8 @@ def test_link_glob_ambiguous_failure(path, home, dotfiles, run_dotbot):
             }
         ]
     )
-    with pytest.raises(SystemExit):
-        run_dotbot()
-    assert not os.path.exists(os.path.join(home, "foo"))
-
-
-def test_link_glob_ambiguous_success(home, dotfiles, run_dotbot):
-    """Verify the case where ambiguous link globbing succeeds."""
-
-    dotfiles.makedirs("foo")
-    dotfiles.write_config(
-        [
-            {
-                "link": {
-                    "~/foo": {
-                        "path": "foo",
-                        "glob": True,
-                    }
-                }
-            }
-        ]
-    )
     run_dotbot()
+    assert os.path.islink(os.path.join(home, "foo"))
     assert os.path.exists(os.path.join(home, "foo"))
 
 
@@ -598,6 +578,26 @@ def test_link_glob_no_match(home, dotfiles, run_dotbot):
         ]
     )
     run_dotbot()
+
+
+def test_link_glob_single_match(home, dotfiles, run_dotbot):
+    """Verify linking works even when glob matches exactly one file."""
+    # regression test for https://github.com/anishathalye/dotbot/issues/282
+
+    dotfiles.write("foo/a", "apple")
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/.config/foo": "foo/*"}},
+        ]
+    )
+    run_dotbot()
+
+    assert not os.path.islink(os.path.join(home, ".config"))
+    assert not os.path.islink(os.path.join(home, ".config", "foo"))
+    assert os.path.islink(os.path.join(home, ".config", "foo", "a"))
+    with open(os.path.join(home, ".config", "foo", "a")) as file:
+        assert file.read() == "apple"
 
 
 @pytest.mark.skipif(

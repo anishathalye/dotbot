@@ -59,63 +59,39 @@ class Link(Plugin):
                 self._log.lowinfo("Skipping %s" % destination)
                 continue
             path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
-            if use_glob:
+            if use_glob and self._has_glob_chars(path):
                 glob_results = self._create_glob_results(path, exclude_paths)
-                if len(glob_results) == 0:
-                    self._log.lowinfo("Globbing couldn't find anything matching " + str(path))
-                    continue
-                if len(glob_results) == 1 and destination[-1] == "/":
-                    self._log.error("Ambiguous action requested.")
-                    self._log.error(
-                        "No wildcard in glob, directory use undefined: "
-                        + destination
-                        + " -> "
-                        + str(glob_results)
+                self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
+                for glob_full_item in glob_results:
+                    # Find common dirname between pattern and the item:
+                    glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
+                    glob_item = (
+                        glob_full_item
+                        if len(glob_dirname) == 0
+                        else glob_full_item[len(glob_dirname) + 1 :]
                     )
-                    self._log.warning("Did you want to link the directory or into it?")
-                    success = False
-                    continue
-                elif len(glob_results) == 1 and destination[-1] != "/":
-                    # perform a normal link operation
+                    # Add prefix to basepath, if provided
+                    if base_prefix:
+                        glob_item = base_prefix + glob_item
+                    # where is it going
+                    glob_link_destination = os.path.join(destination, glob_item)
                     if create:
-                        success &= self._create(destination)
+                        success &= self._create(glob_link_destination)
                     if force or relink:
-                        success &= self._delete(path, destination, relative, canonical_path, force)
-                    success &= self._link(
-                        path, destination, relative, canonical_path, ignore_missing
-                    )
-                else:
-                    self._log.lowinfo("Globs from '" + path + "': " + str(glob_results))
-                    for glob_full_item in glob_results:
-                        # Find common dirname between pattern and the item:
-                        glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
-                        glob_item = (
-                            glob_full_item
-                            if len(glob_dirname) == 0
-                            else glob_full_item[len(glob_dirname) + 1 :]
-                        )
-                        # Add prefix to basepath, if provided
-                        if base_prefix:
-                            glob_item = base_prefix + glob_item
-                        # where is it going
-                        glob_link_destination = os.path.join(destination, glob_item)
-                        if create:
-                            success &= self._create(glob_link_destination)
-                        if force or relink:
-                            success &= self._delete(
-                                glob_full_item,
-                                glob_link_destination,
-                                relative,
-                                canonical_path,
-                                force,
-                            )
-                        success &= self._link(
+                        success &= self._delete(
                             glob_full_item,
                             glob_link_destination,
                             relative,
                             canonical_path,
-                            ignore_missing,
+                            force,
                         )
+                    success &= self._link(
+                        glob_full_item,
+                        glob_link_destination,
+                        relative,
+                        canonical_path,
+                        ignore_missing,
+                    )
             else:
                 if create:
                     success &= self._create(destination)
@@ -153,6 +129,9 @@ class Link(Plugin):
                 return basename
         else:
             return source
+
+    def _has_glob_chars(self, path):
+        return any(i in path for i in "?*[")
 
     def _glob(self, path):
         """
