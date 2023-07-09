@@ -587,6 +587,19 @@ def test_link_glob_recursive(home, dotfiles, run_dotbot):
         assert file.read() == "cherry"
 
 
+def test_link_glob_no_match(home, dotfiles, run_dotbot):
+    """Verify that a glob with no match doesn't raise an error."""
+
+    dotfiles.makedirs("foo")
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True}}},
+            {"link": {"~/.config/foo": "foo/*"}},
+        ]
+    )
+    run_dotbot()
+
+
 @pytest.mark.skipif(
     "sys.platform[:5] == 'win32'",
     reason="These if commands won't run on Windows",

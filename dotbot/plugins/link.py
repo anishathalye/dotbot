@@ -62,8 +62,7 @@ class Link(Plugin):
             if use_glob:
                 glob_results = self._create_glob_results(path, exclude_paths)
                 if len(glob_results) == 0:
-                    self._log.warning("Globbing couldn't find anything matching " + str(path))
-                    success = False
+                    self._log.lowinfo("Globbing couldn't find anything matching " + str(path))
                     continue
                 if len(glob_results) == 1 and destination[-1] == "/":
                     self._log.error("Ambiguous action requested.")
