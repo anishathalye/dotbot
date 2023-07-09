@@ -95,7 +95,7 @@ def main():
                         ["git", "rev-parse", "HEAD"],
                         cwd=os.path.dirname(os.path.abspath(__file__)),
                         stderr=devnull,
-                    )
+                    ).decode("ascii")
                 hash_msg = " (git %s)" % git_hash[:10]
             except (OSError, subprocess.CalledProcessError):
                 hash_msg = ""
