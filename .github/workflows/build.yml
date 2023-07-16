@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: '0 8 * * 6'
 jobs:
-  test:
+  test-py3:
     env:
       PIP_DISABLE_PIP_VERSION_CHECK: 1
     strategy:
@@ -29,6 +29,27 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
+      - name: "Install dependencies"
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install tox tox-gh-actions
+      - name: "Run tests"
+        run: |
+          python -m tox
+          python -m tox -e coverage_report
+      - uses: codecov/codecov-action@v3
+
+  test-py2:
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+    runs-on: ubuntu-20.04
+    container:
+      image: python:2.7.18-buster
+    name: "Test: Python 2.7 on ubuntu-20.04"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - name: "Install dependencies"
         run: |
           python -m pip install --upgrade pip setuptools
