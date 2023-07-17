@@ -2,7 +2,7 @@ import glob
 import os
 import shutil
 import sys
-import errno
+import datetime
 
 from ..plugin import Plugin
 from ..util import shell_command
@@ -121,26 +121,46 @@ class Link(Plugin):
             self._log.debug("Test '%s' returned false" % command)
         return ret == 0
 
-    def _move(self, link_name, path):
+    def _backup(self, link_name, backup_root):
+        if not backup_root:
+            return False
         success = True
         source = os.path.expanduser(link_name)
-        destination = os.path.join(self._context.base_directory(), path)
-        if os.path.isdir(source):
-            shutil.copytree(source, destination)
-            shutil.rmtree(source, ignore_errors=True)
+        timestamp = datetime.datetime.now().strftime(".%Y%m%dT%H%M%S.%f")
+        backup_root = os.path.expandvars(os.path.expanduser(backup_root))
+        backup_root = os.path.normpath(os.path.join(self._context.base_directory(), backup_root))
+        destination, ext = os.path.splitext(
+            os.path.normpath(os.path.splitdrive(source)[1]).strip("/")
+        )
+        destination = os.path.join(backup_root, destination + timestamp + ext)
+        success &= self._create(destination)
+        if os.path.islink(source):
+            try:
+                shutil.copy2(source, destination, follow_symlinks=False)
+            except OSError:
+                self._log.warning("Failed to backup symlink %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("Performed backup of symlink %s to %s" % (source, destination))
+        elif os.path.isdir(source):
+            try:
+                shutil.copytree(source, destination, symlinks=True)
+            except OSError:
+                self._log.warning("Failed to backup directory %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("performed backup of directory %s to %s" % (source, destination))
         elif os.path.isfile(source):
             try:
-                os.makedirs(os.path.split(destination)[0])
-            except OSError as exception:
-                if exception.errno != errno.EEXIST:
-                    success = False
-                    # TODO: check what is eerno.EEXIST and replace above with pass if relevant
-            shutil.copy(source, destination)
-            os.unlink(source)
+                shutil.copy2(source, destination)
+            except OSError:
+                self._log.warning("Failed to backup file %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("Performed backup of file %s to %s" % (source, destination))
         else:
-            self._log.warning("Config file missing %s" % source)
-            return False
-        self._log.info("Moved existing config %s" % source)
+            self._log.warning("Failed to backup irregular file %s" % source)
+            success = False
         return success
 
     def _default_source(self, destination, source):
