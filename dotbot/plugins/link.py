@@ -246,7 +246,7 @@ class Link(Plugin):
                 self._log.lowinfo("Creating directory %s" % parent)
         return success
 
-    def _delete(self, source, path, relative, canonical_path, force):
+    def _delete(self, source, path, relative, canonical_path, force, backup_root):
         success = True
         source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
         fullpath = os.path.abspath(os.path.expanduser(path))
@@ -256,8 +256,13 @@ class Link(Plugin):
             self._exists(path) and not self._is_link(path)
         ):
             removed = False
+            if backup_root:
+                backed_up = self._backup(path, backup_root)
             try:
-                if os.path.islink(fullpath):
+                if backup_root and not backed_up:
+                    self._log.warning("Skipping removal of %s due to failed backup" % path)
+                    success = False
+                elif os.path.islink(fullpath):
                     os.unlink(fullpath)
                     removed = True
                 elif force:
