@@ -33,6 +33,7 @@ class Link(Plugin):
             canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
             force = defaults.get("force", False)
             relink = defaults.get("relink", False)
+            backup_root = defaults.get("backup-root", None)
             create = defaults.get("create", False)
             use_glob = defaults.get("glob", False)
             base_prefix = defaults.get("prefix", "")
@@ -48,6 +49,7 @@ class Link(Plugin):
                 )
                 force = source.get("force", force)
                 relink = source.get("relink", relink)
+                backup_root = source.get("backup-root", backup_root)
                 create = source.get("create", create)
                 use_glob = source.get("glob", use_glob)
                 base_prefix = source.get("prefix", base_prefix)
@@ -85,6 +87,7 @@ class Link(Plugin):
                             relative,
                             canonical_path,
                             force,
+                            backup_root,
                         )
                     success &= self._link(
                         glob_full_item,
@@ -107,7 +110,9 @@ class Link(Plugin):
                     self._log.warning("Nonexistent source %s -> %s" % (destination, path))
                     continue
                 if force or relink:
-                    success &= self._delete(path, destination, relative, canonical_path, force)
+                    success &= self._delete(
+                        path, destination, relative, canonical_path, force, backup_root
+                    )
                 success &= self._link(path, destination, relative, canonical_path, ignore_missing)
         if success:
             self._log.info("All links have been set up")
