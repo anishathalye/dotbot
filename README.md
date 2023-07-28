@@ -181,6 +181,7 @@ mapped to extended configuration dictionaries.
 | `create` | When true, create parent directories to the link as needed. (default: false) |
 | `relink` | Removes the old target if it's a symlink (default: false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
+| `backup-root` | In case of `force` or `relink` backup the old target to `backup-root` (default: no backup) |
 | `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
 | `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
