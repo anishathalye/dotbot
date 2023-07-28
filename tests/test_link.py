@@ -1037,6 +1037,26 @@ def test_link_relink_backups_symlink(home, dotfiles, run_dotbot):
         assert file.read() == "apple"
 
 
+def test_link_relink_aborts_on_failed_backup(home, dotfiles, run_dotbot):
+    """Verify relink is aborted if backup fails."""
+
+    dotfiles.write("f", "apple")
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+    dotfiles.write("backup")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [{"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}}]
+    )
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "grape"
+
+
 def test_link_relink_relative_leaves_file(home, dotfiles, run_dotbot):
     """Verify relink relative does not incorrectly relink file."""
 
