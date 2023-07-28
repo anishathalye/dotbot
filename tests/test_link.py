@@ -201,6 +201,20 @@ def test_link_force_overwrite_source(home, dotfiles, run_dotbot):
     assert os.path.isfile(os.path.join(home, "dir", "f"))
 
 
+def test_backup_mirrors_absolute_path(home, dotfiles, run_dotbot):
+    """Verify backup path from backup dir is same as original path from root."""
+
+    os.symlink(home, os.path.join(home, ".f"))
+    dotfiles.write("f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [{"link": {"~/.f": {"path": "f", "force": True, "backup-root": backup_root}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.isdir(os.path.join(backup_root, home[1:]))
+
+
 def test_link_force_backups_source(home, dotfiles, run_dotbot):
     """Verify force backups a symlinked directory."""
 
