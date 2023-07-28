@@ -1084,6 +1084,34 @@ def test_link_relink_aborts_on_failed_backup(home, dotfiles, run_dotbot):
         assert file.read() == "grape"
 
 
+def test_backup_is_sequentially_differetiated(home, dotfiles, run_dotbot):
+    """Verify that backups do not overwrite each other and get sequentially different names."""
+
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+    dotfiles.write("f", "apple")
+    dotfiles.write("dir/f", "peach")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [
+            {"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}},
+            {"link": {"~/.f": {"path": "dir/f", "relink": True, "backup-root": backup_root}}},
+        ]
+    )
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    dir_items = sorted(os.listdir(backup_home))
+    with open(os.path.join(backup_home, dir_items[0])) as file:
+        assert file.read() == "grape"
+    with open(os.path.join(backup_home, dir_items[1])) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "peach"
+
+
 def test_link_relink_relative_leaves_file(home, dotfiles, run_dotbot):
     """Verify relink relative does not incorrectly relink file."""
 
