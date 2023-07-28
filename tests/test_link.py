@@ -245,6 +245,38 @@ def test_link_force_backups_source(home, dotfiles, run_dotbot):
             assert file.read() == "peach"
 
 
+def test_link_force_aborts_on_failed_backup(home, dotfiles, run_dotbot):
+    """Verify force is aborted if backup fails."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("backup")
+    dotfiles.write("dir/f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/file": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/dir": {"path": "dir", "force": True, "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert os.path.islink(os.path.join(home, ".link"))
+    assert home in os.readlink(os.path.join(home, ".link"))
+    assert os.path.isfile(os.path.join(home, "file"))
+    with open(os.path.join(home, "file")) as file:
+        assert file.read() == "apple"
+    assert os.path.isdir(os.path.join(home, "dir"))
+
+
 def test_link_glob_1(home, dotfiles, run_dotbot):
     """Verify globbing works."""
 
