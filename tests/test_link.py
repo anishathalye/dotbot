@@ -277,6 +277,33 @@ def test_link_force_aborts_on_failed_backup(home, dotfiles, run_dotbot):
     assert os.path.isdir(os.path.join(home, "dir"))
 
 
+def test_no_backup_when_no_force_relink(home, dotfiles, run_dotbot):
+    """Verify backup is a no-op without an accompanying force or relink."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "backup-root": backup_root},
+                "~/file": {"path": "dir", "backup-root": backup_root},
+                "~/dir": {"path": "dir", "backup-root": backup_root},
+                "~/.new": {"path": "dir", "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert not os.path.exists(backup_root)
+
+
 def test_link_glob_1(home, dotfiles, run_dotbot):
     """Verify globbing works."""
 
