@@ -175,6 +175,32 @@ def test_link_force_overwrite_symlink(home, dotfiles, run_dotbot):
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
 
 
+def test_link_force_overwrite_source(home, dotfiles, run_dotbot):
+    """Verify force overwrites a symlinked directory."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f")
+
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True},
+                "~/file": {"path": "dir", "force": True},
+                "~/dir": {"path": "dir", "force": True},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.isfile(os.path.join(home, ".link", "f"))
+    assert os.path.isfile(os.path.join(home, "file", "f"))
+    assert os.path.isfile(os.path.join(home, "dir", "f"))
+
+
 def test_link_glob_1(home, dotfiles, run_dotbot):
     """Verify globbing works."""
 
