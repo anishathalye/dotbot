@@ -201,6 +201,50 @@ def test_link_force_overwrite_source(home, dotfiles, run_dotbot):
     assert os.path.isfile(os.path.join(home, "dir", "f"))
 
 
+def test_link_force_backups_source(home, dotfiles, run_dotbot):
+    """Verify force backups a symlinked directory."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f", "peach")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/file": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/dir": {"path": "dir", "force": True, "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    dir_items = os.listdir(backup_home)
+    test_items = (".link", "file", "dir")
+    backuped = {
+        test_item: dir_item
+        for dir_item in dir_items
+        for test_item in test_items
+        if test_item in dir_item
+    }
+
+    assert set(backuped.keys()) == set(test_items)
+    assert os.path.islink(os.path.join(backup_home, backuped[".link"]))
+    assert home in os.readlink(os.path.join(backup_home, backuped[".link"]))
+    assert os.path.isfile(os.path.join(backup_home, backuped["file"]))
+    with open(os.path.join(backup_home, backuped["file"])) as file:
+        assert file.read() == "apple"
+    assert os.path.isdir(os.path.join(backup_home, backuped["dir"]))
+    for link in test_items:
+        with open(os.path.join(home, link, "f")) as file:
+            assert file.read() == "peach"
+
+
 def test_link_glob_1(home, dotfiles, run_dotbot):
     """Verify globbing works."""
 
