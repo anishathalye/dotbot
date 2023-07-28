@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import sys
+import datetime
 
 from ..plugin import Plugin
 from ..util import shell_command
@@ -32,6 +33,7 @@ class Link(Plugin):
             canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
             force = defaults.get("force", False)
             relink = defaults.get("relink", False)
+            backup_root = defaults.get("backup-root", None)
             create = defaults.get("create", False)
             use_glob = defaults.get("glob", False)
             base_prefix = defaults.get("prefix", "")
@@ -47,6 +49,7 @@ class Link(Plugin):
                 )
                 force = source.get("force", force)
                 relink = source.get("relink", relink)
+                backup_root = source.get("backup-root", backup_root)
                 create = source.get("create", create)
                 use_glob = source.get("glob", use_glob)
                 base_prefix = source.get("prefix", base_prefix)
@@ -84,6 +87,7 @@ class Link(Plugin):
                             relative,
                             canonical_path,
                             force,
+                            backup_root,
                         )
                     success &= self._link(
                         glob_full_item,
@@ -106,7 +110,9 @@ class Link(Plugin):
                     self._log.warning("Nonexistent source %s -> %s" % (destination, path))
                     continue
                 if force or relink:
-                    success &= self._delete(path, destination, relative, canonical_path, force)
+                    success &= self._delete(
+                        path, destination, relative, canonical_path, force, backup_root
+                    )
                 success &= self._link(path, destination, relative, canonical_path, ignore_missing)
         if success:
             self._log.info("All links have been set up")
@@ -119,6 +125,48 @@ class Link(Plugin):
         if ret != 0:
             self._log.debug("Test '%s' returned false" % command)
         return ret == 0
+
+    def _backup(self, link_name, backup_root):
+        if not backup_root:
+            return False
+        success = True
+        source = os.path.expanduser(link_name)
+        timestamp = datetime.datetime.now().strftime(".%Y%m%dT%H%M%S.%f")
+        backup_root = os.path.expandvars(os.path.expanduser(backup_root))
+        backup_root = os.path.normpath(os.path.join(self._context.base_directory(), backup_root))
+        destination, ext = os.path.splitext(
+            os.path.normpath(os.path.splitdrive(source)[1]).strip("/")
+        )
+        destination = os.path.join(backup_root, destination + timestamp + ext)
+        success &= self._create(destination)
+        if os.path.islink(source):
+            try:
+                shutil.copy2(source, destination, follow_symlinks=False)
+            except OSError:
+                self._log.warning("Failed to backup symlink %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("Performed backup of symlink %s to %s" % (source, destination))
+        elif os.path.isdir(source):
+            try:
+                shutil.copytree(source, destination, symlinks=True)
+            except OSError:
+                self._log.warning("Failed to backup directory %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("performed backup of directory %s to %s" % (source, destination))
+        elif os.path.isfile(source):
+            try:
+                shutil.copy2(source, destination)
+            except OSError:
+                self._log.warning("Failed to backup file %s to %s" % (source, destination))
+                success = False
+            else:
+                self._log.lowinfo("Performed backup of file %s to %s" % (source, destination))
+        else:
+            self._log.warning("Failed to backup irregular file %s" % source)
+            success = False
+        return success
 
     def _default_source(self, destination, source):
         if source is None:
@@ -203,7 +251,7 @@ class Link(Plugin):
                 self._log.lowinfo("Creating directory %s" % parent)
         return success
 
-    def _delete(self, source, path, relative, canonical_path, force):
+    def _delete(self, source, path, relative, canonical_path, force, backup_root):
         success = True
         source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
         fullpath = os.path.abspath(os.path.expanduser(path))
@@ -213,8 +261,13 @@ class Link(Plugin):
             self._exists(path) and not self._is_link(path)
         ):
             removed = False
+            if backup_root:
+                backed_up = self._backup(path, backup_root)
             try:
-                if os.path.islink(fullpath):
+                if backup_root and not backed_up:
+                    self._log.warning("Skipping removal of %s due to failed backup" % path)
+                    success = False
+                elif os.path.islink(fullpath):
                     os.unlink(fullpath)
                     removed = True
                 elif force:

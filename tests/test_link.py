@@ -175,6 +175,149 @@ def test_link_force_overwrite_symlink(home, dotfiles, run_dotbot):
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
 
 
+def test_link_force_overwrite_source(home, dotfiles, run_dotbot):
+    """Verify force overwrites a symlinked directory."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f")
+
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True},
+                "~/file": {"path": "dir", "force": True},
+                "~/dir": {"path": "dir", "force": True},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.isfile(os.path.join(home, ".link", "f"))
+    assert os.path.isfile(os.path.join(home, "file", "f"))
+    assert os.path.isfile(os.path.join(home, "dir", "f"))
+
+
+def test_backup_mirrors_absolute_path(home, dotfiles, run_dotbot):
+    """Verify backup path from backup dir is same as original path from root."""
+
+    os.symlink(home, os.path.join(home, ".f"))
+    dotfiles.write("f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [{"link": {"~/.f": {"path": "f", "force": True, "backup-root": backup_root}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.isdir(os.path.join(backup_root, home[1:]))
+
+
+def test_link_force_backups_source(home, dotfiles, run_dotbot):
+    """Verify force backups a symlinked directory."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f", "peach")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/file": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/dir": {"path": "dir", "force": True, "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    dir_items = os.listdir(backup_home)
+    test_items = (".link", "file", "dir")
+    backuped = {
+        test_item: dir_item
+        for dir_item in dir_items
+        for test_item in test_items
+        if test_item in dir_item
+    }
+
+    assert set(backuped.keys()) == set(test_items)
+    assert os.path.islink(os.path.join(backup_home, backuped[".link"]))
+    assert home in os.readlink(os.path.join(backup_home, backuped[".link"]))
+    assert os.path.isfile(os.path.join(backup_home, backuped["file"]))
+    with open(os.path.join(backup_home, backuped["file"])) as file:
+        assert file.read() == "apple"
+    assert os.path.isdir(os.path.join(backup_home, backuped["dir"]))
+    for link in test_items:
+        with open(os.path.join(home, link, "f")) as file:
+            assert file.read() == "peach"
+
+
+def test_link_force_aborts_on_failed_backup(home, dotfiles, run_dotbot):
+    """Verify force is aborted if backup fails."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("backup")
+    dotfiles.write("dir/f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/file": {"path": "dir", "force": True, "backup-root": backup_root},
+                "~/dir": {"path": "dir", "force": True, "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert os.path.islink(os.path.join(home, ".link"))
+    assert home in os.readlink(os.path.join(home, ".link"))
+    assert os.path.isfile(os.path.join(home, "file"))
+    with open(os.path.join(home, "file")) as file:
+        assert file.read() == "apple"
+    assert os.path.isdir(os.path.join(home, "dir"))
+
+
+def test_no_backup_when_no_force_relink(home, dotfiles, run_dotbot):
+    """Verify backup is a no-op without an accompanying force or relink."""
+
+    os.symlink(home, os.path.join(home, ".link"))
+    with open(os.path.join(home, "file"), "w") as file:
+        file.write("apple")
+    os.mkdir(os.path.join(home, "dir"))
+    dotfiles.write("dir/f")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    config = [
+        {
+            "link": {
+                "~/.link": {"path": "dir", "backup-root": backup_root},
+                "~/file": {"path": "dir", "backup-root": backup_root},
+                "~/dir": {"path": "dir", "backup-root": backup_root},
+                "~/.new": {"path": "dir", "backup-root": backup_root},
+            }
+        }
+    ]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert not os.path.exists(backup_root)
+
+
 def test_link_glob_1(home, dotfiles, run_dotbot):
     """Verify globbing works."""
 
@@ -907,6 +1050,80 @@ def test_link_relink_overwrite_symlink(home, dotfiles, run_dotbot):
     run_dotbot()
     with open(os.path.join(home, ".f"), "r") as file:
         assert file.read() == "apple"
+
+
+def test_link_relink_backups_symlink(home, dotfiles, run_dotbot):
+    """Verify relink backups symlinks."""
+
+    dotfiles.write("f", "apple")
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [{"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}}]
+    )
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    assert os.path.isdir(backup_home)
+    dir_items = os.listdir(backup_home)
+    assert len(dir_items) == 1
+    backuped = os.path.join(backup_home, dir_items[0])
+    assert os.path.islink(backuped)
+    with open(backuped, "r") as file:
+        assert file.read() == "grape"
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "apple"
+
+
+def test_link_relink_aborts_on_failed_backup(home, dotfiles, run_dotbot):
+    """Verify relink is aborted if backup fails."""
+
+    dotfiles.write("f", "apple")
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+    dotfiles.write("backup")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [{"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}}]
+    )
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "grape"
+
+
+def test_backup_is_sequentially_differetiated(home, dotfiles, run_dotbot):
+    """Verify that backups do not overwrite each other and get sequentially different names."""
+
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+    dotfiles.write("f", "apple")
+    dotfiles.write("dir/f", "peach")
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [
+            {"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}},
+            {"link": {"~/.f": {"path": "dir/f", "relink": True, "backup-root": backup_root}}},
+        ]
+    )
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    dir_items = sorted(os.listdir(backup_home))
+    with open(os.path.join(backup_home, dir_items[0])) as file:
+        assert file.read() == "grape"
+    with open(os.path.join(backup_home, dir_items[1])) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "peach"
 
 
 def test_link_relink_relative_leaves_file(home, dotfiles, run_dotbot):
