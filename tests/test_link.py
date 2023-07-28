@@ -1011,6 +1011,32 @@ def test_link_relink_overwrite_symlink(home, dotfiles, run_dotbot):
         assert file.read() == "apple"
 
 
+def test_link_relink_backups_symlink(home, dotfiles, run_dotbot):
+    """Verify relink backups symlinks."""
+
+    dotfiles.write("f", "apple")
+    with open(os.path.join(home, "f"), "w") as file:
+        file.write("grape")
+    os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
+
+    backup_root = os.path.join(dotfiles.directory, "backup")
+    dotfiles.write_config(
+        [{"link": {"~/.f": {"path": "f", "relink": True, "backup-root": backup_root}}}]
+    )
+    run_dotbot()
+
+    backup_home = os.path.join(backup_root, home[1:])
+    assert os.path.isdir(backup_home)
+    dir_items = os.listdir(backup_home)
+    assert len(dir_items) == 1
+    backuped = os.path.join(backup_home, dir_items[0])
+    assert os.path.islink(backuped)
+    with open(backuped, "r") as file:
+        assert file.read() == "grape"
+    with open(os.path.join(home, ".f"), "r") as file:
+        assert file.read() == "apple"
+
+
 def test_link_relink_relative_leaves_file(home, dotfiles, run_dotbot):
     """Verify relink relative does not incorrectly relink file."""
 
