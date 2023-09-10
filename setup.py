@@ -52,7 +52,7 @@ setup(
         "wheel>=0.31.0",
     ],
     install_requires=[
-        "PyYAML>=5.3,<6",
+        "PyYAML>=6.0.1,<7",
     ],
     extras_require={
         "dev": {
