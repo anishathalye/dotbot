@@ -537,10 +537,6 @@ def test_link_glob_patterns(pattern, expect_file, home, dotfiles, run_dotbot):
             assert not os.path.islink(os.path.join(home, "globtest", "." + fruit))
 
 
-@pytest.mark.skipif(
-    "sys.version_info < (3, 5)",
-    reason="Python 3.5 required for ** globbing",
-)
 def test_link_glob_recursive(home, dotfiles, run_dotbot):
     """Verify recursive link globbing and exclusions."""
 
@@ -773,19 +769,11 @@ def test_link_no_canonicalize(key, home, dotfiles, run_dotbot):
 
     dotfiles.write("f", "apple")
     dotfiles.write_config([{"defaults": {"link": {key: False}}}, {"link": {"~/.f": {"path": "f"}}}])
-    try:
-        os.symlink(
-            dotfiles.directory,
-            os.path.join(home, "dotfiles-symlink"),
-            target_is_directory=True,
-        )
-    except TypeError:
-        # Python 2 compatibility:
-        # target_is_directory is only consistently available after Python 3.3.
-        os.symlink(
-            dotfiles.directory,
-            os.path.join(home, "dotfiles-symlink"),
-        )
+    os.symlink(
+        dotfiles.directory,
+        os.path.join(home, "dotfiles-symlink"),
+        target_is_directory=True,
+    )
     run_dotbot(
         "-c",
         os.path.join(home, "dotfiles-symlink", os.path.basename(dotfiles.config_filename)),

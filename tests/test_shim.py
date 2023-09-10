@@ -6,26 +6,11 @@ import sys
 import pytest
 
 
-def which(name):
-    """Find an executable.
-
-    Python 2.7 doesn't have shutil.which().
-    shutil.which() is used, if possible, to handle Windows' case-insensitivity.
-    """
-
-    if hasattr(shutil, "which"):
-        return shutil.which(name)
-
-    for path in os.environ["PATH"].split(os.pathsep):
-        if os.path.isfile(os.path.join(path, name)):
-            return os.path.join(path, name)
-
-
 def test_shim(root, home, dotfiles, run_dotbot):
     """Verify install shim works."""
 
     # Skip the test if git is unavailable.
-    git = which("git")
+    git = shutil.which("git")
     if git is None:
         pytest.skip("git is unavailable")
 
@@ -52,7 +37,7 @@ def test_shim(root, home, dotfiles, run_dotbot):
     # Run the shim script.
     env = dict(os.environ)
     if sys.platform[:5] == "win32":
-        args = [which("powershell"), "-ExecutionPolicy", "RemoteSigned", shim]
+        args = [shutil.which("powershell"), "-ExecutionPolicy", "RemoteSigned", shim]
         env["USERPROFILE"] = home
     else:
         args = [shim]

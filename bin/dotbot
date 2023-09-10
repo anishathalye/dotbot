@@ -7,9 +7,8 @@
 # is useful because we don't know the name of the python binary.
 
 ''':' # begin python string; this line is interpreted by the shell as `:`
-command -v python  >/dev/null 2>&1 && exec python  "$0" "$@"
 command -v python3 >/dev/null 2>&1 && exec python3 "$0" "$@"
-command -v python2 >/dev/null 2>&1 && exec python2 "$0" "$@"
+command -v python  >/dev/null 2>&1 && exec python  "$0" "$@"
 >&2 echo "error: cannot find python"
 exit 1
 '''
@@ -18,6 +17,14 @@ exit 1
 
 import sys, os
 
+# this file is syntactically valid Python 2; bail out if the interpreter is Python 2
+if sys.version_info[0] < 3:
+    print('error: this version of Dotbot is not compatible with Python 2:\nhttps://github.com/anishathalye/dotbot/wiki/Troubleshooting#python-2')
+    exit(1)
+if sys.version_info < (3, 6):
+    print('error: this version of Dotbot requires Python 3.6+')
+    exit(1)
+
 PROJECT_ROOT_DIRECTORY = os.path.dirname(
     os.path.dirname(os.path.realpath(__file__)))
 
@@ -25,11 +32,7 @@ def inject(lib_path):
     path = os.path.join(PROJECT_ROOT_DIRECTORY, 'lib', lib_path)
     sys.path.insert(0, path)
 
-# version dependent libraries
-if sys.version_info[0] >= 3:
-    inject('pyyaml/lib3')
-else:
-    inject('pyyaml/lib')
+inject('pyyaml/lib3')
 
 if os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'dotbot')):
     if PROJECT_ROOT_DIRECTORY not in sys.path:

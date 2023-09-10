@@ -1,4 +1,4 @@
-class Level(object):
+class Level:
     NOTSET = 0
     DEBUG = 10
     LOWINFO = 15

@@ -5,14 +5,14 @@ on:
   schedule:
     - cron: '0 8 * * 6'
 jobs:
-  test-py3:
+  test:
     env:
       PIP_DISABLE_PIP_VERSION_CHECK: 1
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-20.04", "macos-latest"]
-        python: ["3.5", "3.6", "3.7", "3.8", "3.9", "3.10", "pypy-3.9"]
+        python: ["3.6", "3.7", "3.8", "3.9", "3.10", "pypy-3.9"]
         include:
           - os: "windows-latest"
             python: "3.8"
@@ -38,28 +38,6 @@ jobs:
           python -m tox
           python -m tox -e coverage_report
       - uses: codecov/codecov-action@v3
-
-  test-py2:
-    env:
-      PIP_DISABLE_PIP_VERSION_CHECK: 1
-    runs-on: ubuntu-20.04
-    container:
-      image: python:2.7.18-buster
-    name: "Test: Python 2.7 on ubuntu-20.04"
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
-      - name: "Install dependencies"
-        run: |
-          python -m pip install --upgrade pip setuptools
-          python -m pip install tox tox-gh-actions
-      - name: "Run tests"
-        run: |
-          python -m tox
-          python -m tox -e coverage_report
-      - uses: codecov/codecov-action@v3
-
   fmt:
     name: Format
     runs-on: ubuntu-22.04

@@ -3,7 +3,7 @@ import os
 from argparse import Namespace
 
 
-class Context(object):
+class Context:
     """
     Contextual data and information for plugins.
     """

@@ -23,23 +23,11 @@ def load(path):
     return plugins
 
 
-if sys.version_info >= (3, 5):
-    import importlib.util
+import importlib.util
 
-    def load_module(module_name, path):
-        spec = importlib.util.spec_from_file_location(module_name, path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
 
-elif sys.version_info >= (3, 3):
-    from importlib.machinery import SourceFileLoader
-
-    def load_module(module_name, path):
-        return SourceFileLoader(module_name, path).load_module()
-
-else:
-    import imp
-
-    def load_module(module_name, path):
-        return imp.load_source(module_name, path)
+def load_module(module_name, path):
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module

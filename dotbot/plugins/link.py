@@ -137,13 +137,7 @@ class Link(Plugin):
         """
         Wrap `glob.glob` in a python agnostic way, catching errors in usage.
         """
-        if sys.version_info < (3, 5) and "**" in path:
-            self._log.error(
-                'Link cannot handle recursive glob ("**") for Python < version 3.5: "%s"' % path
-            )
-            return []
-        # call glob.glob; only python >= 3.5 supports recursive globs
-        found = glob.glob(path) if (sys.version_info < (3, 5)) else glob.glob(path, recursive=True)
+        found = glob.glob(path, recursive=True)
         # normalize paths to ensure cross-platform compatibility
         found = [os.path.normpath(p) for p in found]
         # if using recursive glob (`**`), filter results to return only files:

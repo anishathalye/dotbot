@@ -6,7 +6,7 @@ import yaml
 from .util import string
 
 
-class ConfigReader(object):
+class ConfigReader:
     def __init__(self, config_file_path):
         self._config = self._read(config_file_path)
 

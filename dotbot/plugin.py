@@ -2,7 +2,7 @@ from .context import Context
 from .messenger import Messenger
 
 
-class Plugin(object):
+class Plugin:
     """
     Abstract base class for commands that process directives.
     """

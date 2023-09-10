@@ -6,7 +6,7 @@ from .messenger import Messenger
 from .plugin import Plugin
 
 
-class Dispatcher(object):
+class Dispatcher:
     def __init__(
         self,
         base_directory,

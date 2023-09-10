@@ -1,4 +1,4 @@
-class Color(object):
+class Color:
     NONE = ""
     RESET = "\033[0m"
     RED = "\033[91m"

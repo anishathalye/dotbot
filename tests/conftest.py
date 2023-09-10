@@ -1,24 +1,17 @@
+import builtins
 import ctypes
 import json
 import os
 import shutil
 import sys
 import tempfile
+import unittest.mock as mock
 from shutil import rmtree
 
 import pytest
 import yaml
 
 import dotbot.cli
-
-try:
-    import builtins
-    import unittest.mock as mock
-except ImportError:
-    # Python 2.7 compatibility
-    builtins = None
-    import __builtin__
-    import mock  # noqa: module not found
 
 
 def get_long_path(path):
@@ -35,8 +28,7 @@ def get_long_path(path):
     return buffer.value
 
 
-# Python 2.7 compatibility:
-# On Linux, Python 2.7's tempfile.TemporaryFile() requires unlink access.
+# On Linux, tempfile.TemporaryFile() requires unlink access.
 # This list is updated by a tempfile._mkstemp_inner() wrapper,
 # and its contents are checked by wrapped functions.
 allowed_tempfile_internal_unlink_calls = []
@@ -49,7 +41,6 @@ def wrap_function(function, function_path, arg_index, kwarg_key, root):
         else:
             value = args[arg_index]
 
-        # Python 2.7 compatibility:
         # Allow tempfile.TemporaryFile's internal unlink calls to work.
         if value in allowed_tempfile_internal_unlink_calls:
             return function(*args, **kwargs)
@@ -68,11 +59,7 @@ def wrap_function(function, function_path, arg_index, kwarg_key, root):
 
 
 def wrap_open(root):
-    try:
-        wrapped = getattr(builtins, "open")
-    except AttributeError:
-        # Python 2.7 compatibility
-        wrapped = getattr(__builtin__, "open")
+    wrapped = getattr(builtins, "open")
 
     def wrapper(*args, **kwargs):
         if "file" in kwargs:
@@ -207,11 +194,7 @@ def root(standardize_tmp):
         patches.append(mock.patch(function_path, wrapped))
 
     # open() must be separately wrapped.
-    if builtins is not None:
-        function_path = "builtins.open"
-    else:
-        # Python 2.7 compatibility
-        function_path = "__builtin__.open"
+    function_path = "builtins.open"
     wrapped = wrap_open(current_root)
     patches.append(mock.patch(function_path, wrapped))
 
@@ -256,7 +239,7 @@ def home(monkeypatch, root):
     yield home
 
 
-class Dotfiles(object):
+class Dotfiles:
     """Create and manage a dotfiles directory for a test."""
 
     def __init__(self, root):
