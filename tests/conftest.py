@@ -219,7 +219,10 @@ def root(standardize_tmp):
     finally:
         [patch.stop() for patch in patches]
         os.chdir(current_working_directory)
-        rmtree(current_root, onerror=rmtree_error_handler)
+        if sys.version_info >= (3, 12):
+            rmtree(current_root, onexc=rmtree_error_handler)
+        else:
+            rmtree(current_root, onerror=rmtree_error_handler)
 
 
 @pytest.fixture
