@@ -57,10 +57,10 @@ class Clean(Plugin):
                 if sys.platform[:5] == "win32" and points_at.startswith("\\\\?\\"):
                     points_at = points_at[4:]
                 if self._in_directory(path, self._context.base_directory()) or force:
-                    self._log.lowinfo("Removing invalid link %s -> %s" % (path, points_at))
+                    self._log.lowinfo(f"Removing invalid link {path} -> {points_at}")
                     os.remove(path)
                 else:
-                    self._log.lowinfo("Link %s -> %s not removed." % (path, points_at))
+                    self._log.lowinfo(f"Link {path} -> {points_at} not removed.")
         return True
 
     def _in_directory(self, path, directory):

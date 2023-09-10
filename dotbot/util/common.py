@@ -4,7 +4,7 @@ import subprocess
 
 
 def shell_command(command, cwd=None, enable_stdin=False, enable_stdout=False, enable_stderr=False):
-    with open(os.devnull, "w") as devnull_w, open(os.devnull, "r") as devnull_r:
+    with open(os.devnull, "w") as devnull_w, open(os.devnull) as devnull_r:
         stdin = None if enable_stdin else devnull_r
         stdout = None if enable_stdout else devnull_w
         stderr = None if enable_stderr else devnull_w

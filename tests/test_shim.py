@@ -45,5 +45,5 @@ def test_shim(root, home, dotfiles, run_dotbot):
     subprocess.check_call(args, env=env, cwd=dotfiles.directory)
 
     assert os.path.islink(os.path.join(home, ".foo"))
-    with open(os.path.join(home, ".foo"), "r") as file:
+    with open(os.path.join(home, ".foo")) as file:
         assert file.read() == "pear"

@@ -103,7 +103,7 @@ class Link(Plugin):
                     # want to remove the original (this is tested by
                     # link-force-leaves-when-nonexistent.bash)
                     success = False
-                    self._log.warning("Nonexistent source %s -> %s" % (destination, path))
+                    self._log.warning(f"Nonexistent source {destination} -> {path}")
                     continue
                 if force or relink:
                     success &= self._delete(path, destination, relative, canonical_path, force)
@@ -254,9 +254,7 @@ class Link(Plugin):
             and self._is_link(link_name)
             and self._link_destination(link_name) != source
         ):
-            self._log.warning(
-                "Invalid link %s -> %s" % (link_name, self._link_destination(link_name))
-            )
+            self._log.warning(f"Invalid link {link_name} -> {self._link_destination(link_name)}")
         # we need to use absolute_source below because our cwd is the dotfiles
         # directory, and if source is relative, it will be relative to the
         # destination directory
@@ -264,23 +262,21 @@ class Link(Plugin):
             try:
                 os.symlink(source, destination)
             except OSError:
-                self._log.warning("Linking failed %s -> %s" % (link_name, source))
+                self._log.warning(f"Linking failed {link_name} -> {source}")
             else:
-                self._log.lowinfo("Creating link %s -> %s" % (link_name, source))
+                self._log.lowinfo(f"Creating link {link_name} -> {source}")
                 success = True
         elif self._exists(link_name) and not self._is_link(link_name):
             self._log.warning("%s already exists but is a regular file or directory" % link_name)
         elif self._is_link(link_name) and self._link_destination(link_name) != source:
-            self._log.warning(
-                "Incorrect link %s -> %s" % (link_name, self._link_destination(link_name))
-            )
+            self._log.warning(f"Incorrect link {link_name} -> {self._link_destination(link_name)}")
         # again, we use absolute_source to check for existence
         elif not self._exists(absolute_source):
             if self._is_link(link_name):
-                self._log.warning("Nonexistent source %s -> %s" % (link_name, source))
+                self._log.warning(f"Nonexistent source {link_name} -> {source}")
             else:
-                self._log.warning("Nonexistent source for %s : %s" % (link_name, source))
+                self._log.warning(f"Nonexistent source for {link_name} : {source}")
         else:
-            self._log.lowinfo("Link exists %s -> %s" % (link_name, source))
+            self._log.lowinfo(f"Link exists {link_name} -> {source}")
             success = True
         return success

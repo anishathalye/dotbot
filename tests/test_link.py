@@ -47,7 +47,7 @@ def test_link_default_source(root, home, dst, include_force, dotfiles, run_dotbo
     dotfiles.write_config(config)
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(dst)), "r") as file:
+    with open(os.path.abspath(os.path.expanduser(dst))) as file:
         assert file.read() == "apple"
 
 
@@ -61,7 +61,7 @@ def test_link_environment_user_expansion_target(home, dotfiles, run_dotbot):
     dotfiles.write_config([{"link": {target: src}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target)), "r") as file:
+    with open(os.path.abspath(os.path.expanduser(target))) as file:
         assert file.read() == "apple"
 
 
@@ -75,7 +75,7 @@ def test_link_environment_variable_expansion_source(monkeypatch, root, home, dot
     dotfiles.write_config([{"link": {target: src}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target)), "r") as file:
+    with open(os.path.abspath(os.path.expanduser(target))) as file:
         assert file.read() == "grape"
 
 
@@ -91,7 +91,7 @@ def test_link_environment_variable_expansion_source_extended(
     dotfiles.write_config([{"link": {target: {"path": src, "relink": True}}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target)), "r") as file:
+    with open(os.path.abspath(os.path.expanduser(target))) as file:
         assert file.read() == "grape"
 
 
@@ -122,9 +122,9 @@ def test_link_environment_variable_expansion_target(monkeypatch, root, home, dot
     dotfiles.write_config(config)
     run_dotbot()
 
-    with open(os.path.join(home, ".config", "g"), "r") as file:
+    with open(os.path.join(home, ".config", "g")) as file:
         assert file.read() == "apple"
-    with open(os.path.join(home, "$PEAR"), "r") as file:
+    with open(os.path.join(home, "$PEAR")) as file:
         assert file.read() == "grape"
 
 
@@ -136,7 +136,7 @@ def test_link_environment_variable_unset(monkeypatch, root, home, dotfiles, run_
     dotfiles.write_config([{"link": {"~/f": "$ORANGE"}}])
     run_dotbot()
 
-    with open(os.path.join(home, "f"), "r") as file:
+    with open(os.path.join(home, "f")) as file:
         assert file.read() == "apple"
 
 
@@ -759,7 +759,7 @@ def test_link_leaves_file(home, dotfiles, run_dotbot):
     with pytest.raises(SystemExit):
         run_dotbot()
 
-    with open(os.path.join(home, ".f"), "r") as file:
+    with open(os.path.join(home, ".f")) as file:
         assert file.read() == "grape"
 
 
@@ -880,7 +880,7 @@ def test_link_relink_leaves_file(home, dotfiles, run_dotbot):
     dotfiles.write_config([{"link": {"~/.f": {"path": "f", "relink": True}}}])
     with pytest.raises(SystemExit):
         run_dotbot()
-    with open(os.path.join(home, ".f"), "r") as file:
+    with open(os.path.join(home, ".f")) as file:
         assert file.read() == "grape"
 
 
@@ -893,7 +893,7 @@ def test_link_relink_overwrite_symlink(home, dotfiles, run_dotbot):
     os.symlink(os.path.join(home, "f"), os.path.join(home, ".f"))
     dotfiles.write_config([{"link": {"~/.f": {"path": "f", "relink": True}}}])
     run_dotbot()
-    with open(os.path.join(home, ".f"), "r") as file:
+    with open(os.path.join(home, ".f")) as file:
         assert file.read() == "apple"
 
 
@@ -944,7 +944,7 @@ def test_link_defaults_1(home, dotfiles, run_dotbot):
     with pytest.raises(SystemExit):
         run_dotbot()
 
-    with open(os.path.join(home, ".f"), "r") as file:
+    with open(os.path.join(home, ".f")) as file:
         assert file.read() == "grape"
 
 
@@ -963,5 +963,5 @@ def test_link_defaults_2(home, dotfiles, run_dotbot):
     )
     run_dotbot()
 
-    with open(os.path.join(home, ".f"), "r") as file:
+    with open(os.path.join(home, ".f")) as file:
         assert file.read() == "apple"

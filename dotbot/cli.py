@@ -99,7 +99,7 @@ def main():
                 hash_msg = " (git %s)" % git_hash[:10]
             except (OSError, subprocess.CalledProcessError):
                 hash_msg = ""
-            print("Dotbot version %s%s" % (dotbot.__version__, hash_msg))
+            print(f"Dotbot version {dotbot.__version__}{hash_msg}")
             exit(0)
         if options.super_quiet:
             log.set_level(Level.WARNING)

@@ -5,9 +5,9 @@ import pytest
 
 def test_success(root):
     path = os.path.join(root, "abc.txt")
-    with open(path, "wt") as f:
+    with open(path, "w") as f:
         f.write("hello")
-    with open(path, "rt") as f:
+    with open(path) as f:
         assert f.read() == "hello"
 
 

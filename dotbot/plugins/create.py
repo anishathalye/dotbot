@@ -45,7 +45,7 @@ class Create(Plugin):
     def _create(self, path, mode):
         success = True
         if not self._exists(path):
-            self._log.debug("Trying to create path %s with mode %o" % (path, mode))
+            self._log.debug(f"Trying to create path {path} with mode {mode:o}")
             try:
                 self._log.lowinfo("Creating path %s" % path)
                 os.makedirs(path, mode)

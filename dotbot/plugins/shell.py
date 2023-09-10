@@ -46,7 +46,7 @@ class Shell(Plugin):
             elif msg is None:
                 self._log.lowinfo(cmd)
             else:
-                self._log.lowinfo("%s [%s]" % (msg, cmd))
+                self._log.lowinfo(f"{msg} [{cmd}]")
             stdout = options.get("stdout", stdout)
             stderr = options.get("stderr", stderr)
             ret = shell_command(

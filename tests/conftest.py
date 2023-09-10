@@ -188,7 +188,7 @@ def root(standardize_tmp):
 
         # These values must be passed to a separate function
         # to ensure the variable closures work correctly.
-        function_path = "{0}.{1}".format(module.__name__, function_name)
+        function_path = f"{module.__name__}.{function_name}"
         function = getattr(module, function_name)
         wrapped = wrap_function(function, function_path, arg_index, kwarg_key, current_root)
         patches.append(mock.patch(function_path, wrapped))
