@@ -12,6 +12,7 @@ import pytest
 import yaml
 
 import dotbot.cli
+import dotbot.dispatcher
 
 
 def get_long_path(path):
@@ -312,3 +313,9 @@ def run_dotbot(dotfiles):
             dotbot.cli.main()
 
     yield runner
+
+
+@pytest.fixture(autouse=True)
+def reset_current_dispatcher():
+    yield
+    dotbot.dispatcher.current_dispatcher = None
