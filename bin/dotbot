@@ -32,7 +32,7 @@ def inject(lib_path):
     path = os.path.join(PROJECT_ROOT_DIRECTORY, 'lib', lib_path)
     sys.path.insert(0, path)
 
-inject('pyyaml/lib3')
+inject('pyyaml/lib')
 
 if os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'dotbot')):
     if PROJECT_ROOT_DIRECTORY not in sys.path:
