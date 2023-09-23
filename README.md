@@ -178,7 +178,7 @@ mapped to extended configuration dictionaries.
 | Parameter | Explanation |
 | --- | --- |
 | `path` | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below)) |
-| `create` | When true, create parent directories to the link as needed. (default: false) |
+| `create` | When true, create parent directories to the link as needed. (default: true) |
 | `relink` | Removes the old target if it's a symlink (default: false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
 | `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
