@@ -5,8 +5,23 @@ from .context import Context
 from .messenger import Messenger
 from .plugin import Plugin
 
+current_dispatcher = None
+
 
 class Dispatcher:
+    def __new__(cls, *args, **kwargs):
+        # After dotbot instantiates this class, the instance will be cached.
+        # Subsequent instantiations (say, by plugins) will return the same instance.
+        # This is needed because plugins don't have access to the entire configuration
+        # (for example, they won't know which plugins have been loaded).
+        # This ensures a consistent configuration is used.
+        global current_dispatcher
+        if current_dispatcher is None:
+            instance = object.__new__(cls)
+            instance.is_initialized = False
+            current_dispatcher = instance
+        return current_dispatcher
+
     def __init__(
         self,
         base_directory,
@@ -16,6 +31,9 @@ class Dispatcher:
         options=Namespace(),
         plugins=None,
     ):
+        if self.is_initialized:
+            return
+        self.is_initialized = True
         self._log = Messenger()
         self._setup_context(base_directory, options)
         plugins = plugins or []
