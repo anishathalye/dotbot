@@ -18,7 +18,10 @@ class Dispatcher:
     ):
         self._log = Messenger()
         self._setup_context(base_directory, options)
-        plugins = plugins or []
+        if plugins == None:
+            plugins = Plugin.__subclasses__()
+        else:
+            plugins = plugins or []
         self._plugins = [plugin(self._context) for plugin in plugins]
         self._only = only
         self._skip = skip
