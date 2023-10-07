@@ -42,11 +42,13 @@ class Dispatcher:
                 ) and action != "defaults":
                     self._log.info("Skipping action %s" % action)
                     continue
+
                 handled = False
                 if action == "defaults":
                     self._context.set_defaults(task[action])  # replace, not update
                     handled = True
                     # keep going, let other plugins handle this if they want
+
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
                         try:
@@ -63,14 +65,25 @@ class Dispatcher:
                             )
                             self._log.debug(err)
                             if self._exit:
-                                # There was an execption exit
+                                # There was an exception exit
                                 return False
+
                 if not handled:
                     success = False
                     self._log.error("Action %s not handled" % action)
                     if self._exit:
                         # Invalid action exit
                         return False
+
+                if action == "plugins":
+                    # Create a list of loaded plugin names
+                    loaded_plugins = [plugin.__class__.__name__ for plugin in self._plugins]
+
+                    # Load plugins that haven't been loaded yet
+                    for plugin in Plugin.__subclasses__():
+                        if plugin.__name__ not in loaded_plugins:
+                            self._plugins.append(plugin(self._context))
+
         return success
 
 
