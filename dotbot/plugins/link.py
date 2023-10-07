@@ -34,6 +34,7 @@ class Link(Plugin):
             relink = defaults.get("relink", False)
             create = defaults.get("create", False)
             use_glob = defaults.get("glob", False)
+            backup = defaults.get("backup", False)
             base_prefix = defaults.get("prefix", "")
             test = defaults.get("if", None)
             ignore_missing = defaults.get("ignore-missing", False)
@@ -49,6 +50,7 @@ class Link(Plugin):
                 relink = source.get("relink", relink)
                 create = source.get("create", create)
                 use_glob = source.get("glob", use_glob)
+                backup = source.get("backup", backup)
                 base_prefix = source.get("prefix", base_prefix)
                 ignore_missing = source.get("ignore-missing", ignore_missing)
                 exclude_paths = source.get("exclude", exclude_paths)
@@ -85,6 +87,8 @@ class Link(Plugin):
                             canonical_path,
                             force,
                         )
+                    if backup:
+                        success &= self._backup(glob_link_destination)
                     success &= self._link(
                         glob_full_item,
                         glob_link_destination,
@@ -107,6 +111,8 @@ class Link(Plugin):
                     continue
                 if force or relink:
                     success &= self._delete(path, destination, relative, canonical_path, force)
+                if backup:
+                    success &= self._backup(destination)
                 success &= self._link(path, destination, relative, canonical_path, ignore_missing)
         if success:
             self._log.info("All links have been set up")
@@ -195,6 +201,21 @@ class Link(Plugin):
                 success = False
             else:
                 self._log.lowinfo("Creating directory %s" % parent)
+        return success
+
+    def _backup(self, path):
+        success = True
+        if self._exists(path) and not self._is_link(path):
+            file_to_backup = os.path.join(os.path.expanduser(path))
+            backup_path = file_to_backup + ".dotbot-backup"
+            self._log.debug(f"Try to backup file {file_to_backup} to {backup_path}")
+            try:
+                os.rename(file_to_backup, backup_path)
+            except OSError:
+                self._log.warning(f"Failed to backup file {file_to_backup} to {backup_path}")
+                success = False
+            else:
+                self._log.lowinfo(f"Backed up file {file_to_backup} to {backup_path}")
         return success
 
     def _delete(self, source, path, relative, canonical_path, force):
