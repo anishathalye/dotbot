@@ -130,7 +130,9 @@ def main():
             plugin_paths.append(plugin_path)
         for plugin_path in plugin_paths:
             abspath = os.path.abspath(plugin_path)
-            plugins.extend(module.load(abspath))
+            plugins_set = set(plugins)
+            plugins_set.update(module.load(abspath))
+            plugins = list(plugins_set)
         if not options.config_file:
             log.error("No configuration file specified")
             exit(1)
