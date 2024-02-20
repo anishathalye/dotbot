@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    env:
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-20.04", "macos-latest", "windows-latest"]
+        python: ["3.11"]
+        include:
+          - os: "ubuntu-20.04"
+            file_name: "dotbot_Linux.tar.gz"
+            asset_name: "dotbot_Linux.tar.gz"
+          - os: "macos-latest"
+            file_name: "dotbot_Darwin.tar.gz"
+            asset_name: "dotbot_macOS.tar.gz"
+          - os: "windows-latest"
+            file_name: "dotbot_Windows.zip"
+            asset_name: "dotbot_Windows.zip"
+    runs-on: ${{ matrix.os }}
+    name: "Build to release: Python ${{ matrix.python }} on ${{ matrix.os }}"
+    steps:
+      - uses: actions/checkout@v3
+        name: "Checkout"
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        name: "Setup Python"
+        with:
+          python-version: ${{ matrix.python }}
+          allow-prereleases: false
+      - name: "Install dependencies"
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install tox tox-gh-actions
+          python -m pip install virtualenv
+      - name: "Run tests"
+        run: |
+          python -m tox
+          python -m tox -e coverage_report
+      - name: "Build *nix release"
+        # Linux and macOS
+        if: ${{ matrix.os != 'windows-latest' }}
+        shell: bash
+        run: |
+          cat bin/dotbot | awk '/^import/,0' > dotbot.py
+          python -m virtualenv .venv
+          source .venv/bin/activate
+          pip install pyinstaller
+          pip install pyyaml
+          pyinstaller -F --paths=./.venv/lib/python3.11/site-packages --name dotbot dotbot.py
+          tar -czf dotbot_$(uname -s).tar.gz README.md LICENSE.md -C dist dotbot
+      - name: "Build Windows release"
+        # Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        shell: pwsh
+        run: |
+          Get-Content bin\dotbot | Select-String '# python' -Context 0, 1000000 | ForEach-Object { $_.Context.PostContext } > dotbot.py
+          python -m virtualenv .venv
+          .\.venv\Scripts\Activate.ps1
+          pip install pyinstaller
+          pip install pyyaml
+          pyinstaller -F --paths=.\.venv\lib\python3.11\site-packages --name dotbot.exe dotbot.py
+          Compress-Archive -Path dist/dotbot.exe, README.md, LICENSE.md -DestinationPath dotbot_Windows.zip
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ matrix.file_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
+          overwrite: true
