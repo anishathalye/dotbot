@@ -47,11 +47,14 @@ jobs:
         run: |
           python -m tox
           python -m tox -e coverage_report
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v5
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
   fmt:
     name: Format
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: psf/black@stable
       - uses: isort/isort-action@v1
