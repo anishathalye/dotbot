@@ -4,6 +4,7 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 && ./install`, even on a freshly installed system!
 
 - [Rationale](#rationale)
+- [Installing Your Files](#installing-your-files)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
 - [Directives](#directives) ([Link](#link), [Create](#create), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
@@ -16,7 +17,7 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 ## Rationale
 
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files
-[bo]o[t]strapper, get it?). It does *less* than you think, because version
+[bo]o[t]strapper, get it?). It does _less_ than you think, because version
 control systems do more than you think.
 
 Dotbot is designed to be lightweight and self-contained, with no external
@@ -29,6 +30,17 @@ post](https://www.anishathalye.com/2014/08/03/managing-your-dotfiles/) or more
 resources on the [tutorials
 page](https://github.com/anishathalye/dotbot/wiki/Tutorials) for more detailed
 explanations of how to organize your dotfiles.
+
+## Installing Your Files
+
+Here is how to install your files:
+
+```bash
+git clone $YOUR_REPOSITORY dotfiles # clone your files
+cd dotfiles # change directory
+chmod +x install # ensure executable
+./install # install via dotbot
+```
 
 ## Getting Started
 
@@ -111,7 +123,7 @@ The conventional name for the configuration file is `install.conf.yaml`.
     link:
       relink: true
 
-- clean: ['~']
+- clean: ["~"]
 
 - link:
     ~/.tmux.conf: tmux.conf
@@ -123,7 +135,7 @@ The conventional name for the configuration file is `install.conf.yaml`.
     - ~/.vim/undo-history
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
+    - [git submodule update --init --recursive, Installing submodules]
 ```
 
 The configuration file is typically written in YAML, but it can also be written
@@ -168,31 +180,31 @@ files if necessary. Environment variables in paths are automatically expanded.
 
 Link commands are specified as a dictionary mapping targets to source
 locations. Source locations are specified relative to the base directory (that
-is specified when running the installer). If linking directories, *do not*
+is specified when running the installer). If linking directories, _do not_
 include a trailing slash.
 
 Link commands support an optional extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries.
 
-| Parameter | Explanation |
-| --- | --- |
-| `path` | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below)) |
-| `create` | When true, create parent directories to the link as needed. (default: false) |
-| `relink` | Removes the old target if it's a symlink (default: false) |
-| `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
-| `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
-| `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
-| `if` | Execute this in your `$SHELL` and only link if it is successful. |
-| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
-| `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files* matched. (default: false) |
-| `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
-| `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
+| Parameter        | Explanation                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `path`           | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below))                                            |
+| `create`         | When true, create parent directories to the link as needed. (default: false)                                                                     |
+| `relink`         | Removes the old target if it's a symlink (default: false)                                                                                        |
+| `force`          | Force removes the old target, file or folder, and forces a new link (default: false)                                                             |
+| `relative`       | Use a relative path to the source when creating the symlink (default: false, absolute links)                                                     |
+| `canonicalize`   | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths)                                |
+| `if`             | Execute this in your `$SHELL` and only link if it is successful.                                                                                 |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false)                                                                 |
+| `glob`           | Treat `path` as a glob pattern, expanding patterns referenced below, linking all _files_ matched. (default: false)                               |
+| `exclude`        | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
+| `prefix`         | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '')                                                 |
 
 When `glob: True`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
 
 | Pattern  | Meaning                            |
-|:---------|:-----------------------------------|
+| :------- | :--------------------------------- |
 | `*`      | matches anything                   |
 | `**`     | matches any **file**, recursively  |
 | `?`      | matches any single character       |
@@ -218,14 +230,14 @@ When using glob with the `exclude:` option, the paths in the exclude paths shoul
       force: true
       path: zshrc
     ~/.hammerspoon:
-      if: '[ `uname` = Darwin ]'
+      if: "[ `uname` = Darwin ]"
       path: hammerspoon
     ~/.config/:
       path: dotconf/config/**
     ~/:
       glob: true
       path: dotconf/*
-      prefix: '.'
+      prefix: "."
 ```
 
 If the source location is omitted or set to `null`, Dotbot will use the
@@ -248,7 +260,7 @@ Explicit sources:
       glob: true
       path: config/*
       relink: true
-      exclude: [ config/Code ]
+      exclude: [config/Code]
     ~/.config/Code/User/:
       create: true
       glob: true
@@ -270,7 +282,7 @@ Implicit sources:
       glob: true
       path: config/*
       relink: true
-      exclude: [ config/Code ]
+      exclude: [config/Code]
     ~/.config/Code/User/:
       create: true
       glob: true
@@ -280,7 +292,7 @@ Implicit sources:
 
 ### Create
 
-Create commands specify empty directories to be created.  This can be useful
+Create commands specify empty directories to be created. This can be useful
 for scaffolding out folders or parent folder structure required for various
 apps, plugins, shell commands, etc.
 
@@ -291,9 +303,9 @@ want to use the optional extended configuration, create commands are specified
 as dictionaries. For convenience, it's permissible to leave the options blank
 (null) in the dictionary syntax.
 
-| Parameter | Explanation |
-| --- | --- |
-| `mode` | The file mode to use for creating the leaf directory (default: 0777) |
+| Parameter | Explanation                                                          |
+| --------- | -------------------------------------------------------------------- |
+| `mode`    | The file mode to use for creating the leaf directory (default: 0777) |
 
 The `mode` parameter is treated in the same way as in Python's
 [os.mkdir](https://docs.python.org/3/library/os.html#mkdir-modebits). Its
@@ -328,14 +340,14 @@ shell command and the second is an optional human-readable description.
 Shell commands support an extended syntax as well, which provides more
 fine-grained control.
 
-| Parameter | Explanation |
-| --- | --- |
-| `command` | The command to be run |
-| `description` | A human-readable message describing the command (default: null) |
-| `quiet` | Show only the description but not the command in log output (default: false) |
-| `stdin` | Allow a command to read from standard input (default: false) |
-| `stdout` | Show a command's output from stdout (default: false) |
-| `stderr` | Show a command's error output from stderr (default: false) |
+| Parameter     | Explanation                                                                  |
+| ------------- | ---------------------------------------------------------------------------- |
+| `command`     | The command to be run                                                        |
+| `description` | A human-readable message describing the command (default: null)              |
+| `quiet`       | Show only the description but not the command in log output (default: false) |
+| `stdin`       | Allow a command to read from standard input (default: false)                 |
+| `stdout`      | Show a command's output from stdout (default: false)                         |
+| `stderr`      | Show a command's error output from stderr (default: false)                   |
 
 Note that `quiet` controls whether the command (a string) is printed in log
 output, it does not control whether the output from running the command is
@@ -347,17 +359,15 @@ printed (that is controlled by `stdout` / `stderr`). When a command's `stdin` /
 
 ```yaml
 - shell:
-  - chsh -s $(which zsh)
-  - [chsh -s $(which zsh), Making zsh the default shell]
-  -
-    command: read var && echo Your variable is $var
-    stdin: true
-    stdout: true
-    description: Reading and printing variable
-    quiet: true
-  -
-    command: read fail
-    stderr: true
+    - chsh -s $(which zsh)
+    - [chsh -s $(which zsh), Making zsh the default shell]
+    - command: read var && echo Your variable is $var
+      stdin: true
+      stdout: true
+      description: Reading and printing variable
+      quiet: true
+    - command: read fail
+      stderr: true
 ```
 
 ### Clean
@@ -373,10 +383,10 @@ Clean commands are specified as an array of directories to be cleaned.
 
 Clean commands also support an extended configuration syntax.
 
-| Parameter | Explanation |
-| --- | --- |
-| `force` | Remove dead links even if they don't point to a file inside the dotfiles directory (default: false) |
-| `recursive` | Traverse the directory recursively looking for dead links (default: false) |
+| Parameter   | Explanation                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------- |
+| `force`     | Remove dead links even if they don't point to a file inside the dotfiles directory (default: false) |
+| `recursive` | Traverse the directory recursively looking for dead links (default: false)                          |
 
 Note: using the `recursive` option for `~` is not recommended because it will
 be slow.
@@ -384,7 +394,7 @@ be slow.
 #### Example
 
 ```yaml
-- clean: ['~']
+- clean: ["~"]
 
 - clean:
     ~/:
