@@ -428,11 +428,26 @@ should do something and return whether or not it completed successfully.
 All built-in Dotbot directives are written as plugins that are loaded by
 default, so those can be used as a reference when writing custom plugins.
 
-Plugins are loaded using the `--plugin` and `--plugin-dir` options, using
-either absolute paths or paths relative to the base directory. It is
-recommended that these options are added directly to the `install` script.
+See [here](plugins) for a current list of plugins.
 
-See [here][plugins] for a current list of plugins.
+#### Format
+
+Plugins can be loaded either by the command-line arguments `--plugin` or
+`--plugin-dir` or by the `plugins` directive. Each of these take either
+absolute paths or paths relative to the base directory.
+
+When using command-line arguments to load multiple plugins you must add
+one argument for each plugin to be loaded. It is recommended to place
+these command-line arguments directly in the `install` script.
+
+The `plugins` config directive is specified as an array of paths to load.
+
+#### Example
+
+```yaml
+- plugins:
+    - dotbot-plugins/dotbot-template 
+```
 
 ## Command-line Arguments
 
