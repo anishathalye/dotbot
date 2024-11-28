@@ -19,7 +19,7 @@ class Dispatcher:
         self._log = Messenger()
         self._setup_context(base_directory, options)
         plugins = plugins or []
-        self._plugins = [plugin(self._context) for plugin in plugins]
+        self._plugins = [plugin(self._context) for plugin in set(plugins)]
         self._only = only
         self._skip = skip
         self._exit = exit_on_failure
