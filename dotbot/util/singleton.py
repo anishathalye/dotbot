@@ -1,7 +1,9 @@
 class Singleton(type):
-    _instances = {}
-
     def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+        if not hasattr(cls, "_singleton_instance"):
+            cls._singleton_instance = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._singleton_instance
+
+    def reset_instance(cls):
+        if hasattr(cls, "_singleton_instance"):
+            del cls._singleton_instance
