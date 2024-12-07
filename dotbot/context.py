@@ -8,11 +8,11 @@ class Context:
     Contextual data and information for plugins.
     """
 
-    def __init__(self, base_directory, options=Namespace()):
+    def __init__(self, base_directory, options=Namespace(), plugins=None):
         self._base_directory = base_directory
         self._defaults = {}
         self._options = options
-        pass
+        self._plugins = plugins
 
     def set_base_directory(self, base_directory):
         self._base_directory = base_directory
@@ -31,3 +31,7 @@ class Context:
 
     def options(self):
         return copy.deepcopy(self._options)
+
+    def plugins(self):
+        # shallow copy is ok here
+        return copy.copy(self._plugins)

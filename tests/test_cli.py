@@ -170,3 +170,17 @@ def test_disable_builtin_plugins(home, dotfiles, run_dotbot):
         run_dotbot("--disable-built-in-plugins")
 
     assert not os.path.exists(os.path.join(home, ".f"))
+
+
+def test_plugin_context_plugin(capfd, home, dotfiles, run_dotbot):
+    """Verify that the plugin context is available to plugins."""
+
+    plugin_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_context_plugin.py"
+    )
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugin.py"))
+    dotfiles.write_config([{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}])
+    run_dotbot("--plugin", os.path.join(dotfiles.directory, "plugin.py"))
+
+    stdout = capfd.readouterr().out.splitlines()
+    assert any(line.startswith("apple") for line in stdout)

@@ -17,18 +17,18 @@ class Dispatcher:
         plugins=None,
     ):
         self._log = Messenger()
-        self._setup_context(base_directory, options)
+        self._setup_context(base_directory, options, plugins)
         plugins = plugins or []
         self._plugins = [plugin(self._context) for plugin in plugins]
         self._only = only
         self._skip = skip
         self._exit = exit_on_failure
 
-    def _setup_context(self, base_directory, options):
+    def _setup_context(self, base_directory, options, plugins):
         path = os.path.abspath(os.path.expanduser(base_directory))
         if not os.path.exists(path):
             raise DispatchError("Nonexistent base directory")
-        self._context = Context(path, options)
+        self._context = Context(path, options, plugins)
 
     def dispatch(self, tasks):
         success = True
