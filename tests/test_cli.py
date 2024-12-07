@@ -159,6 +159,21 @@ def test_plugin_loading_directory(home, dotfiles, run_dotbot):
         assert file.read() == "directory plugin loading works"
 
 
+def test_issue_357(capfd, home, dotfiles, run_dotbot):
+    """Verify that built-in plugins are only executed once, when
+    using a plugin that imports from dotbot.plugins."""
+    plugin_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_issue_357.py"
+    )
+    dotfiles.write_config([{"shell": [{"command": "echo apple", "stdout": True}]}])
+
+    run_dotbot("--plugin", plugin_file)
+
+    assert (
+        len([line for line in capfd.readouterr().out.splitlines() if line.strip() == "apple"]) == 1
+    )
+
+
 def test_disable_builtin_plugins(home, dotfiles, run_dotbot):
     """Verify that builtin plugins can be disabled."""
 

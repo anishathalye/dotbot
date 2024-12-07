@@ -131,6 +131,11 @@ def main():
         for plugin_path in plugin_paths:
             abspath = os.path.abspath(plugin_path)
             plugins.extend(module.load(abspath))
+        # ensure plugins are unique to avoid duplicate execution, which
+        # can happen if, for example, a third-party plugin loads a
+        # built-in plugin, which will cause it to appear in the list
+        # returned by module.load above
+        plugins = set(plugins)
         if not options.config_file:
             log.error("No configuration file specified")
             exit(1)
