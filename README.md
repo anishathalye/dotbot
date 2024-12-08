@@ -6,7 +6,7 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 - [Rationale](#rationale)
 - [Getting Started](#getting-started)
 - [Configuration](#configuration)
-- [Directives](#directives) ([Link](#link), [Create](#create), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
+- [Directives](#directives) ([Link](#link), [Create](#create), [Copy](#copy), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
 - [Plugins](#plugins)
 - [Command-line Arguments](#command-line-arguments)
 - [Wiki][wiki]
@@ -276,6 +276,92 @@ Implicit sources:
       glob: true
       path: config/Code/User/*
       relink: true
+```
+
+### Copy
+
+Copy commands specify how files should be copied.  By default, files will be copied if the destination file does not exist however this behavior can be changed to overwrite existing files or copy if the source and destination contents differ. Like Link, environment variables in paths are automatically expanded.
+
+#### Format
+Copy commands are specified as a dictionary that maps targets to source locations. Source locations are specified relative to the base directory (that is specified when running the installer). If the source is a directory, that entire directory hierarchy will be copied. 
+
+Copy commands support an optional extended configuration. In this type of configuration, instead of specifying source locations directly, targets are mapped to extended configuration dictionaries.
+
+
+| Parameter | Explanation |
+| --- | --- |
+| `path` | The source file for the copy, the same as in the shortcut syntax (default: null, automatic (see below)) |
+| `create` | When true, create parent directories to the destination file as needed. (default: false) |
+| `overwrite` | Overwrites the destination file if one exists (default: false) |
+| `if` | Execute this in your `$SHELL` and only copy if it is successful. |
+| `ignore-missing` | Do not fail if the source is missing (default: false) | 
+| `exclude` | Array of glob patterns to remove from list of source files top copy. Uses same syntax as `path`.  (default: empty, keep all matches) |
+| `check-content` | Compare the contents of the source and destination files, copy if different (default: false) |
+| `dryrun` | Don't copy any files, output what would have been copied.  Useful for debugging configuration (default false) |
+| `mode` | Set the mode on the destination file (default: copy metadata from source) |
+| `dir-mode` | Set the mode on any directories created (default: 0755) |
+| `prefix` | Prepend prefix prefix to the path at the root of the source tree when creating the destination path.  See the example below for more details (only enabled if glob characters are in use). (default: '') |
+| `backup` | Make a backup of the destination file, if it exists. `backup` can be a bool or a string.  If set to `false`, Copy will not create a backup of the destination.  If set to `true`, Copy will use the destination path with the suffix `.BAK` as the backup path name.  If set to a string, Copy will add that string to the destination path to create a backup path name.  (default: None) |
+
+Unlike Link, Copy will apply globbing if the source path contains any of the shell wildcard characters.  Wildcard expansion for the `path` and `exclude` parameters are identical to Link.
+
+#### Example
+```yaml
+- copy:
+  ~/.project: dot.project
+  ~/.login: dot.login
+  ~/.cshrc: dot.cshrc
+  ~/.emacs.d:
+    path: dot.emacs.d
+    exclude: [ .saves*, *~ ]
+  ~/bin:
+    mode: 0750
+    overwrite: true
+```
+
+This configuration copies a directory tree `source_dir` to `~/dest_dir`, excluding any files that match the wildcard pattern.  It also creates destination directories as needed, forcing the mode to 0700:
+
+```yaml
+- copy:
+  ~/dest_dir:
+    path: source_dir
+    exclude: [ *~, do-not-copy* ]
+    dir-mode: 0700
+```
+
+Copy and Link can be used together.  The following example copies a tcsh configuration file to `~/.cshrc` and creates a link from an alternate default file name `~/.tcshrc` to the copied file.
+
+```yaml
+- copy:
+  ~/.cshrc: dot.cshrc
+- link:
+  ~/.tcshrc: .cshrc
+```
+
+This example shows how `prefix` can be used.  For the source directory:
+```
+dot/profile
+dot/config/gnome/...
+dot/config/nano/...
+forward
+```
+
+the config:
+
+```yaml
+- copy:
+  ~/:
+    path: dot/**
+    prefix: '.'
+    create: true
+```
+
+Will create:
+```
+~/.profile
+~/.config/gnome/...
+~/.config/nano/...
+~/.forward
 ```
 
 ### Create
