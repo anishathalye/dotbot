@@ -199,3 +199,17 @@ def test_plugin_context_plugin(capfd, home, dotfiles, run_dotbot):
 
     stdout = capfd.readouterr().out.splitlines()
     assert any(line.startswith("apple") for line in stdout)
+
+
+def test_plugin_dispatcher_no_plugins(capfd, home, dotfiles, run_dotbot):
+    """Verify that plugins instantiating Dispatcher without plugins work."""
+
+    plugin_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dispatcher_no_plugins.py"
+    )
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugin.py"))
+    dotfiles.write_config([{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}])
+    run_dotbot("--plugin", os.path.join(dotfiles.directory, "plugin.py"))
+
+    stdout = capfd.readouterr().out.splitlines()
+    assert any(line.startswith("apple") for line in stdout)

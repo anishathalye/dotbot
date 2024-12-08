@@ -5,6 +5,14 @@ from .context import Context
 from .messenger import Messenger
 from .plugin import Plugin
 
+# Before b5499c7dc5b300462f3ce1c2a3d9b7a76233b39b, Dispatcher auto-loaded all
+# plugins, but after that change, plugins are passed in explicitly (and loaded
+# in cli.py). There are some plugins that rely on the old Dispatcher behavior,
+# so this is a workaround for implementing similar functionality: when
+# Dispatcher is constructed without an explicit list of plugins, _all_plugins is
+# used instead.
+_all_plugins = []  # filled in by cli.py
+
 
 class Dispatcher:
     def __init__(
@@ -16,9 +24,12 @@ class Dispatcher:
         options=Namespace(),
         plugins=None,
     ):
+        # if the caller wants no plugins, the caller needs to explicitly pass in
+        # plugins=[]
         self._log = Messenger()
         self._setup_context(base_directory, options, plugins)
-        plugins = plugins or []
+        if plugins is None:
+            plugins = _all_plugins
         self._plugins = [plugin(self._context) for plugin in plugins]
         self._only = only
         self._skip = skip

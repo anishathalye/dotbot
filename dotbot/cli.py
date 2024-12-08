@@ -7,7 +7,7 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 import dotbot
 
 from .config import ConfigReader, ReadingError
-from .dispatcher import Dispatcher, DispatchError
+from .dispatcher import Dispatcher, DispatchError, _all_plugins
 from .messenger import Level, Messenger
 from .plugins import Clean, Create, Link, Shell
 from .util import module
@@ -151,6 +151,7 @@ def main():
             # default to directory of config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file))
         os.chdir(base_directory)
+        _all_plugins[:] = plugins  # for backwards compatibility, see dispatcher.py
         dispatcher = Dispatcher(
             base_directory,
             only=options.only,
