@@ -217,7 +217,9 @@ def root(standardize_tmp):
     try:
         yield current_root
     finally:
-        [patch.stop() for patch in patches]
+        # Patches must be stopped in reverse order because some patches are nested.
+        # Stopping in the reverse order restores the original function.
+        [patch.stop() for patch in reversed(patches)]
         os.chdir(current_working_directory)
         if sys.version_info >= (3, 12):
             rmtree(current_root, onexc=rmtree_error_handler)
