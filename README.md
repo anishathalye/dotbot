@@ -189,7 +189,7 @@ mapped to extended configuration dictionaries.
 | `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
 | `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
 
-When `glob: True`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
+When `glob: true`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
 
 | Pattern  | Meaning                            |
 |:---------|:-----------------------------------|
