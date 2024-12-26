@@ -221,6 +221,7 @@ When using glob with the `exclude:` option, the paths in the exclude paths shoul
       if: '[ `uname` = Darwin ]'
       path: hammerspoon
     ~/.config/:
+      glob: true
       path: dotconf/config/**
     ~/:
       glob: true
