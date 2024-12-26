@@ -34,6 +34,30 @@ class Shell(Plugin):
                 stdout = item.get("stdout", stdout)
                 stderr = item.get("stderr", stderr)
                 quiet = item.get("quiet", quiet)
+
+                # run shell command if the 'if' key is present
+                # Ex:
+                # - shell:
+                #     - command: echo "This computer is a Mac"
+                #       if: uname -s | grep -i "Darwin"
+                #
+                # Ex: skipping shell command
+                # - shell:
+                #     - command: echo "skip this shell command"
+                #       if: false
+                if "if" in item:
+                    run_if_result = dotbot.util.shell_command(
+                        str(item["if"]),        # this to make sure python doesn't run it. Had a odd behaviour with having the value 'false'. Check Pull Request #321
+                        cwd=self._context.base_directory(),
+                        enable_stdin=False,
+                        enable_stdout=False,
+                        enable_stderr=stderr,
+                    )
+
+                    # if the condition to run the command is false,
+                    # skip running the command
+                    if run_if_result != 0:
+                        continue
             elif isinstance(item, list):
                 cmd = item[0]
                 msg = item[1] if len(item) > 1 else None
