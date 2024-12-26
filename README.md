@@ -175,19 +175,20 @@ Link commands support an optional extended configuration. In this type of
 configuration, instead of specifying source locations directly, targets are
 mapped to extended configuration dictionaries.
 
-| Parameter | Explanation |
-| --- | --- |
-| `path` | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below)) |
-| `create` | When true, create parent directories to the link as needed. (default: false) |
-| `relink` | Removes the old target if it's a symlink (default: false) |
-| `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
-| `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
-| `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
-| `if` | Execute this in your `$SHELL` and only link if it is successful. |
-| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
-| `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files* matched. (default: false) |
-| `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
-| `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
+| Parameter        | Explanation                                                                                                                                      |
+|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `path`           | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below))                                            |
+| `create`         | When true, create parent directories to the link as needed. (default: false)                                                                     |
+| `relink`         | Removes the old target if it's a symlink (default: false)                                                                                        |
+| `force`          | Force removes the old target, file or folder, and forces a new link (default: false)                                                             |
+| `backup`         | Backup existing files/directories if they exist, creating a backup with suffix `.dotbot-backup (default: false)                                  |
+| `relative`       | Use a relative path to the source when creating the symlink (default: false, absolute links)                                                     |
+| `canonicalize`   | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths)                                |
+| `if`             | Execute this in your `$SHELL` and only link if it is successful.                                                                                 |
+| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false)                                                                 |
+| `glob`           | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files* matched. (default: false)                               |
+| `exclude`        | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
+| `prefix`         | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '')                                                 |
 
 When `glob: true`, Dotbot uses [glob.glob](https://docs.python.org/3/library/glob.html#glob.glob) to resolve glob paths, expanding Unix shell-style wildcards, which are **not** the same as regular expressions; Only the following are expanded:
 
