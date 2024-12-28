@@ -1,5 +1,7 @@
+import importlib.util
 import os
-import sys
+from types import ModuleType
+from typing import List, Type
 
 from dotbot.plugin import Plugin
 
@@ -7,7 +9,7 @@ from dotbot.plugin import Plugin
 loaded_modules = []
 
 
-def load(path):
+def load(path: str) -> List[Type[Plugin]]:
     basename = os.path.basename(path)
     module_name, extension = os.path.splitext(basename)
     loaded_module = load_module(module_name, path)
@@ -23,11 +25,11 @@ def load(path):
     return plugins
 
 
-import importlib.util
-
-
-def load_module(module_name, path):
+def load_module(module_name: str, path: str) -> ModuleType:
     spec = importlib.util.spec_from_file_location(module_name, path)
+    if not spec or not spec.loader:
+        msg = f"Unable to load module {module_name} from {path}"
+        raise ImportError(msg)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

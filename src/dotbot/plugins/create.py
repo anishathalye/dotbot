@@ -1,6 +1,7 @@
 import os
+from typing import Any
 
-from ..plugin import Plugin
+from dotbot.plugin import Plugin
 
 
 class Create(Plugin):
@@ -10,15 +11,16 @@ class Create(Plugin):
 
     _directive = "create"
 
-    def can_handle(self, directive):
+    def can_handle(self, directive: str) -> bool:
         return directive == self._directive
 
-    def handle(self, directive, data):
+    def handle(self, directive: str, data: Any) -> bool:
         if directive != self._directive:
-            raise ValueError("Create cannot handle directive %s" % directive)
+            msg = f"Create cannot handle directive {directive}"
+            raise ValueError(msg)
         return self._process_paths(data)
 
-    def _process_paths(self, paths):
+    def _process_paths(self, paths: Any) -> bool:
         success = True
         defaults = self._context.defaults().get("create", {})
         for key in paths:
@@ -35,26 +37,26 @@ class Create(Plugin):
             self._log.error("Some paths were not successfully set up")
         return success
 
-    def _exists(self, path):
+    def _exists(self, path: str) -> bool:
         """
         Returns true if the path exists.
         """
         path = os.path.expanduser(path)
         return os.path.exists(path)
 
-    def _create(self, path, mode):
+    def _create(self, path: str, mode: int) -> bool:
         success = True
         if not self._exists(path):
-            self._log.debug("Trying to create path %s with mode %o" % (path, mode))
+            self._log.debug(f"Trying to create path {path} with mode {mode}")
             try:
-                self._log.lowinfo("Creating path %s" % path)
+                self._log.lowinfo(f"Creating path {path}")
                 os.makedirs(path, mode)
                 # On Windows, the *mode* argument to `os.makedirs()` is ignored.
                 # The mode must be set explicitly in a follow-up call.
                 os.chmod(path, mode)
             except OSError:
-                self._log.warning("Failed to create path %s" % path)
+                self._log.warning(f"Failed to create path {path}")
                 success = False
         else:
-            self._log.lowinfo("Path exists %s" % path)
+            self._log.lowinfo(f"Path exists {path}")
         return success

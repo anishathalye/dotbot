@@ -5,8 +5,10 @@ import sys
 
 import pytest
 
+from tests.conftest import Dotfiles
 
-def test_shim(root, home, dotfiles, run_dotbot):
+
+def test_shim(home: str, dotfiles: Dotfiles) -> None:
     """Verify install shim works."""
 
     # Skip the test if git is unavailable.
@@ -14,10 +16,8 @@ def test_shim(root, home, dotfiles, run_dotbot):
     if git is None:
         pytest.skip("git is unavailable")
 
-    if sys.platform[:5] == "win32":
-        install = os.path.join(
-            dotfiles.directory, "dotbot", "tools", "git-submodule", "install.ps1"
-        )
+    if sys.platform == "win32":
+        install = os.path.join(dotfiles.directory, "dotbot", "tools", "git-submodule", "install.ps1")
         shim = os.path.join(dotfiles.directory, "install.ps1")
     else:
         install = os.path.join(dotfiles.directory, "dotbot", "tools", "git-submodule", "install")
@@ -27,17 +27,17 @@ def test_shim(root, home, dotfiles, run_dotbot):
     git_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     os.chdir(dotfiles.directory)
     subprocess.check_call([git, "init"])
-    subprocess.check_call(
-        [git, "-c", "protocol.file.allow=always", "submodule", "add", git_directory, "dotbot"]
-    )
+    subprocess.check_call([git, "-c", "protocol.file.allow=always", "submodule", "add", git_directory, "dotbot"])
     shutil.copy(install, shim)
     dotfiles.write("foo", "pear")
     dotfiles.write_config([{"link": {"~/.foo": "foo"}}])
 
     # Run the shim script.
     env = dict(os.environ)
-    if sys.platform[:5] == "win32":
-        args = [shutil.which("powershell"), "-ExecutionPolicy", "RemoteSigned", shim]
+    if sys.platform == "win32":
+        ps = shutil.which("powershell")
+        assert ps is not None
+        args = [ps, "-ExecutionPolicy", "RemoteSigned", shim]
         env["USERPROFILE"] = home
     else:
         args = [shim]
@@ -45,5 +45,5 @@ def test_shim(root, home, dotfiles, run_dotbot):
     subprocess.check_call(args, env=env, cwd=dotfiles.directory)
 
     assert os.path.islink(os.path.join(home, ".foo"))
-    with open(os.path.join(home, ".foo"), "r") as file:
+    with open(os.path.join(home, ".foo")) as file:
         assert file.read() == "pear"

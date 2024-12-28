@@ -1,6 +1,9 @@
 Note: this changelog only lists feature additions, not bugfixes. For details on
 those, see the Git history.
 
+- v1.21
+    - Drop support for Python 3.6: the minimum version supported is now Python
+      3.7
 - v1.20
     - Drop support for Python 2 and old versions of Python 3: the minimum
       version supported is now Python 3.6

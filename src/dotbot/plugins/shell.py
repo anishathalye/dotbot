@@ -1,5 +1,7 @@
-from ..plugin import Plugin
-from ..util import shell_command
+from typing import Any, Dict
+
+from dotbot.plugin import Plugin
+from dotbot.util import shell_command
 
 
 class Shell(Plugin):
@@ -10,15 +12,16 @@ class Shell(Plugin):
     _directive = "shell"
     _has_shown_override_message = False
 
-    def can_handle(self, directive):
+    def can_handle(self, directive: str) -> bool:
         return directive == self._directive
 
-    def handle(self, directive, data):
+    def handle(self, directive: str, data: Any) -> bool:
         if directive != self._directive:
-            raise ValueError("Shell cannot handle directive %s" % directive)
+            msg = f"Shell cannot handle directive {directive}"
+            raise ValueError(msg)
         return self._process_commands(data)
 
-    def _process_commands(self, data):
+    def _process_commands(self, data: Any) -> bool:
         success = True
         defaults = self._context.defaults().get("shell", {})
         options = self._get_option_overrides()
@@ -42,11 +45,11 @@ class Shell(Plugin):
                 msg = None
             if quiet:
                 if msg is not None:
-                    self._log.lowinfo("%s" % msg)
+                    self._log.lowinfo(str(msg))
             elif msg is None:
                 self._log.lowinfo(cmd)
             else:
-                self._log.lowinfo("%s [%s]" % (msg, cmd))
+                self._log.lowinfo(f"{msg} [{cmd}]")
             stdout = options.get("stdout", stdout)
             stderr = options.get("stderr", stderr)
             ret = shell_command(
@@ -58,14 +61,14 @@ class Shell(Plugin):
             )
             if ret != 0:
                 success = False
-                self._log.warning("Command [%s] failed" % cmd)
+                self._log.warning(f"Command [{cmd}] failed")
         if success:
             self._log.info("All commands have been executed")
         else:
             self._log.error("Some commands were not successfully executed")
         return success
 
-    def _get_option_overrides(self):
+    def _get_option_overrides(self) -> Dict[str, bool]:
         ret = {}
         options = self._context.options()
         if options.verbose > 1:

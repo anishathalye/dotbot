@@ -5,8 +5,9 @@ import os
 import shutil
 import sys
 import tempfile
-import unittest.mock as mock
 from shutil import rmtree
+from typing import Any, Callable, Generator, List, Optional
+from unittest import mock
 
 import pytest
 import yaml
@@ -14,11 +15,11 @@ import yaml
 import dotbot.cli
 
 
-def get_long_path(path):
+def get_long_path(path: str) -> str:
     """Get the long path for a given path."""
 
     # Do nothing for non-Windows platforms.
-    if sys.platform[:5] != "win32":
+    if sys.platform != "win32":
         return path
 
     buffer_size = 1000
@@ -31,15 +32,14 @@ def get_long_path(path):
 # On Linux, tempfile.TemporaryFile() requires unlink access.
 # This list is updated by a tempfile._mkstemp_inner() wrapper,
 # and its contents are checked by wrapped functions.
-allowed_tempfile_internal_unlink_calls = []
+allowed_tempfile_internal_unlink_calls: List[str] = []
 
 
-def wrap_function(function, function_path, arg_index, kwarg_key, root):
-    def wrapper(*args, **kwargs):
-        if kwarg_key in kwargs:
-            value = kwargs[kwarg_key]
-        else:
-            value = args[arg_index]
+def wrap_function(
+    function: Callable[..., Any], function_path: str, arg_index: int, kwarg_key: str, root: str
+) -> Callable[..., Any]:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        value = kwargs[kwarg_key] if kwarg_key in kwargs else args[arg_index]
 
         # Allow tempfile.TemporaryFile's internal unlink calls to work.
         if value in allowed_tempfile_internal_unlink_calls:
@@ -58,14 +58,11 @@ def wrap_function(function, function_path, arg_index, kwarg_key, root):
     return wrapper
 
 
-def wrap_open(root):
-    wrapped = getattr(builtins, "open")
+def wrap_open(root: str) -> Callable[..., Any]:
+    wrapped = builtins.open
 
-    def wrapper(*args, **kwargs):
-        if "file" in kwargs:
-            value = kwargs["file"]
-        else:
-            value = args[0]
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        value = kwargs["file"] if "file" in kwargs else args[0]
 
         mode = "r"
         if "mode" in kwargs:
@@ -87,7 +84,7 @@ def wrap_open(root):
     return wrapper
 
 
-def rmtree_error_handler(_, path, __):
+def rmtree_error_handler(_function: Any, path: str, _excinfo: Any) -> None:
     # Handle read-only files and directories.
     os.chmod(path, 0o777)
     if os.path.isdir(path):
@@ -97,7 +94,7 @@ def rmtree_error_handler(_, path, __):
 
 
 @pytest.fixture(autouse=True, scope="session")
-def standardize_tmp():
+def standardize_tmp() -> None:
     r"""Standardize the temporary directory path.
 
     On MacOS, `/var` is a symlink to `/private/var`.
@@ -114,21 +111,21 @@ def standardize_tmp():
     # MacOS: `/var` is a symlink.
     tmp = os.path.abspath(os.path.realpath(tmp))
     # Windows: The temporary directory may be a short path.
-    if sys.platform[:5] == "win32":
+    if sys.platform == "win32":
         tmp = get_long_path(tmp)
     os.environ["TMP"] = tmp
     os.environ["TEMP"] = tmp
     os.environ["TMPDIR"] = tmp
     tempfile.tempdir = tmp
-    yield
 
 
 @pytest.fixture(autouse=True)
-def root(standardize_tmp):
+def root(standardize_tmp: None) -> Generator[str, None, None]:
+    _ = standardize_tmp
     """Create a temporary directory for the duration of each test."""
 
     # Reset allowed_tempfile_internal_unlink_calls.
-    global allowed_tempfile_internal_unlink_calls
+    global allowed_tempfile_internal_unlink_calls  # noqa: PLW0603
     allowed_tempfile_internal_unlink_calls = []
 
     # Dotbot changes the current working directory,
@@ -180,7 +177,7 @@ def root(standardize_tmp):
         (shutil, "unpack_archive", 1, "extract_dir"),
     ]
 
-    patches = []
+    patches: List[Any] = []
     for module, function_name, arg_index, kwarg_key in functions_to_wrap:
         # Skip anything that doesn't exist in this version of Python.
         if not hasattr(module, function_name):
@@ -188,7 +185,7 @@ def root(standardize_tmp):
 
         # These values must be passed to a separate function
         # to ensure the variable closures work correctly.
-        function_path = "{0}.{1}".format(module.__name__, function_name)
+        function_path = f"{module.__name__}.{function_name}"
         function = getattr(module, function_name)
         wrapped = wrap_function(function, function_path, arg_index, kwarg_key, current_root)
         patches.append(mock.patch(function_path, wrapped))
@@ -200,13 +197,13 @@ def root(standardize_tmp):
 
     # Block all access to bad functions.
     if hasattr(os, "chroot"):
-        patches.append(mock.patch("os.chroot", lambda *_, **__: None))
+        patches.append(mock.patch("os.chroot", return_value=None))
 
     # Patch tempfile._mkstemp_inner() so tempfile.TemporaryFile()
     # can unlink files immediately.
-    mkstemp_inner = tempfile._mkstemp_inner
+    mkstemp_inner = tempfile._mkstemp_inner  # type: ignore # noqa: SLF001
 
-    def wrap_mkstemp_inner(*args, **kwargs):
+    def wrap_mkstemp_inner(*args: Any, **kwargs: Any) -> Any:
         (fd, name) = mkstemp_inner(*args, **kwargs)
         allowed_tempfile_internal_unlink_calls.append(name)
         return fd, name
@@ -219,7 +216,8 @@ def root(standardize_tmp):
     finally:
         # Patches must be stopped in reverse order because some patches are nested.
         # Stopping in the reverse order restores the original function.
-        [patch.stop() for patch in reversed(patches)]
+        for patch in reversed(patches):
+            patch.stop()
         os.chdir(current_working_directory)
         if sys.version_info >= (3, 12):
             rmtree(current_root, onexc=rmtree_error_handler)
@@ -228,7 +226,7 @@ def root(standardize_tmp):
 
 
 @pytest.fixture
-def home(monkeypatch, root):
+def home(monkeypatch: pytest.MonkeyPatch, root: str) -> str:
     """Create a home directory for the duration of the test.
 
     On *nix, the environment variable "HOME" will be mocked.
@@ -237,43 +235,43 @@ def home(monkeypatch, root):
 
     home = os.path.abspath(os.path.join(root, "home/user"))
     os.makedirs(home)
-    if sys.platform[:5] == "win32":
+    if sys.platform == "win32":
         monkeypatch.setenv("USERPROFILE", home)
     else:
         monkeypatch.setenv("HOME", home)
-    yield home
+    return home
 
 
 class Dotfiles:
     """Create and manage a dotfiles directory for a test."""
 
-    def __init__(self, root):
+    def __init__(self, root: str):
         self.root = root
         self.config = None
-        self.config_filename = None
+        self._config_filename: Optional[str] = None
         self.directory = os.path.join(root, "dotfiles")
         os.mkdir(self.directory)
 
-    def makedirs(self, path):
+    def makedirs(self, path: str) -> None:
         os.makedirs(os.path.abspath(os.path.join(self.directory, path)))
 
-    def write(self, path, content=""):
+    def write(self, path: str, content: str = "") -> None:
         path = os.path.abspath(os.path.join(self.directory, path))
         if not os.path.exists(os.path.dirname(path)):
             os.makedirs(os.path.dirname(path))
         with open(path, "w") as file:
             file.write(content)
 
-    def write_config(self, config, serializer="yaml", path=None):
+    def write_config(self, config: Any, serializer: str = "yaml", path: Optional[str] = None) -> str:
         """Write a dotbot config and return the filename."""
 
         assert serializer in {"json", "yaml"}, "Only json and yaml are supported"
         if serializer == "yaml":
-            serialize = yaml.dump
+            serialize: Callable[[Any], str] = yaml.dump
         else:  # serializer == "json"
             serialize = json.dumps
 
-        if path:
+        if path is not None:
             msg = "The config file path must be an absolute path"
             assert path == os.path.abspath(path), msg
 
@@ -281,25 +279,30 @@ class Dotfiles:
             msg = msg.format(root)
             assert path[: len(str(root))] == str(root), msg
 
-            self.config_filename = path
+            self._config_filename = path
         else:
-            self.config_filename = os.path.join(self.directory, "install.conf.yaml")
+            self._config_filename = os.path.join(self.directory, "install.conf.yaml")
         self.config = config
 
-        with open(self.config_filename, "w") as file:
+        with open(self._config_filename, "w") as file:
             file.write(serialize(config))
-        return self.config_filename
+        return self._config_filename
+
+    @property
+    def config_filename(self) -> str:
+        assert self._config_filename is not None
+        return self._config_filename
 
 
 @pytest.fixture
-def dotfiles(root):
+def dotfiles(root: str) -> Dotfiles:
     """Create a dotfiles directory."""
 
-    yield Dotfiles(root)
+    return Dotfiles(root)
 
 
 @pytest.fixture
-def run_dotbot(dotfiles):
+def run_dotbot(dotfiles: Dotfiles) -> Callable[..., None]:
     """Run dotbot.
 
     When calling `runner()`, only CLI arguments need to be specified.
@@ -309,11 +312,11 @@ def run_dotbot(dotfiles):
     and the caller will be responsible for all CLI arguments.
     """
 
-    def runner(*argv, **kwargs):
-        argv = ["dotbot"] + list(argv)
+    def runner(*argv: Any, **kwargs: Any) -> None:
+        argv = ("dotbot", *argv)
         if kwargs.get("custom", False) is not True:
-            argv.extend(["-c", dotfiles.config_filename])
-        with mock.patch("sys.argv", argv):
+            argv = (*argv, "-c", dotfiles.config_filename)
+        with mock.patch("sys.argv", list(argv)):
             dotbot.cli.main()
 
-    yield runner
+    return runner

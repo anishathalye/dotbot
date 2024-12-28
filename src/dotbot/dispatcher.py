@@ -1,9 +1,10 @@
 import os
 from argparse import Namespace
+from typing import Any, Dict, List, Optional, Type
 
-from .context import Context
-from .messenger import Messenger
-from .plugin import Plugin
+from dotbot.context import Context
+from dotbot.messenger import Messenger
+from dotbot.plugin import Plugin
 
 # Before b5499c7dc5b300462f3ce1c2a3d9b7a76233b39b, Dispatcher auto-loaded all
 # plugins, but after that change, plugins are passed in explicitly (and loaded
@@ -11,18 +12,18 @@ from .plugin import Plugin
 # so this is a workaround for implementing similar functionality: when
 # Dispatcher is constructed without an explicit list of plugins, _all_plugins is
 # used instead.
-_all_plugins = []  # filled in by cli.py
+_all_plugins: List[Type[Plugin]] = []  # filled in by cli.py
 
 
 class Dispatcher:
     def __init__(
         self,
-        base_directory,
-        only=None,
-        skip=None,
-        exit_on_failure=False,
-        options=Namespace(),
-        plugins=None,
+        base_directory: str,
+        only: Optional[List[str]] = None,
+        skip: Optional[List[str]] = None,
+        exit_on_failure: bool = False,  # noqa: FBT001, FBT002 part of established public API
+        options: Optional[Namespace] = None,
+        plugins: Optional[List[Type[Plugin]]] = None,
     ):
         # if the caller wants no plugins, the caller needs to explicitly pass in
         # plugins=[]
@@ -35,13 +36,16 @@ class Dispatcher:
         self._skip = skip
         self._exit = exit_on_failure
 
-    def _setup_context(self, base_directory, options, plugins):
+    def _setup_context(
+        self, base_directory: str, options: Optional[Namespace], plugins: Optional[List[Type[Plugin]]]
+    ) -> None:
         path = os.path.abspath(os.path.expanduser(base_directory))
         if not os.path.exists(path):
-            raise DispatchError("Nonexistent base directory")
+            msg = "Nonexistent base directory"
+            raise DispatchError(msg)
         self._context = Context(path, options, plugins)
 
-    def dispatch(self, tasks):
+    def dispatch(self, tasks: List[Dict[str, Any]]) -> bool:
         success = True
         for task in tasks:
             for action in task:
@@ -51,7 +55,7 @@ class Dispatcher:
                     or self._skip is not None
                     and action in self._skip
                 ) and action != "defaults":
-                    self._log.info("Skipping action %s" % action)
+                    self._log.info(f"Skipping action {action}")
                     continue
                 handled = False
                 if action == "defaults":
@@ -64,21 +68,19 @@ class Dispatcher:
                             local_success = plugin.handle(action, task[action])
                             if not local_success and self._exit:
                                 # The action has failed exit
-                                self._log.error("Action %s failed" % action)
+                                self._log.error(f"Action {action} failed")
                                 return False
                             success &= local_success
                             handled = True
-                        except Exception as err:
-                            self._log.error(
-                                "An error was encountered while executing action %s" % action
-                            )
-                            self._log.debug(err)
+                        except Exception as err:  # noqa: BLE001
+                            self._log.error(f"An error was encountered while executing action {action}")
+                            self._log.debug(str(err))
                             if self._exit:
                                 # There was an execption exit
                                 return False
                 if not handled:
                     success = False
-                    self._log.error("Action %s not handled" % action)
+                    self._log.error(f"Action {action} not handled")
                     if self._exit:
                         # Invalid action exit
                         return False

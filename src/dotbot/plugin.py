@@ -1,5 +1,7 @@
-from .context import Context
-from .messenger import Messenger
+from typing import Any
+
+from dotbot.context import Context
+from dotbot.messenger import Messenger
 
 
 class Plugin:
@@ -7,17 +9,17 @@ class Plugin:
     Abstract base class for commands that process directives.
     """
 
-    def __init__(self, context):
+    def __init__(self, context: Context):
         self._context = context
         self._log = Messenger()
 
-    def can_handle(self, directive):
+    def can_handle(self, directive: str) -> bool:
         """
         Returns true if the Plugin can handle the directive.
         """
         raise NotImplementedError
 
-    def handle(self, directive, data):
+    def handle(self, directive: str, data: Any) -> bool:
         """
         Executes the directive.
 

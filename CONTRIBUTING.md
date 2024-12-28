@@ -1,5 +1,4 @@
-Contributing
-============
+# Contributing
 
 All kinds of contributions to Dotbot are greatly appreciated. For someone
 unfamiliar with the code base, the most efficient way to contribute is usually
@@ -7,8 +6,7 @@ to submit a [feature request](#feature-requests) or [bug report](#bug-reports).
 If you want to dive into the source code, you can submit a [patch](#patches) as
 well, either working on your own ideas or [existing issues][issues].
 
-Feature Requests
-----------------
+## Feature Requests
 
 Do you have an idea for an awesome new feature for Dotbot? Please [submit a
 feature request][issue]. It's great to hear about new ideas.
@@ -20,8 +18,7 @@ enhancement to get early feedback on the new feature that you are implementing.
 This will help avoid wasted efforts and ensure that your work is incorporated
 into the code base.
 
-Bug Reports
------------
+## Bug Reports
 
 Did something go wrong with Dotbot? Sorry about that! Bug reports are greatly
 appreciated!
@@ -31,8 +28,7 @@ as Dotbot version, operating system, configuration file, error messages, and
 steps to reproduce the bug. The more details you can include, the easier it is
 to find and fix the bug.
 
-Patches
--------
+## Patches
 
 Want to hack on Dotbot? Awesome!
 
@@ -50,40 +46,41 @@ used in the rest of the project. The version history should be clean, and
 commit messages should be descriptive and [properly
 formatted][commit-messages].
 
+### Testing
+
 When preparing a patch, it's recommended that you add unit tests
-that demonstrate the bug is fixed (or that the feature works).
-You can run the tests on your local machine by installing the `dev` extras.
-The steps below do this using a virtual environment:
+that demonstrate the bug is fixed (or that the feature works). You
+can run tests on your local machine using [Hatch][hatch]:
 
-```shell
-# Create a local virtual environment
-$ python -m venv .venv
-
-# Activate the virtual environment
-# Cygwin, Linux, and MacOS:
-$ . .venv/bin/activate
-# Windows Powershell:
-$ & .venv\Scripts\Activate.ps1
-
-# Update pip and setuptools
-(.venv) $ python -m pip install -U pip setuptools
-
-# Install dotbot and its development dependencies
-(.venv) $ python -m pip install -e .[dev]
-
-# Run the unit tests
-(.venv) $ tox
+```bash
+hatch test
 ```
 
 If you prefer to run the tests in an isolated container using Docker, you can
 do so with the following:
 
-```
-docker run -it --rm -v "${PWD}:/dotbot" -w /dotbot python:3.10-alpine /bin/sh
+```bash
+docker run -it --rm -v "${PWD}:/dotbot" -w /dotbot python:3.13-bookworm /bin/bash
 ```
 
-After spawning the container, follow the same instructions as above (create a
-virtualenv, ..., run the tests).
+After spawning the container, install Hatch with `pip install hatch`, and then
+run the tests.
+
+### Type checking
+
+You can run type checking with:
+
+```bash
+hatch run types:check
+```
+
+### Formatting and linting
+
+You can run the [Ruff][ruff] formatter and linter with:
+
+```bash
+hatch fmt
+```
 
 ---
 
@@ -94,3 +91,5 @@ If you have any questions about anything, feel free to [ask][email]!
 [fork]: https://github.com/anishathalye/dotbot/fork
 [email]: mailto:me@anishathalye.com
 [commit-messages]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[hatch]: https://hatch.pypa.io/
+[ruff]: https://github.com/astral-sh/ruff

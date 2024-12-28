@@ -1,10 +1,18 @@
 import os
 import platform
 import subprocess
+from typing import Optional
 
 
-def shell_command(command, cwd=None, enable_stdin=False, enable_stdout=False, enable_stderr=False):
-    with open(os.devnull, "w") as devnull_w, open(os.devnull, "r") as devnull_r:
+def shell_command(
+    command: str,
+    cwd: Optional[str] = None,
+    *,
+    enable_stdin: bool = False,
+    enable_stdout: bool = False,
+    enable_stderr: bool = False,
+) -> int:
+    with open(os.devnull, "w") as devnull_w, open(os.devnull) as devnull_r:
         stdin = None if enable_stdin else devnull_r
         stdout = None if enable_stdout else devnull_w
         stderr = None if enable_stderr else devnull_w
@@ -25,7 +33,7 @@ def shell_command(command, cwd=None, enable_stdin=False, enable_stdout=False, en
             executable = None
         return subprocess.call(
             command,
-            shell=True,
+            shell=True,  # noqa: S602
             executable=executable,
             stdin=stdin,
             stdout=stdout,

@@ -1,17 +1,91 @@
-[tool.black]
-line-length = 100
-exclude = '''
-/(
-   \.git
- | \.github
- | .*\.egg-info
- | build
- | dist
- | lib
- )/
-'''
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.pytest.ini_options]
-filterwarnings = [
-    "error",
+[project]
+name = "dotbot"
+authors = [
+  { name = "Anish Athalye", email = "me@anishathalye.com" },
+]
+description = "A tool that bootstraps your dotfiles"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Utilities",
+]
+keywords = ["dotfiles"]
+dynamic = ["version"]
+dependencies = [
+  "PyYAML>=6.0.1,<7",
+]
+
+[project.scripts]
+dotbot = "dotbot.cli:main"
+
+[project.urls]
+homepage = "https://github.com/anishathalye/dotbot"
+repository = "https://github.com/anishathalye/dotbot.git"
+issues = "https://github.com/anishathalye/dotbot/issues"
+
+[tool.hatch.version]
+path = "src/dotbot/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "lib/",
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
+
+# the default configuration for the hatch-test environment
+# (https://hatch.pypa.io/latest/config/internal/testing/#dependencies) uses a
+# version of coverage[toml] that is incompatible with Python 3.7, so we override
+# the test dependencies for Python 3.7 here
+[tool.hatch.envs.hatch-test.overrides]
+name."^py3\\.7$".set-dependencies = [
+  "coverage-enable-subprocess",
+  "coverage[toml]",
+  "pytest",
+  "pytest-mock",
+  "pytest-randomly",
+  "pytest-rerunfailures",
+  "pytest-xdist[psutil]",
+]
+
+[tool.coverage.run]
+omit = [
+  "*/tests/*",
+  "*/dotfiles/*" # the tests create some .py files in a "dotfiles" directory
+]
+
+[tool.hatch.envs.types]
+extra-dependencies = [
+  "mypy>=1.0.0",
+  "pytest",
+]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --strict --install-types --non-interactive {args:src tests}"
+
+[tool.hatch.envs.coverage]
+detached = true
+dependencies = [
+  "coverage",
+]
+
+[tool.hatch.envs.coverage.scripts]
+html = "coverage html"
+xml = "coverage xml"
+
+[tool.ruff]
+extend-exclude = [
+  "lib/*.py"
+]
+lint.ignore = [
+  "FA100",
 ]
