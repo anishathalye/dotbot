@@ -1,9 +1,14 @@
 from typing import Any
 
 from dotbot.plugin import Plugin
+from dotbot.plugins import Clean, Create, Link, Shell
 
 # https://github.com/anishathalye/dotbot/issues/357
 # if we import from dotbot.plugins, the built-in plugins get executed multiple times
+_: Any = Clean
+_ = Create
+_ = Link
+_ = Shell
 
 
 class NoopPlugin(Plugin):
