@@ -44,43 +44,11 @@ describing what you intend to work on.
 Any changes to the code base should follow the style and coding conventions
 used in the rest of the project. The version history should be clean, and
 commit messages should be descriptive and [properly
-formatted][commit-messages].
+formatted][commit-messages]. It's recommended that you add unit tests to
+demonstrate that the bug is fixed (or that the feature works).
 
-### Testing
-
-When preparing a patch, it's recommended that you add unit tests
-that demonstrate the bug is fixed (or that the feature works). You
-can run tests on your local machine using [Hatch][hatch]:
-
-```bash
-hatch test
-```
-
-If you prefer to run the tests in an isolated container using Docker, you can
-do so with the following:
-
-```bash
-docker run -it --rm -v "${PWD}:/dotbot" -w /dotbot python:3.13-bookworm /bin/bash
-```
-
-After spawning the container, install Hatch with `pip install hatch`, and then
-run the tests.
-
-### Type checking
-
-You can run type checking with:
-
-```bash
-hatch run types:check
-```
-
-### Formatting and linting
-
-You can run the [Ruff][ruff] formatter and linter with:
-
-```bash
-hatch fmt
-```
+See the [Dotbot development guide][development] to learn how to run the tests,
+type checking, and more.
 
 ---
 
@@ -91,5 +59,4 @@ If you have any questions about anything, feel free to [ask][email]!
 [fork]: https://github.com/anishathalye/dotbot/fork
 [email]: mailto:me@anishathalye.com
 [commit-messages]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
-[hatch]: https://hatch.pypa.io/
-[ruff]: https://github.com/astral-sh/ruff
+[development]: DEVELOPMENT.md
