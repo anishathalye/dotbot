@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Callable, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import pytest
 
@@ -1000,3 +1000,162 @@ def test_link_defaults_2(home: str, dotfiles: Dotfiles, run_dotbot: Callable[...
 
     with open(os.path.join(home, ".f")) as file:
         assert file.read() == "apple"
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        pytest.param([{"link": {"~/.f": "f"}}], id="unspecified"),
+        pytest.param(
+            [{"link": {"~/.f": {"path": "f", "type": "symlink"}}}],
+            id="specified",
+        ),
+        pytest.param(
+            [
+                {"defaults": {"link": {"type": "symlink"}}},
+                {"link": {"~/.f": "f"}},
+            ],
+            id="symlink set for all links by default",
+        ),
+    ],
+)
+def test_link_type_symlink(
+    config: List[Dict[str, Any]], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that symlinks are created by default, and when specified."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.islink(os.path.join(home, ".f"))
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        pytest.param(
+            [{"link": {"~/.f": {"path": "f", "type": "hardlink"}}}],
+            id="specified",
+        ),
+        pytest.param(
+            [
+                {"defaults": {"link": {"type": "hardlink"}}},
+                {"link": {"~/.f": "f"}},
+            ],
+            id="hardlink set for all links by default",
+        ),
+    ],
+)
+def test_link_type_hardlink(
+    config: List[Dict[str, Any]], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that hardlinks are created when specified."""
+
+    dotfiles.write("f", "apple")
+    assert os.stat(os.path.join(dotfiles.directory, "f")).st_nlink == 1
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert not os.path.islink(os.path.join(home, ".f"))
+    assert os.stat(os.path.join(dotfiles.directory, "f")).st_nlink == 2
+    assert os.stat(os.path.join(home, ".f")).st_nlink == 2
+
+
+@pytest.mark.parametrize(
+    "config",
+    [
+        pytest.param(
+            [{"defaults": {"link": {"type": "default-bogus"}}, "link": {}}],
+            id="default link type not recognized",
+        ),
+        pytest.param(
+            [{"link": {"~/.f": {"type": "specified-bogus"}}}],
+            id="specified link type not recognized",
+        ),
+    ],
+)
+def test_unknown_link_type(
+    capsys: pytest.CaptureFixture[str],
+    config: List[Dict[str, Any]],
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that unknown link types are rejected."""
+
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+    stdout, _ = capsys.readouterr()
+    assert "link type is not recognized" in stdout
+
+
+def test_symlink_exists_when_hardlink_requested(
+    capsys: pytest.CaptureFixture[str],
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Confirm messaging when a symlink exists but a hardlink is requested."""
+
+    # Setup: Create a symlink to the hardlink destination.
+    dotfiles.write("source", "potato")
+    os.symlink(
+        os.path.join(dotfiles.directory, "source"),
+        os.path.join(home, "hardlink"),
+    )
+
+    # Act
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    # Verify
+    stdout, _ = capsys.readouterr()
+    assert "already exists but is a symbolic link, not a hard link" in stdout
+
+
+def test_hardlink_already_exists(
+    capsys: pytest.CaptureFixture[str],
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Confirm messaging when the hardlink already exists."""
+
+    dotfiles.write("source", "potato")
+    os.link(
+        os.path.join(dotfiles.directory, "source"),
+        os.path.join(home, "hardlink"),
+    )
+
+    # Act
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    run_dotbot()
+
+    # Verify
+    stdout, _ = capsys.readouterr()
+    assert "Link exists" in stdout
+
+
+def test_broken_symlink_shows_invalid_link_message(
+    capsys: pytest.CaptureFixture[str],
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that broken symlinks show 'Invalid link' message instead of 'Linking failed'."""
+
+    broken_target = os.path.join(home, "nonexistent")
+    destination = os.path.join(home, ".f")
+    os.symlink(broken_target, destination)
+
+    dotfiles.write("f", "apple")
+    dotfiles.write_config([{"link": {"~/.f": "f"}}])
+
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    stdout, _ = capsys.readouterr()
+    assert "Invalid link" in stdout
+    assert "Linking failed" not in stdout

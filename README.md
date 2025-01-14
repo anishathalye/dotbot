@@ -160,7 +160,8 @@ can also be configured via setting [defaults](#defaults).
 
 ### Link
 
-Link commands specify how files and directories should be symbolically linked.
+Link commands specify how files and directories should be linked.
+Symlinks are created by default, but hardlinks are also supported.
 If desired, items can be specified to be forcibly linked, overwriting existing
 files if necessary. Environment variables in paths are automatically expanded.
 
@@ -177,11 +178,12 @@ mapped to extended configuration dictionaries.
 
 | Parameter | Explanation |
 | --- | --- |
-| `path` | The source for the symlink, the same as in the shortcut syntax (default: null, automatic (see below)) |
+| `path` | The source for the link, the same as in the shortcut syntax (default: null, automatic (see below)) |
+| `type` | The type of link to create. If specified, must be either `symlink` or `hardlink`. (default: `symlink`) |
 | `create` | When true, create parent directories to the link as needed. (default: false) |
 | `relink` | Removes the old target if it's a symlink (default: false) |
 | `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
-| `relative` | Use a relative path to the source when creating the symlink (default: false, absolute links) |
+| `relative` | When creating a symlink, use a relative path to the source. (default: false, absolute links) |
 | `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
 | `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
