@@ -9,7 +9,7 @@ import dotbot
 from dotbot.config import ConfigReader, ReadingError
 from dotbot.dispatcher import Dispatcher, DispatchError, _all_plugins
 from dotbot.messenger import Level, Messenger
-from dotbot.plugins import Clean, Create, Link, Shell
+from dotbot.plugins import Clean, Create, Link, Plugins, Shell
 from dotbot.util import module
 
 
@@ -101,7 +101,7 @@ def main() -> None:
         plugins = []
         plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
-            plugins.extend([Clean, Create, Link, Shell])
+            plugins.extend([Clean, Create, Link, Plugins, Shell])
         plugin_paths = []
         for directory in plugin_directories:
             plugin_paths.extend(glob.glob(os.path.join(directory, "*.py")))
