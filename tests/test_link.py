@@ -1,4 +1,5 @@
 import os
+import pathlib
 import sys
 from typing import Callable, Optional
 
@@ -960,6 +961,50 @@ def test_link_relink_relative_leaves_file(home: str, dotfiles: Dotfiles, run_dot
 
     new_mtime = os.stat(os.path.join(home, ".folder", "f")).st_mtime
     assert mtime == new_mtime
+
+
+def test_source_is_not_overwritten_by_symlink_trickery(
+    capsys: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    dotfiles_path = pathlib.Path(dotfiles.directory)
+    home_path = pathlib.Path(home)
+
+    # Setup:
+    #   *   A symlink exists from `~/.ssh` to `ssh` in the dotfiles directory.
+    #   *   Dotbot is configured to force-recreate a symlink between two files
+    #       when, in reality, it's actually the same file when resolved.
+    ssh_config = (dotfiles_path / "ssh/config").absolute()
+    os.mkdir(str(ssh_config.parent))
+    ssh_config.write_text("preserve me!")
+    os.symlink(str(ssh_config.parent), str(home_path / ".ssh"))
+    dotfiles.write_config(
+        [
+            {
+                "defaults": {
+                    "link": {
+                        "relink": True,
+                        "create": True,
+                        "force": True,
+                    },
+                }
+            },
+            {
+                "link": {
+                    # When symlinks are resolved, these are actually the same file.
+                    "~/.ssh/config": "ssh/config",
+                },
+            },
+        ]
+    )
+
+    # Execute dotbot.
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    stdout, _ = capsys.readouterr()
+    assert "appears to be the same file" in stdout
+    # Verify that the file was not overwritten.
+    assert ssh_config.read_text() == "preserve me!"
 
 
 def test_link_defaults_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
