@@ -27,11 +27,19 @@ class Link(Plugin):
     def _process_links(self, links: Any) -> bool:
         success = True
         defaults = self._context.defaults().get("link", {})
+
+        # Validate the default link type before looping.
+        link_type = defaults.get("type", "symlink")
+        if link_type not in {"symlink", "hardlink"}:
+            self._log.warning(f"The default link type is not recognized: '{link_type}'")
+            return False
+
         for destination, source in links.items():
             destination = os.path.expandvars(destination)  # noqa: PLW2901
             relative = defaults.get("relative", False)
             # support old "canonicalize-path" key for compatibility
             canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
+            link_type = defaults.get("type", "symlink")
             force = defaults.get("force", False)
             relink = defaults.get("relink", False)
             create = defaults.get("create", False)
@@ -45,6 +53,12 @@ class Link(Plugin):
                 test = source.get("if", test)
                 relative = source.get("relative", relative)
                 canonical_path = source.get("canonicalize", source.get("canonicalize-path", canonical_path))
+                link_type = source.get("type", link_type)
+                if link_type not in {"symlink", "hardlink"}:
+                    msg = f"The link type is not recognized: '{link_type}'"
+                    self._log.warning(msg)
+                    success = False
+                    continue
                 force = source.get("force", force)
                 relink = source.get("relink", relink)
                 create = source.get("create", create)
@@ -87,6 +101,7 @@ class Link(Plugin):
                         relative=relative,
                         canonical_path=canonical_path,
                         ignore_missing=ignore_missing,
+                        link_type=link_type,
                     )
             else:
                 if create:
@@ -104,7 +119,12 @@ class Link(Plugin):
                         path, destination, relative=relative, canonical_path=canonical_path, force=force
                     )
                 success &= self._link(
-                    path, destination, relative=relative, canonical_path=canonical_path, ignore_missing=ignore_missing
+                    path,
+                    destination,
+                    relative=relative,
+                    canonical_path=canonical_path,
+                    ignore_missing=ignore_missing,
+                    link_type=link_type,
                 )
         if success:
             self._log.info("All links have been set up")
@@ -230,7 +250,16 @@ class Link(Plugin):
         destination_dir = os.path.dirname(destination)
         return os.path.relpath(source, destination_dir)
 
-    def _link(self, source: str, link_name: str, *, relative: bool, canonical_path: bool, ignore_missing: bool) -> bool:
+    def _link(
+        self,
+        source: str,
+        link_name: str,
+        *,
+        relative: bool,
+        canonical_path: bool,
+        ignore_missing: bool,
+        link_type: str,
+    ) -> bool:
         """
         Links link_name to source.
 
@@ -249,11 +278,14 @@ class Link(Plugin):
         # destination directory
         elif not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
             try:
-                os.symlink(source, destination)
+                if link_type == "symlink":
+                    os.symlink(source, destination)
+                else:  # link_type == "hardlink"
+                    os.link(absolute_source, destination)
             except OSError:
                 self._log.warning(f"Linking failed {link_name} -> {source}")
             else:
-                self._log.lowinfo(f"Creating link {link_name} -> {source}")
+                self._log.lowinfo(f"Creating {link_type} {link_name} -> {source}")
                 success = True
         elif self._exists(link_name) and not self._is_link(link_name):
             self._log.warning(f"{link_name} already exists but is a regular file or directory")
