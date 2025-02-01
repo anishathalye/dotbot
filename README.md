@@ -1,4 +1,4 @@
-# Dotbot [![Build Status](https://github.com/anishathalye/dotbot/workflows/CI/badge.svg)](https://github.com/anishathalye/dotbot/actions?query=workflow%3ACI) [![Coverage](https://codecov.io/gh/anishathalye/dotbot/branch/master/graph/badge.svg)](https://app.codecov.io/gh/anishathalye/dotbot) [![PyPI](https://img.shields.io/pypi/v/dotbot.svg)](https://pypi.org/pypi/dotbot/) [![PyPI - Python version](https://img.shields.io/pypi/pyversions/dotbot.svg)](https://pypi.org/pypi/dotbot/)
+# Dotbot [![Build Status](https://github.com/anishathalye/dotbot/actions/workflows/ci.yml/badge.svg)](https://github.com/anishathalye/dotbot/actions/workflows/ci.yml) [![Coverage](https://codecov.io/gh/anishathalye/dotbot/branch/master/graph/badge.svg)](https://app.codecov.io/gh/anishathalye/dotbot) [![PyPI](https://img.shields.io/pypi/v/dotbot.svg)](https://pypi.org/pypi/dotbot/) [![PyPI - Python version](https://img.shields.io/pypi/pyversions/dotbot.svg)](https://pypi.org/pypi/dotbot/)
 
 Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 && ./install`, even on a freshly installed system!
