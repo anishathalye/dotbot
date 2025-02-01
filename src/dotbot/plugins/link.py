@@ -197,6 +197,12 @@ class Link(Plugin):
         success = True
         source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
         fullpath = os.path.abspath(os.path.expanduser(path))
+        if self._exists(path) and not self._is_link(path) and os.path.realpath(fullpath) == source:
+            # Special case: The path is not a symlink but resolves to the source anyway.
+            # Deleting the path would actually delete the source.
+            # This may happen if a parent directory is a symlink.
+            self._log.warning(f"{path} appears to be the same file as {source}.")
+            return False
         if relative:
             source = self._relative_path(source, fullpath)
         if (self._is_link(path) and self._link_destination(path) != source) or (
