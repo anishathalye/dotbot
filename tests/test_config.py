@@ -37,3 +37,19 @@ def test_json_tabs(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None
     run_dotbot("-c", os.path.join(dotfiles.directory, "config.json"), custom=True)
 
     assert os.path.isdir(os.path.join(home, "d"))
+
+
+def test_multiple_config(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify empty configs work."""
+
+    dotfiles.write("config1.json", json.dumps([{"create": ["~/d1"]}]))
+    dotfiles.write("config2.json", json.dumps([{"create": ["~/d2"]}]))
+
+    run_dotbot(
+        "-c", os.path.join(dotfiles.directory, "config1.json"),
+        "-c", os.path.join(dotfiles.directory, "config2.json"),
+        custom=True,
+    )
+
+    assert os.path.isdir(os.path.join(home, "d1"))
+    assert os.path.isdir(os.path.join(home, "d2"))

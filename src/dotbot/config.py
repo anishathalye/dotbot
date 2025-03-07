@@ -1,6 +1,7 @@
 import json
 import os.path
-from typing import Any
+from functools import reduce
+from typing import Any, List
 
 import yaml
 
@@ -8,8 +9,15 @@ from dotbot.util import string
 
 
 class ConfigReader:
-    def __init__(self, config_file_path: str):
-        self._config = self._read(config_file_path)
+    _config: List[Any]
+
+    def __init__(self, config_file_paths: List[str]):
+        # concatenate all config files
+        self._config = reduce(
+            lambda a, b: a + (b or []),
+            [self._read(p) for p in config_file_paths],
+            [],  # initial
+        )
 
     def _read(self, config_file_path: str) -> Any:
         try:

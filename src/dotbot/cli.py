@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
-from typing import Any
+from typing import Any, List
 
 import dotbot
 from dotbot.config import ConfigReader, ReadingError
@@ -24,7 +24,9 @@ def add_options(parser: ArgumentParser) -> None:
         help="enable verbose output\n" "-v: typical verbose\n" "-vv: also, set shell commands stderr/stdout to true",
     )
     parser.add_argument("-d", "--base-directory", help="execute commands from within BASEDIR", metavar="BASEDIR")
-    parser.add_argument("-c", "--config-file", help="run commands given in CONFIGFILE", metavar="CONFIGFILE")
+    parser.add_argument(
+        "-c", "--config-file", help="run commands given in CONFIGFILE", metavar="CONFIGFILE", action="append"
+    )
     parser.add_argument(
         "-p",
         "--plugin",
@@ -57,8 +59,8 @@ def add_options(parser: ArgumentParser) -> None:
     )
 
 
-def read_config(config_file: str) -> Any:
-    reader = ConfigReader(config_file)
+def read_config(config_files: List[str]) -> Any:
+    reader = ConfigReader(config_files)
     return reader.get_config()
 
 
@@ -127,8 +129,8 @@ def main() -> None:
         if options.base_directory:
             base_directory = os.path.abspath(options.base_directory)
         else:
-            # default to directory of config file
-            base_directory = os.path.dirname(os.path.abspath(options.config_file))
+            # default to directory of first config file
+            base_directory = os.path.dirname(os.path.abspath(options.config_file[0]))
         os.chdir(base_directory)
         _all_plugins[:] = plugins  # for backwards compatibility, see dispatcher.py
         dispatcher = Dispatcher(
