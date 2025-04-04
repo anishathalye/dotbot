@@ -89,11 +89,13 @@ submodule; be sure to commit your changes before running `./install`, otherwise
 the old version of Dotbot will be checked out by the install script. If using a
 subrepo, run `git fetch && git checkout origin/master` in the Dotbot directory.
 
-If you prefer, you can install Dotbot from [PyPI] and call it as a command-line
-program:
+If you prefer, you can install Dotbot from [PyPI] or homebrew and call it as a
+command-line program:
 
 ```bash
 pip install dotbot
+# or with homebrew
+brew install dotbot
 touch install.conf.yaml
 ```
 
