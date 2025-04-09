@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
-from typing import Any
+from typing import Any, List
 
 import dotbot
 from dotbot.config import ConfigReader, ReadingError
@@ -23,8 +23,10 @@ def add_options(parser: ArgumentParser) -> None:
         default=0,
         help="enable verbose output\n" "-v: typical verbose\n" "-vv: also, set shell commands stderr/stdout to true",
     )
-    parser.add_argument("-d", "--base-directory", help="execute commands from within BASEDIR", metavar="BASEDIR")
-    parser.add_argument("-c", "--config-file", help="run commands given in CONFIGFILE", metavar="CONFIGFILE")
+    parser.add_argument("-d", "--base-directory", help="execute commands from within BASE_DIR", metavar="BASE_DIR")
+    parser.add_argument(
+        "-c", "--config-file", help="run commands given in CONFIG_FILE", metavar="CONFIG_FILE", nargs="+"
+    )
     parser.add_argument(
         "-p",
         "--plugin",
@@ -57,8 +59,8 @@ def add_options(parser: ArgumentParser) -> None:
     )
 
 
-def read_config(config_file: str) -> Any:
-    reader = ConfigReader(config_file)
+def read_config(config_files: List[str]) -> Any:
+    reader = ConfigReader(config_files)
     return reader.get_config()
 
 
@@ -118,17 +120,13 @@ def main() -> None:
             log.error("No configuration file specified")
             sys.exit(1)
         tasks = read_config(options.config_file)
-        if tasks is None:
-            log.warning("Configuration file is empty, no work to do")
-            tasks = []
-        if not isinstance(tasks, list):
-            msg = "Configuration file must be a list of tasks"
-            raise ReadingError(msg)  # noqa: TRY301
+        if not tasks:
+            log.warning("No tasks given in configuration, no work to do")
         if options.base_directory:
             base_directory = os.path.abspath(options.base_directory)
         else:
-            # default to directory of config file
-            base_directory = os.path.dirname(os.path.abspath(options.config_file))
+            # default to directory of first config file
+            base_directory = os.path.dirname(os.path.abspath(options.config_file[0]))
         os.chdir(base_directory)
         _all_plugins[:] = plugins  # for backwards compatibility, see dispatcher.py
         dispatcher = Dispatcher(
