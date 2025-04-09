@@ -97,7 +97,7 @@ subrepo, run `git fetch && git checkout origin/master` in the Dotbot directory.
 
 If you prefer, instead of bundling Dotbot as a submodule with your dotfiles, you
 can install Dotbot from [PyPI] as a standalone command-line program. Use the
-tool of your choice, such as `pip` or [`uv`]:
+tool of your choice, such as `pip` or [`uv`][uv]:
 
 ```bash
 uv tool install dotbot
