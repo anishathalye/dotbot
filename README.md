@@ -30,18 +30,24 @@ resources on the [tutorials
 page](https://github.com/anishathalye/dotbot/wiki/Tutorials) for more detailed
 explanations of how to organize your dotfiles.
 
-## Getting Started
+## Getting started
 
-### Starting Fresh?
+### Starting fresh?
 
 Great! You can automate the creation of your dotfiles by using the
 user-contributed [init-dotfiles][init-dotfiles] script. If you'd rather use a
 template repository, check out [dotfiles_template][dotfiles-template]. Or, if
 you're just looking for [some inspiration][inspiration], we've got you covered.
 
-### Integrate with Existing Dotfiles
+### Integrate with existing dotfiles
 
 The following will help you get set up using Dotbot in just a few steps.
+
+You can create an empty configuration file with:
+
+```bash
+touch install.conf.yaml
+```
 
 If you're using **Git**, you can add Dotbot as a submodule:
 
@@ -51,7 +57,6 @@ git init # initialize repository if needed
 git submodule add https://github.com/anishathalye/dotbot
 git config -f .gitmodules submodule.dotbot.ignore dirty # ignore dirty commits in the submodule
 cp dotbot/tools/git-submodule/install .
-touch install.conf.yaml
 ```
 
 If you're using **Mercurial**, you can add Dotbot as a subrepo:
@@ -63,7 +68,6 @@ echo "dotbot = [git]https://github.com/anishathalye/dotbot" > .hgsub
 hg add .hgsub
 git clone https://github.com/anishathalye/dotbot
 cp dotbot/tools/hg-subrepo/install .
-touch install.conf.yaml
 ```
 
 If you are using PowerShell instead of a POSIX shell, you can use the provided
@@ -89,18 +93,24 @@ submodule; be sure to commit your changes before running `./install`, otherwise
 the old version of Dotbot will be checked out by the install script. If using a
 subrepo, run `git fetch && git checkout origin/master` in the Dotbot directory.
 
-If you prefer, you can install Dotbot from [PyPI] and call it as a command-line
-program:
+#### Installation as a command-line program
+
+If you prefer, instead of bundling Dotbot as a submodule with your dotfiles, you
+can install Dotbot from [PyPI] as a standalone command-line program. Use the
+tool of your choice, such as `pip` or [`uv`]:
 
 ```bash
-pip install dotbot
-touch install.conf.yaml
+uv tool install dotbot
 ```
 
-In this case, rather than running `./install`, you can invoke Dotbot with
-`dotbot -c <path to configuration file>`.
+Some systems include Dotbot in their native package manager, such as
+[Homebrew][homebrew-dotbot] and [Arch Linux][arch-dotbot], so for example, you
+can also install it with `brew install dotbot`.
 
-### Full Example
+With Dotbot installed as a command-line program on your system, you can invoke
+Dotbot with `dotbot -c <path to configuration file>`.
+
+### Full example
 
 Here's an example of a complete configuration.
 
@@ -435,7 +445,7 @@ recommended that these options are added directly to the `install` script.
 
 See [here][plugins] for a current list of plugins.
 
-## Command-line Arguments
+## Command-line arguments
 
 Dotbot takes a number of command-line arguments; you can run Dotbot with
 `--help`, e.g. by running `./install --help`, to see the full list of options.
@@ -468,6 +478,9 @@ Copyright (c) Anish Athalye. Released under the MIT License. See
 [LICENSE.md][license] for details.
 
 [PyPI]: https://pypi.org/project/dotbot/
+[uv]: https://github.com/astral-sh/uv
+[homebrew-dotbot]: https://formulae.brew.sh/formula/dotbot
+[arch-dotbot]: https://aur.archlinux.org/packages/dotbot
 [init-dotfiles]: https://github.com/Vaelatern/init-dotfiles
 [dotfiles-template]: https://github.com/anishathalye/dotfiles_template
 [inspiration]: https://github.com/anishathalye/dotbot/wiki/Users
