@@ -1088,3 +1088,51 @@ def test_unknown_link_type(
         run_dotbot()
     stdout, _ = capsys.readouterr()
     assert "link type is not recognized" in stdout
+
+
+def test_symlink_exists_when_hardlink_requested(
+    capsys: pytest.CaptureFixture[str],
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Confirm messaging when a symlink exists but a hardlink is requested."""
+
+    # Setup: Create a symlink to the hardlink destination.
+    dotfiles.write("source", "potato")
+    os.symlink(
+        os.path.join(dotfiles.directory, "source"),
+        os.path.join(home, "hardlink"),
+    )
+
+    # Act
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    # Verify
+    stdout, _ = capsys.readouterr()
+    assert "already exists but is a symbolic link, not a hard link" in stdout
+
+
+def test_hardlink_already_exists(
+    capsys: pytest.CaptureFixture[str],
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Confirm messaging when the hardlink already exists."""
+
+    dotfiles.write("source", "potato")
+    os.link(
+        os.path.join(dotfiles.directory, "source"),
+        os.path.join(home, "hardlink"),
+    )
+
+    # Act
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    run_dotbot()
+
+    # Verify
+    stdout, _ = capsys.readouterr()
+    assert "Link exists" in stdout
