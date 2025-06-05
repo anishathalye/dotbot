@@ -265,18 +265,17 @@ class Link(Plugin):
 
         Returns true if successfully linked files.
         """
-        success = False
+
         destination = os.path.abspath(os.path.expanduser(link_name))
         base_directory = self._context.base_directory(canonical_path=canonical_path)
         absolute_source = os.path.join(base_directory, source)
         link_name = os.path.normpath(link_name)
         source = self._relative_path(absolute_source, destination) if relative else absolute_source
-        if not self._exists(link_name) and self._is_link(link_name) and self._link_destination(link_name) != source:
-            self._log.warning(f"Invalid link {link_name} -> {self._link_destination(link_name)}")
+
         # we need to use absolute_source below because our cwd is the dotfiles
         # directory, and if source is relative, it will be relative to the
         # destination directory
-        elif not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
+        if not self._exists(link_name) and (ignore_missing or self._exists(absolute_source)):
             try:
                 if link_type == "symlink":
                     os.symlink(source, destination)
@@ -284,20 +283,41 @@ class Link(Plugin):
                     os.link(absolute_source, destination)
             except OSError:
                 self._log.warning(f"Linking failed {link_name} -> {source}")
+                return False
             else:
                 self._log.lowinfo(f"Creating {link_type} {link_name} -> {source}")
-                success = True
-        elif self._exists(link_name) and not self._is_link(link_name):
-            self._log.warning(f"{link_name} already exists but is a regular file or directory")
-        elif self._is_link(link_name) and self._link_destination(link_name) != source:
-            self._log.warning(f"Incorrect link {link_name} -> {self._link_destination(link_name)}")
-        # again, we use absolute_source to check for existence
-        elif not self._exists(absolute_source):
+                return True
+
+        # Failure case: The source doesn't exist
+        if not self._exists(absolute_source):
             if self._is_link(link_name):
                 self._log.warning(f"Nonexistent source {link_name} -> {source}")
             else:
                 self._log.warning(f"Nonexistent source for {link_name} : {source}")
-        else:
+            return False
+
+        # Failure case: The link target exists and is a symlink
+        if self._is_link(link_name):
+            if link_type == "symlink":
+                if self._link_destination(link_name) == source:
+                    # Idempotent case: The configured symlink already exists
+                    self._log.lowinfo(f"Link exists {link_name} -> {source}")
+                    return True
+
+                # The existing symlink isn't pointing at the source.
+                # Distinguish between an incorrect symlink and a broken ("invalid") symlink.
+                terminology = "Incorrect" if self._exists(link_name) else "Invalid"
+                self._log.warning(f"{terminology} link {link_name} -> {self._link_destination(link_name)}")
+                return False
+
+            self._log.warning(f"{link_name} already exists but is a symbolic link, not a hard link")
+            return False
+
+        # Failure case: The link target exists
+        if link_type == "hardlink" and os.stat(destination).st_ino == os.stat(absolute_source).st_ino:
+            # Idempotent case: The configured hardlink already exists
             self._log.lowinfo(f"Link exists {link_name} -> {source}")
-            success = True
-        return success
+            return True
+
+        self._log.warning(f"{link_name} already exists but is a regular file or directory")
+        return False
