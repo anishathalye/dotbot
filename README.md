@@ -5,6 +5,7 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles
 
 - [Rationale](#rationale)
 - [Getting Started](#getting-started)
+- [Installing Your Dotfiles](#installing-your-dotfiles)
 - [Configuration](#configuration)
 - [Directives](#directives) ([Link](#link), [Create](#create), [Shell](#shell), [Clean](#clean), [Defaults](#defaults))
 - [Plugins](#plugins)
@@ -139,6 +140,24 @@ The conventional name for the configuration file is `install.conf.yaml`.
 The configuration file is typically written in YAML, but it can also be written
 in JSON (which is a [subset of YAML][json2yaml]). JSON configuration files are
 conventionally named `install.conf.json`.
+
+## Installing Your Dotfiles
+
+To install your dotfiles on a new machine or after updates:
+
+```bash
+git clone <your-dotfiles-repo-url> ~/.dotfiles
+cd ~/.dotfiles
+./install
+```
+
+To update an existing installation:
+
+```bash
+cd ~/.dotfiles
+git pull
+./install
+```
 
 ## Configuration
 
