@@ -69,12 +69,12 @@ omit = [
 [tool.hatch.envs.types]
 extra-dependencies = [
   "mypy>=1.0.0",
-  "pip",
   "pytest",
+  "types-PyYAML>=6.0.1,<7",
 ]
 
 [tool.hatch.envs.types.scripts]
-check = "mypy --strict --install-types --non-interactive {args:src tests}"
+check = "mypy --strict {args:src tests}"
 
 [tool.hatch.envs.coverage]
 detached = true
