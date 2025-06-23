@@ -149,3 +149,7 @@ def main() -> None:
     except KeyboardInterrupt:
         log.error("\n==> Operation aborted")  # noqa: TRY400
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
