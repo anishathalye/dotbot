@@ -1,6 +1,9 @@
 Note: this changelog only lists feature additions, not bugfixes. For details on
 those, see the Git history.
 
+- v1.22
+    - Add support for creating hardlinks in `link`
+    - Add ability to pass multiple config files
 - v1.21
     - Drop support for Python 3.6: the minimum version supported is now Python
       3.7
