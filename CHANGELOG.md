@@ -1,15 +1,12 @@
-Note: this changelog only lists feature additions, not bugfixes. For details on
-those, see the Git history.
+Note: this changelog only lists feature additions, not bugfixes. For details on those, see the Git history.
 
 - v1.22
     - Add support for creating hardlinks in `link`
     - Add ability to pass multiple config files
 - v1.21
-    - Drop support for Python 3.6: the minimum version supported is now Python
-      3.7
+    - Drop support for Python 3.6: the minimum version supported is now Python 3.7
 - v1.20
-    - Drop support for Python 2 and old versions of Python 3: the minimum
-      version supported is now Python 3.6
+    - Drop support for Python 2 and old versions of Python 3: the minimum version supported is now Python 3.6
 - v1.19
     - Add `mode:` option for `create`
     - Add `exclude:` option for `link`
@@ -44,13 +41,11 @@ those, see the Git history.
 - v1.5
     - Update `link` to be able to automatically overwrite broken symlinks
 - v1.4
-    - Update `shell` to allow for selectively enabling/disabling stdin, stdout,
-      and stderr
+    - Update `shell` to allow for selectively enabling/disabling stdin, stdout, and stderr
 - v1.3
     - Add support for YAML format configs
 - v1.2
-    - Update `link` to be able to force create links (deleting things that were
-      previously there)
+    - Update `link` to be able to force create links (deleting things that were previously there)
     - Update `link` to be able to create parent directories
 - v1.1
     - Update `clean` to remove old broken symlinks
