@@ -9,7 +9,7 @@ from tests.conftest import Dotfiles
 
 
 def test_link_canonicalization(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
-    """Verify links to symlinked destinations are canonical.
+    """Verify links to symlinked targets are canonical.
 
     "Canonical", here, means that dotbot does not create symlinks
     that point to intermediary symlinks.
@@ -33,14 +33,14 @@ def test_link_canonicalization(home: str, dotfiles: Dotfiles, run_dotbot: Callab
 
 @pytest.mark.parametrize("dst", ["~/.f", "~/f"])
 @pytest.mark.parametrize("include_force", [True, False])
-def test_link_default_source(
+def test_link_default_target(
     dst: str,
     include_force: bool,  # noqa: FBT001
     home: str,
     dotfiles: Dotfiles,
     run_dotbot: Callable[..., None],
 ) -> None:
-    """Verify that default sources are calculated correctly.
+    """Verify that default targets are calculated correctly.
 
     This test includes verifying files with and without leading periods,
     as well as verifying handling of None dict values.
@@ -62,59 +62,61 @@ def test_link_default_source(
         assert file.read() == "apple"
 
 
-def test_link_environment_user_expansion_target(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
-    """Verify link expands user in target."""
+def test_link_environment_user_expansion_link_name(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify link expands user in link name."""
 
     _ = home
-    src = "~/f"
-    target = "~/g"
-    with open(os.path.abspath(os.path.expanduser(src)), "w") as file:
+    target = "~/f"
+    link_name = "~/g"
+    with open(os.path.abspath(os.path.expanduser(target)), "w") as file:
         file.write("apple")
-    dotfiles.write_config([{"link": {target: src}}])
+    dotfiles.write_config([{"link": {link_name: target}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target))) as file:
+    with open(os.path.abspath(os.path.expanduser(link_name))) as file:
         assert file.read() == "apple"
 
 
-def test_link_environment_variable_expansion_source(
+def test_link_environment_variable_expansion_target(
     monkeypatch: pytest.MonkeyPatch, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
 ) -> None:
-    """Verify link expands environment variables in source."""
+    """Verify link expands environment variables in target."""
 
     _ = home
     monkeypatch.setenv("APPLE", "h")
-    target = "~/.i"
-    src = "$APPLE"
+    link_name = "~/.i"
+    target = "$APPLE"
     dotfiles.write("h", "grape")
-    dotfiles.write_config([{"link": {target: src}}])
+    dotfiles.write_config([{"link": {link_name: target}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target))) as file:
+    with open(os.path.abspath(os.path.expanduser(link_name))) as file:
         assert file.read() == "grape"
 
 
-def test_link_environment_variable_expansion_source_extended(
+def test_link_environment_variable_expansion_target_extended(
     monkeypatch: pytest.MonkeyPatch, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
 ) -> None:
     """Verify link expands environment variables in extended config syntax."""
 
     _ = home
     monkeypatch.setenv("APPLE", "h")
-    target = "~/.i"
-    src = "$APPLE"
+    link_name = "~/.i"
+    target = "$APPLE"
     dotfiles.write("h", "grape")
-    dotfiles.write_config([{"link": {target: {"path": src, "relink": True}}}])
+    dotfiles.write_config([{"link": {link_name: {"path": target, "relink": True}}}])
     run_dotbot()
 
-    with open(os.path.abspath(os.path.expanduser(target))) as file:
+    with open(os.path.abspath(os.path.expanduser(link_name))) as file:
         assert file.read() == "grape"
 
 
-def test_link_environment_variable_expansion_target(
+def test_link_environment_variable_expansion_link_name(
     monkeypatch: pytest.MonkeyPatch, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
 ) -> None:
-    """Verify link expands environment variables in target.
+    """Verify link expands environment variables in link name.
 
     If the variable doesn't exist, the "variable" must not be replaced.
     """
@@ -161,7 +163,7 @@ def test_link_environment_variable_unset(
 
 
 def test_link_force_leaves_when_nonexistent(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
-    """Verify force doesn't erase sources when targets are nonexistent."""
+    """Verify force doesn't erase existing files when targets are nonexistent."""
 
     os.mkdir(os.path.join(home, "dir"))
     open(os.path.join(home, "file"), "a").close()
@@ -218,7 +220,7 @@ def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., No
 
 
 def test_link_glob_2(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
-    """Verify globbing works with a trailing slash in the source."""
+    """Verify globbing works with a trailing slash in the target."""
 
     dotfiles.write("bin/a", "apple")
     dotfiles.write("bin/b", "banana")
@@ -963,7 +965,7 @@ def test_link_relink_relative_leaves_file(home: str, dotfiles: Dotfiles, run_dot
     assert mtime == new_mtime
 
 
-def test_source_is_not_overwritten_by_symlink_trickery(
+def test_target_is_not_overwritten_by_symlink_trickery(
     capsys: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
 ) -> None:
     dotfiles_path = pathlib.Path(dotfiles.directory)
@@ -971,7 +973,7 @@ def test_source_is_not_overwritten_by_symlink_trickery(
 
     # Setup:
     #   *   A symlink exists from `~/.ssh` to `ssh` in the dotfiles directory.
-    #   *   Dotbot is configured to force-recreate a symlink between two files
+    #   *   Dotbot is configured to force-recreate a symlink between two paths
     #       when, in reality, it's actually the same file when resolved.
     ssh_config = (dotfiles_path / "ssh/config").absolute()
     os.mkdir(str(ssh_config.parent))
@@ -1143,15 +1145,15 @@ def test_symlink_exists_when_hardlink_requested(
 ) -> None:
     """Confirm messaging when a symlink exists but a hardlink is requested."""
 
-    # Setup: Create a symlink to the hardlink destination.
-    dotfiles.write("source", "potato")
+    # Setup: Create a symlink to the hardlink target.
+    dotfiles.write("target", "potato")
     os.symlink(
-        os.path.join(dotfiles.directory, "source"),
+        os.path.join(dotfiles.directory, "target"),
         os.path.join(home, "hardlink"),
     )
 
     # Act
-    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}])
     with pytest.raises(SystemExit):
         run_dotbot()
 
@@ -1168,14 +1170,14 @@ def test_hardlink_already_exists(
 ) -> None:
     """Confirm messaging when the hardlink already exists."""
 
-    dotfiles.write("source", "potato")
+    dotfiles.write("target", "potato")
     os.link(
-        os.path.join(dotfiles.directory, "source"),
+        os.path.join(dotfiles.directory, "target"),
         os.path.join(home, "hardlink"),
     )
 
     # Act
-    dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}])
     run_dotbot("-v")
 
     # Verify
@@ -1192,8 +1194,8 @@ def test_broken_symlink_shows_invalid_link_message(
     """Verify that broken symlinks show 'Invalid link' message instead of 'Linking failed'."""
 
     broken_target = os.path.join(home, "nonexistent")
-    destination = os.path.join(home, ".f")
-    os.symlink(broken_target, destination)
+    link_name = os.path.join(home, ".f")
+    os.symlink(broken_target, link_name)
 
     dotfiles.write("f", "apple")
     dotfiles.write_config([{"link": {"~/.f": "f"}}])

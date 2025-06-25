@@ -34,8 +34,8 @@ class Link(Plugin):
             self._log.warning(f"The default link type is not recognized: '{link_type}'")
             return False
 
-        for destination, source in links.items():
-            destination = os.path.expandvars(destination)  # noqa: PLW2901
+        for link_name, target in links.items():
+            link_name = os.path.expandvars(link_name)  # noqa: PLW2901
             relative = defaults.get("relative", False)
             # support old "canonicalize-path" key for compatibility
             canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
@@ -48,29 +48,29 @@ class Link(Plugin):
             test = defaults.get("if", None)
             ignore_missing = defaults.get("ignore-missing", False)
             exclude_paths = defaults.get("exclude", [])
-            if isinstance(source, dict):
+            if isinstance(target, dict):
                 # extended config
-                test = source.get("if", test)
-                relative = source.get("relative", relative)
-                canonical_path = source.get("canonicalize", source.get("canonicalize-path", canonical_path))
-                link_type = source.get("type", link_type)
+                test = target.get("if", test)
+                relative = target.get("relative", relative)
+                canonical_path = target.get("canonicalize", target.get("canonicalize-path", canonical_path))
+                link_type = target.get("type", link_type)
                 if link_type not in {"symlink", "hardlink"}:
                     msg = f"The link type is not recognized: '{link_type}'"
                     self._log.warning(msg)
                     success = False
                     continue
-                force = source.get("force", force)
-                relink = source.get("relink", relink)
-                create = source.get("create", create)
-                use_glob = source.get("glob", use_glob)
-                base_prefix = source.get("prefix", base_prefix)
-                ignore_missing = source.get("ignore-missing", ignore_missing)
-                exclude_paths = source.get("exclude", exclude_paths)
-                path = self._default_source(destination, source.get("path"))
+                force = target.get("force", force)
+                relink = target.get("relink", relink)
+                create = target.get("create", create)
+                use_glob = target.get("glob", use_glob)
+                base_prefix = target.get("prefix", base_prefix)
+                ignore_missing = target.get("ignore-missing", ignore_missing)
+                exclude_paths = target.get("exclude", exclude_paths)
+                path = self._default_target(link_name, target.get("path"))
             else:
-                path = self._default_source(destination, source)
+                path = self._default_target(link_name, target)
             if test is not None and not self._test_success(test):
-                self._log.info(f"Skipping {destination}")
+                self._log.info(f"Skipping {link_name}")
                 continue
             path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
             if use_glob and self._has_glob_chars(path):
@@ -84,20 +84,20 @@ class Link(Plugin):
                     if base_prefix:
                         glob_item = base_prefix + glob_item
                     # where is it going
-                    glob_link_destination = os.path.join(destination, glob_item)
+                    glob_link_name = os.path.join(link_name, glob_item)
                     if create:
-                        success &= self._create(glob_link_destination)
+                        success &= self._create(glob_link_name)
                     if force or relink:
                         success &= self._delete(
                             glob_full_item,
-                            glob_link_destination,
+                            glob_link_name,
                             relative=relative,
                             canonical_path=canonical_path,
                             force=force,
                         )
                     success &= self._link(
                         glob_full_item,
-                        glob_link_destination,
+                        glob_link_name,
                         relative=relative,
                         canonical_path=canonical_path,
                         ignore_missing=ignore_missing,
@@ -105,22 +105,22 @@ class Link(Plugin):
                     )
             else:
                 if create:
-                    success &= self._create(destination)
+                    success &= self._create(link_name)
                 if not ignore_missing and not self._exists(os.path.join(self._context.base_directory(), path)):
                     # we seemingly check this twice (here and in _link) because
                     # if the file doesn't exist and force is True, we don't
                     # want to remove the original (this is tested by
                     # link-force-leaves-when-nonexistent.bash)
                     success = False
-                    self._log.warning(f"Nonexistent source {destination} -> {path}")
+                    self._log.warning(f"Nonexistent target {link_name} -> {path}")
                     continue
                 if force or relink:
                     success &= self._delete(
-                        path, destination, relative=relative, canonical_path=canonical_path, force=force
+                        path, link_name, relative=relative, canonical_path=canonical_path, force=force
                     )
                 success &= self._link(
                     path,
-                    destination,
+                    link_name,
                     relative=relative,
                     canonical_path=canonical_path,
                     ignore_missing=ignore_missing,
@@ -138,13 +138,13 @@ class Link(Plugin):
             self._log.debug(f"Test '{command}' returned false")
         return ret == 0
 
-    def _default_source(self, destination: str, source: Optional[str]) -> str:
-        if source is None:
-            basename = os.path.basename(destination)
+    def _default_target(self, link_name: str, target: Optional[str]) -> str:
+        if target is None:
+            basename = os.path.basename(link_name)
             if basename.startswith("."):
                 return basename[1:]
             return basename
-        return source
+        return target
 
     def _has_glob_chars(self, path: str) -> bool:
         return any(i in path for i in "?*[")
@@ -182,9 +182,9 @@ class Link(Plugin):
         """
         return os.path.islink(os.path.expanduser(path))
 
-    def _link_destination(self, path: str) -> str:
+    def _link_target(self, path: str) -> str:
         """
-        Returns the destination of the symbolic link.
+        Returns the target of the symbolic link.
         """
         path = os.path.expanduser(path)
         path = os.readlink(path)
@@ -220,19 +220,19 @@ class Link(Plugin):
                 self._log.action(f"Creating directory {parent}")
         return success
 
-    def _delete(self, source: str, path: str, *, relative: bool, canonical_path: bool, force: bool) -> bool:
+    def _delete(self, target: str, path: str, *, relative: bool, canonical_path: bool, force: bool) -> bool:
         success = True
-        source = os.path.join(self._context.base_directory(canonical_path=canonical_path), source)
+        target = os.path.join(self._context.base_directory(canonical_path=canonical_path), target)
         fullpath = os.path.abspath(os.path.expanduser(path))
-        if self._exists(path) and not self._is_link(path) and os.path.realpath(fullpath) == source:
-            # Special case: The path is not a symlink but resolves to the source anyway.
-            # Deleting the path would actually delete the source.
+        if self._exists(path) and not self._is_link(path) and os.path.realpath(fullpath) == target:
+            # Special case: The path is not a symlink but resolves to the target anyway.
+            # Deleting the path would actually delete the target.
             # This may happen if a parent directory is a symlink.
-            self._log.warning(f"{path} appears to be the same file as {source}.")
+            self._log.warning(f"{path} appears to be the same file as {target}.")
             return False
         if relative:
-            source = self._relative_path(source, fullpath)
-        if (self._is_link(path) and self._link_destination(path) != source) or (
+            target = self._relative_path(target, fullpath)
+        if (self._is_link(path) and self._link_target(path) != target) or (
             self._lexists(path) and not self._is_link(path)
         ):
             removed = False
@@ -255,17 +255,17 @@ class Link(Plugin):
                     self._log.action(f"Removing {path}")
         return success
 
-    def _relative_path(self, source: str, destination: str) -> str:
+    def _relative_path(self, target: str, link_name: str) -> str:
         """
-        Returns the relative path to get to the source file from the
-        destination file.
+        Returns the relative path to get to the target file from the
+        link location.
         """
-        destination_dir = os.path.dirname(destination)
-        return os.path.relpath(source, destination_dir)
+        link_dir = os.path.dirname(link_name)
+        return os.path.relpath(target, link_dir)
 
     def _link(
         self,
-        source: str,
+        target: str,
         link_name: str,
         *,
         relative: bool,
@@ -274,62 +274,62 @@ class Link(Plugin):
         link_type: str,
     ) -> bool:
         """
-        Links link_name to source.
+        Links link_name to target.
 
         Returns true if successfully linked files.
         """
 
-        destination = os.path.abspath(os.path.expanduser(link_name))
+        link_path = os.path.abspath(os.path.expanduser(link_name))
         base_directory = self._context.base_directory(canonical_path=canonical_path)
-        absolute_source = os.path.join(base_directory, source)
+        absolute_target = os.path.join(base_directory, target)
         link_name = os.path.normpath(link_name)
-        source = self._relative_path(absolute_source, destination) if relative else absolute_source
+        target_path = self._relative_path(absolute_target, link_path) if relative else absolute_target
 
-        # we need to use absolute_source below because our cwd is the dotfiles
-        # directory, and if source is relative, it will be relative to the
-        # destination directory
-        if not self._lexists(link_name) and (ignore_missing or self._exists(absolute_source)):
+        # we need to use absolute_target below because our cwd is the dotfiles
+        # directory, and if target_path is relative, it will be relative to the
+        # link directory
+        if not self._lexists(link_name) and (ignore_missing or self._exists(absolute_target)):
             try:
                 if link_type == "symlink":
-                    os.symlink(source, destination)
+                    os.symlink(target_path, link_path)
                 else:  # link_type == "hardlink"
-                    os.link(absolute_source, destination)
+                    os.link(absolute_target, link_path)
             except OSError:
-                self._log.warning(f"Linking failed {link_name} -> {source}")
+                self._log.warning(f"Linking failed {link_name} -> {target_path}")
                 return False
             else:
-                self._log.action(f"Creating {link_type} {link_name} -> {source}")
+                self._log.action(f"Creating {link_type} {link_name} -> {target_path}")
                 return True
 
-        # Failure case: The source doesn't exist
-        if not self._exists(absolute_source):
+        # Failure case: The target doesn't exist
+        if not self._exists(absolute_target):
             if self._is_link(link_name):
-                self._log.warning(f"Nonexistent source {link_name} -> {source}")
+                self._log.warning(f"Nonexistent target {link_name} -> {target_path}")
             else:
-                self._log.warning(f"Nonexistent source for {link_name} : {source}")
+                self._log.warning(f"Nonexistent target for {link_name} : {target_path}")
             return False
 
-        # Failure case: The link target exists and is a symlink
+        # Failure case: The link name exists and is a symlink
         if self._is_link(link_name):
             if link_type == "symlink":
-                if self._link_destination(link_name) == source:
+                if self._link_target(link_name) == target_path:
                     # Idempotent case: The configured symlink already exists
-                    self._log.info(f"Link exists {link_name} -> {source}")
+                    self._log.info(f"Link exists {link_name} -> {target_path}")
                     return True
 
-                # The existing symlink isn't pointing at the source.
+                # The existing symlink isn't pointing at the target.
                 # Distinguish between an incorrect symlink and a broken ("invalid") symlink.
                 terminology = "Incorrect" if self._exists(link_name) else "Invalid"
-                self._log.warning(f"{terminology} link {link_name} -> {self._link_destination(link_name)}")
+                self._log.warning(f"{terminology} link {link_name} -> {self._link_target(link_name)}")
                 return False
 
             self._log.warning(f"{link_name} already exists but is a symbolic link, not a hard link")
             return False
 
-        # Failure case: The link target exists
-        if link_type == "hardlink" and os.stat(destination).st_ino == os.stat(absolute_source).st_ino:
+        # Failure case: The link name exists
+        if link_type == "hardlink" and os.stat(link_path).st_ino == os.stat(absolute_target).st_ino:
             # Idempotent case: The configured hardlink already exists
-            self._log.info(f"Link exists {link_name} -> {source}")
+            self._log.info(f"Link exists {link_name} -> {target_path}")
             return True
 
         self._log.warning(f"{link_name} already exists but is a regular file or directory")

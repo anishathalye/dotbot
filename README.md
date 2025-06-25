@@ -140,25 +140,25 @@ Most Dotbot commands support both a simplified and extended syntax, and they can
 
 ### Link
 
-Link commands specify how files and directories should be linked. Symlinks are created by default, but hardlinks are also supported. If desired, items can be specified to be forcibly linked, overwriting existing files if necessary. Environment variables in paths are automatically expanded.
+Link commands create symbolic links at specified locations that point to files in your dotfiles repository. This allows you to keep your configuration files in version control while having them appear where applications expect to find them. Symlinks are created by default, but hardlinks are also supported. If desired, items can be specified to be forcibly linked, overwriting existing files if necessary. Environment variables in paths are automatically expanded.
 
 #### Format
 
-Link commands are specified as a dictionary mapping targets to source locations. Source locations are specified relative to the base directory (that is specified when running the installer). If linking directories, *do not* include a trailing slash.
+Link commands are specified as a dictionary mapping link names to targets. The link name (key) is where the symbolic link will be created, and the target (value) is the file in your dotfiles directory that the link will point to. Targets are specified relative to the base directory (that is specified when running the installer). If linking directories, *do not* include a trailing slash.
 
-Link commands support an optional extended configuration. In this type of configuration, instead of specifying source locations directly, targets are mapped to extended configuration dictionaries.
+Link commands support an optional extended configuration. In this type of configuration, instead of specifying targets directly, link names are mapped to extended configuration dictionaries.
 
 | Parameter | Explanation |
 | --- | --- |
-| `path` | The source for the link, the same as in the shortcut syntax (default: null, automatic (see below)) |
+| `path` | The target for the link (file in dotfiles directory), the same as in the shortcut syntax (default: null, automatic (see below)) |
 | `type` | The type of link to create. If specified, must be either `symlink` or `hardlink`. (default: `symlink`) |
 | `create` | When true, create parent directories to the link as needed. (default: false) |
-| `relink` | Removes the old target if it's a symlink (default: false) |
-| `force` | Force removes the old target, file or folder, and forces a new link (default: false) |
-| `relative` | When creating a symlink, use a relative path to the source. (default: false, absolute links) |
-| `canonicalize` | Resolve any symbolic links encountered in the source to symlink to the canonical path (default: true, real paths) |
+| `relink` | Removes the old link if it's a symlink (default: false) |
+| `force` | Force removes the old link, file or folder, and forces a new link (default: false) |
+| `relative` | When creating a symlink, use a relative path to the target. (default: false, absolute links) |
+| `canonicalize` | Resolve any symbolic links encountered in the target to symlink to the canonical path (default: true, real paths) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |
-| `ignore-missing` | Do not fail if the source is missing and create the link anyway (default: false) |
+| `ignore-missing` | Do not fail if the target is missing and create the link anyway (default: false) |
 | `glob` | Treat `path` as a glob pattern, expanding patterns referenced below, linking all *files* matched. (default: false) |
 | `exclude` | Array of glob patterns to remove from glob matches. Uses same syntax as `path`. Ignored if `glob` is `false`. (default: empty, keep all matches) |
 | `prefix` | Prepend prefix prefix to basename of each file when linked, when `glob` is `true`. (default: '') |
@@ -203,9 +203,9 @@ When using glob with the `exclude:` option, the paths in the exclude paths shoul
       prefix: '.'
 ```
 
-If the source location is omitted or set to `null`, Dotbot will use the basename of the destination, with a leading `.` stripped if present. This makes the following two config files equivalent.
+If the target location is omitted or set to `null`, Dotbot will use the basename of the link name, with a leading `.` stripped if present. This makes the following two config files equivalent.
 
-Explicit sources:
+Explicit targets:
 
 ```yaml
 - link:
@@ -229,7 +229,7 @@ Explicit sources:
       relink: true
 ```
 
-Implicit sources:
+Implicit targets:
 
 ```yaml
 - link:
