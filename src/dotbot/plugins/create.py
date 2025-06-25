@@ -49,7 +49,7 @@ class Create(Plugin):
         if not self._exists(path):
             self._log.debug(f"Trying to create path {path} with mode {mode}")
             try:
-                self._log.lowinfo(f"Creating path {path}")
+                self._log.action(f"Creating path {path}")
                 os.makedirs(path, mode)
                 # On Windows, the *mode* argument to `os.makedirs()` is ignored.
                 # The mode must be set explicitly in a follow-up call.
@@ -58,5 +58,5 @@ class Create(Plugin):
                 self._log.warning(f"Failed to create path {path}")
                 success = False
         else:
-            self._log.lowinfo(f"Path exists {path}")
+            self._log.info(f"Path exists {path}")
         return success

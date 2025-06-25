@@ -70,12 +70,12 @@ class Link(Plugin):
             else:
                 path = self._default_source(destination, source)
             if test is not None and not self._test_success(test):
-                self._log.lowinfo(f"Skipping {destination}")
+                self._log.info(f"Skipping {destination}")
                 continue
             path = os.path.normpath(os.path.expandvars(os.path.expanduser(path)))
             if use_glob and self._has_glob_chars(path):
                 glob_results = self._create_glob_results(path, exclude_paths)
-                self._log.lowinfo(f"Globs from '{path}': {glob_results}")
+                self._log.debug(f"Globs from '{path}': {glob_results}")
                 for glob_full_item in glob_results:
                     # Find common dirname between pattern and the item:
                     glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
@@ -217,7 +217,7 @@ class Link(Plugin):
                 self._log.warning(f"Failed to create directory {parent}")
                 success = False
             else:
-                self._log.lowinfo(f"Creating directory {parent}")
+                self._log.action(f"Creating directory {parent}")
         return success
 
     def _delete(self, source: str, path: str, *, relative: bool, canonical_path: bool, force: bool) -> bool:
@@ -252,7 +252,7 @@ class Link(Plugin):
                 success = False
             else:
                 if removed:
-                    self._log.lowinfo(f"Removing {path}")
+                    self._log.action(f"Removing {path}")
         return success
 
     def _relative_path(self, source: str, destination: str) -> str:
@@ -298,7 +298,7 @@ class Link(Plugin):
                 self._log.warning(f"Linking failed {link_name} -> {source}")
                 return False
             else:
-                self._log.lowinfo(f"Creating {link_type} {link_name} -> {source}")
+                self._log.action(f"Creating {link_type} {link_name} -> {source}")
                 return True
 
         # Failure case: The source doesn't exist
@@ -314,7 +314,7 @@ class Link(Plugin):
             if link_type == "symlink":
                 if self._link_destination(link_name) == source:
                     # Idempotent case: The configured symlink already exists
-                    self._log.lowinfo(f"Link exists {link_name} -> {source}")
+                    self._log.info(f"Link exists {link_name} -> {source}")
                     return True
 
                 # The existing symlink isn't pointing at the source.
@@ -329,7 +329,7 @@ class Link(Plugin):
         # Failure case: The link target exists
         if link_type == "hardlink" and os.stat(destination).st_ino == os.stat(absolute_source).st_ino:
             # Idempotent case: The configured hardlink already exists
-            self._log.lowinfo(f"Link exists {link_name} -> {source}")
+            self._log.info(f"Link exists {link_name} -> {source}")
             return True
 
         self._log.warning(f"{link_name} already exists but is a regular file or directory")

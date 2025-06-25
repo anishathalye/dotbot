@@ -1176,7 +1176,7 @@ def test_hardlink_already_exists(
 
     # Act
     dotfiles.write_config([{"link": {"~/hardlink": {"path": "source", "type": "hardlink"}}}])
-    run_dotbot()
+    run_dotbot("-v")
 
     # Verify
     stdout, _ = capsys.readouterr()

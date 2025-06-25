@@ -4,7 +4,7 @@ from dotbot.util.singleton import Singleton
 
 
 class Messenger(metaclass=Singleton):
-    def __init__(self, level: Level = Level.LOWINFO):
+    def __init__(self, level: Level = Level.ACTION):
         self.set_level(level)
         self.use_color(True)
 
@@ -21,11 +21,15 @@ class Messenger(metaclass=Singleton):
     def debug(self, message: str) -> None:
         self.log(Level.DEBUG, message)
 
-    def lowinfo(self, message: str) -> None:
-        self.log(Level.LOWINFO, message)
+    def action(self, message: str) -> None:
+        self.log(Level.ACTION, message)
 
     def info(self, message: str) -> None:
         self.log(Level.INFO, message)
+
+    def lowinfo(self, message: str) -> None:
+        """Deprecated: use info() or action() instead."""
+        self.info(message)
 
     def warning(self, message: str) -> None:
         self.log(Level.WARNING, message)
@@ -39,9 +43,9 @@ class Messenger(metaclass=Singleton):
         """
         if not self._use_color or level < Level.DEBUG:
             return ""
-        if level < Level.LOWINFO:
-            return Color.YELLOW
         if level < Level.INFO:
+            return Color.YELLOW
+        if level < Level.ACTION:
             return Color.BLUE
         if level < Level.WARNING:
             return Color.GREEN

@@ -2,7 +2,7 @@ import glob
 import os
 import subprocess
 import sys
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import SUPPRESS, ArgumentParser, RawTextHelpFormatter
 from typing import Any, List
 
 import dotbot
@@ -14,14 +14,16 @@ from dotbot.util import module
 
 
 def add_options(parser: ArgumentParser) -> None:
-    parser.add_argument("-Q", "--super-quiet", action="store_true", help="suppress almost all output")
+    parser.add_argument("-Q", "--super-quiet", action="store_true", help=SUPPRESS)  # deprecated
     parser.add_argument("-q", "--quiet", action="store_true", help="suppress most output")
     parser.add_argument(
         "-v",
         "--verbose",
         action="count",
         default=0,
-        help="enable verbose output\n" "-v: typical verbose\n" "-vv: also, set shell commands stderr/stdout to true",
+        help="enable verbose output\n"
+        "-v: show informational messages\n"
+        "-vv: also, set shell commands stderr/stdout to true",
     )
     parser.add_argument("-d", "--base-directory", help="execute commands from within BASE_DIR", metavar="BASE_DIR")
     parser.add_argument(
@@ -83,12 +85,10 @@ def main() -> None:
                 hash_msg = ""
             print(f"Dotbot version {dotbot.__version__}{hash_msg}")  # noqa: T201
             sys.exit(0)
-        if options.super_quiet:
+        if options.super_quiet or options.quiet:
             log.set_level(Level.WARNING)
-        if options.quiet:
-            log.set_level(Level.INFO)
         if options.verbose > 0:
-            log.set_level(Level.DEBUG)
+            log.set_level(Level.INFO if options.verbose == 1 else Level.DEBUG)
 
         if options.force_color and options.no_color:
             log.error("`--force-color` and `--no-color` cannot both be provided")
@@ -139,15 +139,15 @@ def main() -> None:
         )
         success = dispatcher.dispatch(tasks)
         if success:
-            log.info("\n==> All tasks executed successfully")
+            log.info("All tasks executed successfully")
         else:
-            msg = "\n==> Some tasks were not executed successfully"
+            msg = "Some tasks were not executed successfully"
             raise DispatchError(msg)  # noqa: TRY301
     except (ReadingError, DispatchError) as e:
         log.error(str(e))  # noqa: TRY400
         sys.exit(1)
     except KeyboardInterrupt:
-        log.error("\n==> Operation aborted")  # noqa: TRY400
+        log.error("Operation aborted")  # noqa: TRY400
         sys.exit(1)
 
 

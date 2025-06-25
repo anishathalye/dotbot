@@ -5,8 +5,9 @@ from typing import Any
 class Level(Enum):
     NOTSET = 0
     DEBUG = 10
-    LOWINFO = 15
-    INFO = 20
+    INFO = 15
+    LOWINFO = 15  # Deprecated: use INFO instead  # noqa: PIE796
+    ACTION = 20
     WARNING = 30
     ERROR = 40
 

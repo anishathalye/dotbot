@@ -45,11 +45,12 @@ class Shell(Plugin):
                 msg = None
             if quiet:
                 if msg is not None:
-                    self._log.lowinfo(str(msg))
+                    self._log.info(str(msg))
+                # if quiet and no msg, show nothing
             elif msg is None:
-                self._log.lowinfo(cmd)
+                self._log.action(cmd)
             else:
-                self._log.lowinfo(f"{msg} [{cmd}]")
+                self._log.action(f"{msg} [{cmd}]")
             stdout = options.get("stdout", stdout)
             stderr = options.get("stderr", stderr)
             ret = shell_command(
