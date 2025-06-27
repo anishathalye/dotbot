@@ -155,7 +155,7 @@ def test_plugin_loading_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable
     dotfiles.write_config([{"plugin_file": "~"}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "file.py"))
 
-    with open(os.path.join(home, "flag")) as file:
+    with open(os.path.join(home, "flag-file")) as file:
         assert file.read() == "file plugin loading works"
 
 
@@ -168,7 +168,7 @@ def test_plugin_loading_directory(home: str, dotfiles: Dotfiles, run_dotbot: Cal
     dotfiles.write_config([{"plugin_directory": "~"}])
     run_dotbot("--plugin-dir", os.path.join(dotfiles.directory, "plugins"))
 
-    with open(os.path.join(home, "flag")) as file:
+    with open(os.path.join(home, "flag-directory")) as file:
         assert file.read() == "directory plugin loading works"
 
 

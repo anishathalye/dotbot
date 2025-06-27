@@ -1,4 +1,3 @@
-import glob
 import os
 import subprocess
 import sys
@@ -7,7 +6,7 @@ from typing import Any, List
 
 import dotbot
 from dotbot.config import ConfigReader, ReadingError
-from dotbot.dispatcher import Dispatcher, DispatchError, _all_plugins
+from dotbot.dispatcher import Dispatcher, DispatchError
 from dotbot.messenger import Level, Messenger
 from dotbot.plugins import Clean, Create, Link, Shell
 from dotbot.util import module
@@ -45,7 +44,7 @@ def add_options(parser: ArgumentParser) -> None:
         dest="plugin_dirs",
         default=[],
         metavar="PLUGIN_DIR",
-        help="load all plugins in PLUGIN_DIR",
+        help=SUPPRESS,  # deprecated
     )
     parser.add_argument("--only", nargs="+", help="only run specified directives", metavar="DIRECTIVE")
     parser.add_argument("--except", nargs="+", dest="skip", help="skip specified directives", metavar="DIRECTIVE")
@@ -101,21 +100,11 @@ def main() -> None:
             log.use_color(sys.stdout.isatty())
 
         plugins = []
-        plugin_directories = list(options.plugin_dirs)
         if not options.disable_built_in_plugins:
             plugins.extend([Clean, Create, Link, Shell])
-        plugin_paths = []
-        for directory in plugin_directories:
-            plugin_paths.extend(glob.glob(os.path.join(directory, "*.py")))
-        plugin_paths.extend(options.plugins)
-        for plugin_path in plugin_paths:
-            abspath = os.path.abspath(plugin_path)
-            plugins.extend(module.load(abspath))
-        # ensure plugins are unique to avoid duplicate execution, which
-        # can happen if, for example, a third-party plugin loads a
-        # built-in plugin, which will cause it to appear in the list
-        # returned by module.load above
-        plugins = list(set(plugins))
+        module.load_plugins(options.plugin_dirs, plugins)  # note, plugin_dirs is deprecated
+        module.load_plugins(options.plugins, plugins)
+
         if not options.config_file:
             log.error("No configuration file specified")
             sys.exit(1)
@@ -128,7 +117,7 @@ def main() -> None:
             # default to directory of first config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file[0]))
         os.chdir(base_directory)
-        _all_plugins[:] = plugins  # for backwards compatibility, see dispatcher.py
+        dotbot.dispatcher._all_plugins = plugins  # for backwards compatibility, see dispatcher.py  # noqa: SLF001
         dispatcher = Dispatcher(
             base_directory,
             only=options.only,

@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 from dotbot.context import Context
 from dotbot.messenger import Messenger
 from dotbot.plugin import Plugin
+from dotbot.util.module import load_plugins
 
 # Before b5499c7dc5b300462f3ce1c2a3d9b7a76233b39b, Dispatcher auto-loaded all
 # plugins, but after that change, plugins are passed in explicitly (and loaded
@@ -62,12 +63,32 @@ class Dispatcher:
                     self._context.set_defaults(task[action])  # replace, not update
                     handled = True
                     # keep going, let other plugins handle this if they want
+                if action == "plugins":
+                    for plugin_path in task[action]:
+                        try:
+                            # load the new plugins and add them to the list of plugins
+                            # this mutates self._context._plugins; we don't add a setter method
+                            # to Context because we don't want plugins to call it
+                            new_plugins = load_plugins([plugin_path], self._context._plugins)  # noqa: SLF001
+                            for plugin_class in new_plugins:
+                                self._plugins.append(plugin_class(self._context))
+                        except Exception as err:  # noqa: BLE001
+                            self._log.warning(f"Failed to load plugin '{plugin_path}'")
+                            self._log.debug(str(err))
+                            success = False
+                    if not success:
+                        self._log.error("Some plugins could not be loaded")
+                        if self._exit:
+                            self._log.error("Action plugins failed")
+                            return False
+                    handled = True
+                    # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
                         try:
                             local_success = plugin.handle(action, task[action])
                             if not local_success and self._exit:
-                                # The action has failed exit
+                                # The action has failed, exit
                                 self._log.error(f"Action {action} failed")
                                 return False
                             success &= local_success
@@ -76,7 +97,7 @@ class Dispatcher:
                             self._log.error(f"An error was encountered while executing action {action}")
                             self._log.debug(str(err))
                             if self._exit:
-                                # There was an execption exit
+                                # There was an exception, exit
                                 return False
                 if not handled:
                     success = False

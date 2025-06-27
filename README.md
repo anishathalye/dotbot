@@ -371,9 +371,31 @@ Dotbot also supports custom directives implemented by plugins. Plugins are imple
 
 All built-in Dotbot directives are written as plugins that are loaded by default, so those can be used as a reference when writing custom plugins.
 
-Plugins are loaded using the `--plugin` and `--plugin-dir` options, using either absolute paths or paths relative to the base directory. It is recommended that these options are added directly to the `install` script.
+See [here][plugins] for a current list of third-party plugins.
 
-See [here][plugins] for a current list of plugins.
+#### Loading plugins via configuration
+
+You can specify plugins in your configuration file as an array of files or directories (containing plugins) to load:
+
+```yaml
+- plugins:
+    - dotbot-plugins/dotbot-brew/
+    - dotbot-plugins/custom_plugin.py
+```
+
+Paths specified in the config file are interpreted relative to the _base directory_.
+
+#### Loading plugins via command line
+
+Plugins can also be loaded using the `--plugin` option. You can use this argument multiple times:
+
+```bash
+dotbot --plugin dotbot-plugins/dotbot-brew/ --plugin dotbot-plugins/custom_plugin.py ...
+```
+
+Paths specified this way are interpreted relative to the _working directory_ where `dotbot` is invoked.
+
+It is recommended that these options are added directly to your `install` script for consistency across installations.
 
 ## Command-line arguments
 
