@@ -48,6 +48,7 @@ def add_options(parser: ArgumentParser) -> None:
     )
     parser.add_argument("--only", nargs="+", help="only run specified directives", metavar="DIRECTIVE")
     parser.add_argument("--except", nargs="+", dest="skip", help="skip specified directives", metavar="DIRECTIVE")
+    parser.add_argument("-n", "--dry-run", action="store_true", help="print what would be done, without doing it")
     parser.add_argument("--force-color", dest="force_color", action="store_true", help="force color output")
     parser.add_argument("--no-color", dest="no_color", action="store_true", help="disable color output")
     parser.add_argument("--version", action="store_true", help="show program's version number and exit")

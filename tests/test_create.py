@@ -59,3 +59,20 @@ def test_default_mode_override(home: str, dotfiles: Dotfiles, run_dotbot: Callab
     assert os.stat(directory).st_mode & stat.S_IWUSR == stat.S_IWUSR
     assert os.stat(directory).st_mode & stat.S_IWGRP == stat.S_IWGRP
     assert os.stat(directory).st_mode & stat.S_IWOTH == stat.S_IWOTH
+
+
+def test_create_dry_run(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the create plugin does not create directories during a dry run."""
+
+    os.makedirs(os.path.join(home, "existing"))
+    dotfiles.write_config([{"create": ["~/a", "~/existing"]}])
+    run_dotbot("-n", "-v")
+
+    directory = os.path.abspath(os.path.expanduser("~/a"))
+    assert not os.path.exists(directory)
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would create path {os.path.join(home, 'a')}" for line in lines)
+    assert any(f"Path exists {os.path.join(home, 'existing')}" == line.strip() for line in lines)

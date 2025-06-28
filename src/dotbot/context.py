@@ -41,3 +41,6 @@ class Context:
     def plugins(self) -> "Optional[List[Type[Plugin]]]":
         # shallow copy is ok here
         return copy.copy(self._plugins)
+
+    def dry_run(self) -> bool:
+        return bool(self._options.dry_run)

@@ -228,3 +228,45 @@ def test_plugin_dispatcher_no_plugins(
 
     stdout = capfd.readouterr().out.splitlines()
     assert any(line.startswith("apple") for line in stdout)
+
+
+def test_dry_run_unaware_plugin(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that plugins not aware of dry-run mode do not execute actions during a dry run."""
+
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "file.py"))
+    dotfiles.write_config([{"plugin_file": "~"}])
+    run_dotbot("--plugin", os.path.join(dotfiles.directory, "file.py"), "--dry-run")
+
+    assert not os.path.exists(os.path.join(home, "flag-file"))
+
+    stdout = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == "Skipping dry-run-unaware plugin File" for line in stdout)
+
+
+def test_dry_run_aware_plugin(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that plugins that are aware of dry-run mode do execute during a dry run."""
+
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py")
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "dry_run.py"))
+    dotfiles.write_config([{"dry_run": "~"}])
+    run_dotbot("--plugin", os.path.join(dotfiles.directory, "dry_run.py"), "--dry-run")
+
+    assert not os.path.exists(os.path.join(home, "flag-dry-run"))
+    stdout = capfd.readouterr().out.splitlines()
+    assert any(line.startswith("Would execute dry run") for line in stdout)
+
+
+def test_dry_run_aware_plugin_no_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that plugins that are aware of dry-run mode do execute without dry run."""
+
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py")
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "dry_run.py"))
+    dotfiles.write_config([{"dry_run": "~"}])
+    run_dotbot("--plugin", os.path.join(dotfiles.directory, "dry_run.py"))
+    with open(os.path.join(home, "flag-dry-run")) as file:
+        assert file.read() == "Dry run executed"

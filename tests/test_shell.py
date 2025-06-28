@@ -298,3 +298,23 @@ def test_shell_quiet_enabled_without_description(
     stdout = capfd.readouterr().out.splitlines()
     assert not any(line.startswith("banana") for line in stdout)
     assert not any(line.startswith("echo banana") for line in stdout)
+
+
+def test_shell_dry_run(capfd: pytest.CaptureFixture[str], dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that the shell plugin does not execute commands during a dry run."""
+
+    dotfiles.write_config(
+        [
+            {
+                "shell": [
+                    {
+                        "command": "exit 1",
+                    }
+                ],
+            }
+        ]
+    )
+    run_dotbot("--dry-run")
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == "Would run command exit 1" for line in lines)

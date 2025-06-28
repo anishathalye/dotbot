@@ -2,16 +2,19 @@ import glob
 import os
 import shutil
 import sys
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 
 from dotbot.plugin import Plugin
 from dotbot.util import shell_command
+from dotbot.util.common import normslash
 
 
 class Link(Plugin):
     """
     Symbolically links dotfiles.
     """
+
+    supports_dry_run = True
 
     _directive = "link"
 
@@ -35,7 +38,7 @@ class Link(Plugin):
             return False
 
         for link_name, target in links.items():
-            link_name = os.path.expandvars(link_name)  # noqa: PLW2901
+            link_name = os.path.expandvars(normslash(link_name))  # noqa: PLW2901
             relative = defaults.get("relative", False)
             # support old "canonicalize-path" key for compatibility
             canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
@@ -69,6 +72,7 @@ class Link(Plugin):
                 path = self._default_target(link_name, target.get("path"))
             else:
                 path = self._default_target(link_name, target)
+            path = normslash(path)
             if test is not None and not self._test_success(test):
                 self._log.info(f"Skipping {link_name}")
                 continue
@@ -87,14 +91,16 @@ class Link(Plugin):
                     glob_link_name = os.path.join(link_name, glob_item)
                     if create:
                         success &= self._create(glob_link_name)
+                    did_delete = False
                     if force or relink:
-                        success &= self._delete(
+                        did_delete, delete_success = self._delete(
                             glob_full_item,
                             glob_link_name,
                             relative=relative,
                             canonical_path=canonical_path,
                             force=force,
                         )
+                        success &= delete_success
                     success &= self._link(
                         glob_full_item,
                         glob_link_name,
@@ -102,6 +108,7 @@ class Link(Plugin):
                         canonical_path=canonical_path,
                         ignore_missing=ignore_missing,
                         link_type=link_type,
+                        did_delete=did_delete,
                     )
             else:
                 if create:
@@ -114,10 +121,12 @@ class Link(Plugin):
                     success = False
                     self._log.warning(f"Nonexistent target {link_name} -> {path}")
                     continue
+                did_delete = False
                 if force or relink:
-                    success &= self._delete(
+                    did_delete, delete_success = self._delete(
                         path, link_name, relative=relative, canonical_path=canonical_path, force=force
                     )
+                    success &= delete_success
                 success &= self._link(
                     path,
                     link_name,
@@ -125,6 +134,7 @@ class Link(Plugin):
                     canonical_path=canonical_path,
                     ignore_missing=ignore_missing,
                     link_type=link_type,
+                    did_delete=did_delete,
                 )
         if success:
             self._log.info("All links have been set up")
@@ -211,6 +221,9 @@ class Link(Plugin):
         parent = os.path.abspath(os.path.join(os.path.expanduser(path), os.pardir))
         if not self._exists(parent):
             self._log.debug(f"Try to create parent: {parent}")
+            if self._context.dry_run():
+                self._log.action(f"Would create directory {parent}")
+                return True
             try:
                 os.makedirs(parent)
             except OSError:
@@ -220,8 +233,11 @@ class Link(Plugin):
                 self._log.action(f"Creating directory {parent}")
         return success
 
-    def _delete(self, target: str, path: str, *, relative: bool, canonical_path: bool, force: bool) -> bool:
+    def _delete(
+        self, target: str, path: str, *, relative: bool, canonical_path: bool, force: bool
+    ) -> Tuple[bool, bool]:
         success = True
+        removed = False
         target = os.path.join(self._context.base_directory(canonical_path=canonical_path), target)
         fullpath = os.path.abspath(os.path.expanduser(path))
         if self._exists(path) and not self._is_link(path) and os.path.realpath(fullpath) == target:
@@ -229,31 +245,34 @@ class Link(Plugin):
             # Deleting the path would actually delete the target.
             # This may happen if a parent directory is a symlink.
             self._log.warning(f"{path} appears to be the same file as {target}.")
-            return False
+            return False, False
         if relative:
             target = self._relative_path(target, fullpath)
         if (self._is_link(path) and self._link_target(path) != target) or (
             self._lexists(path) and not self._is_link(path)
         ):
-            removed = False
-            try:
-                if os.path.islink(fullpath):
-                    os.unlink(fullpath)
-                    removed = True
-                elif force:
-                    if os.path.isdir(fullpath):
-                        shutil.rmtree(fullpath)
-                        removed = True
-                    else:
-                        os.remove(fullpath)
-                        removed = True
-            except OSError:
-                self._log.warning(f"Failed to remove {path}")
-                success = False
+            if self._context.dry_run():
+                self._log.action(f"Would remove {path}")
+                removed = True
             else:
-                if removed:
-                    self._log.action(f"Removing {path}")
-        return success
+                try:
+                    if os.path.islink(fullpath):
+                        os.unlink(fullpath)
+                        removed = True
+                    elif force:
+                        if os.path.isdir(fullpath):
+                            shutil.rmtree(fullpath)
+                            removed = True
+                        else:
+                            os.remove(fullpath)
+                            removed = True
+                except OSError:
+                    self._log.warning(f"Failed to remove {path}")
+                    success = False
+                else:
+                    if removed:
+                        self._log.action(f"Removing {path}")
+        return removed, success
 
     def _relative_path(self, target: str, link_name: str) -> str:
         """
@@ -272,6 +291,7 @@ class Link(Plugin):
         canonical_path: bool,
         ignore_missing: bool,
         link_type: str,
+        did_delete: bool,
     ) -> bool:
         """
         Links link_name to target.
@@ -288,7 +308,12 @@ class Link(Plugin):
         # we need to use absolute_target below because our cwd is the dotfiles
         # directory, and if target_path is relative, it will be relative to the
         # link directory
-        if not self._lexists(link_name) and (ignore_missing or self._exists(absolute_target)):
+        if ((not self._lexists(link_name)) or (self._context.dry_run() and did_delete)) and (
+            ignore_missing or self._exists(absolute_target)
+        ):
+            if self._context.dry_run():
+                self._log.action(f"Would create {link_type} {link_name} -> {target_path}")
+                return True
             try:
                 if link_type == "symlink":
                     os.symlink(target_path, link_path)

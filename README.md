@@ -369,6 +369,8 @@ Defaults are specified as a dictionary mapping action names to settings, which a
 
 Dotbot also supports custom directives implemented by plugins. Plugins are implemented as subclasses of `dotbot.Plugin`, so they must implement `can_handle()` and `handle()`. The `can_handle()` method should return `True` if the plugin can handle an action with the given name. The `handle()` method should do something and return whether or not it completed successfully.
 
+Plugins should declare support for dry-run with `supports_dry_run = True`, and implement this support by logging what the plugin _would_ do (without doing it) when `Context.dry_run()` is set. Plugins that don't explicitly declare support for dry-run will be skipped when Dotbot is run with `--dry-run`.
+
 All built-in Dotbot directives are written as plugins that are loaded by default, so those can be used as a reference when writing custom plugins.
 
 See [here][plugins] for a current list of third-party plugins.
@@ -399,7 +401,11 @@ It is recommended that these options are added directly to your `install` script
 
 ## Command-line arguments
 
-Dotbot takes a number of command-line arguments; you can run Dotbot with `--help`, e.g. by running `./install --help`, to see the full list of options. Here, we highlight a couple that are particularly interesting.
+Dotbot takes a number of command-line arguments; you can run Dotbot with `--help`, for example, by running `./install --help`, to see the full list of options. Here, we highlight a couple that are particularly interesting.
+
+### `--dry-run`
+
+You can call `./install --dry-run`, and Dotbot will explain what it _would_ do, without actually making any changes. This can be helpful for safely testing your configuration. Plugins that don't support dry-run will be skipped.
 
 ### `--only`
 

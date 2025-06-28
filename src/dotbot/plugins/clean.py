@@ -3,12 +3,15 @@ import sys
 from typing import Any
 
 from dotbot.plugin import Plugin
+from dotbot.util.common import normslash
 
 
 class Clean(Plugin):
     """
     Cleans broken symbolic links.
     """
+
+    supports_dry_run = True
 
     _directive = "clean"
 
@@ -30,7 +33,7 @@ class Clean(Plugin):
             if isinstance(targets, dict) and isinstance(targets[target], dict):
                 force = targets[target].get("force", force)
                 recursive = targets[target].get("recursive", recursive)
-            success &= self._clean(target, force=force, recursive=recursive)
+            success &= self._clean(normslash(target), force=force, recursive=recursive)
         if success:
             self._log.info("All targets have been cleaned")
         else:
@@ -57,8 +60,11 @@ class Clean(Plugin):
                 if sys.platform == "win32" and points_at.startswith("\\\\?\\"):
                     points_at = points_at[4:]
                 if self._in_directory(path, self._context.base_directory()) or force:
-                    self._log.action(f"Removing invalid link {path} -> {points_at}")
-                    os.remove(path)
+                    if self._context.dry_run():
+                        self._log.action(f"Would remove invalid link {path} -> {points_at}")
+                    else:
+                        self._log.action(f"Removing invalid link {path} -> {points_at}")
+                        os.remove(path)
                 else:
                     self._log.info(f"Link {path} -> {points_at} not removed.")
         return True

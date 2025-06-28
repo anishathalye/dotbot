@@ -1,13 +1,15 @@
 from typing import Any, Dict
 
 from dotbot.plugin import Plugin
-from dotbot.util import shell_command
+from dotbot.util.common import shell_command
 
 
 class Shell(Plugin):
     """
     Run arbitrary shell commands.
     """
+
+    supports_dry_run = True
 
     _directive = "shell"
     _has_shown_override_message = False
@@ -43,14 +45,17 @@ class Shell(Plugin):
             else:
                 cmd = item
                 msg = None
+            prefix = "Would run command " if self._context.dry_run() else ""
             if quiet:
                 if msg is not None:
-                    self._log.info(str(msg))
+                    self._log.info(f"{prefix}{msg}")
                 # if quiet and no msg, show nothing
             elif msg is None:
-                self._log.action(cmd)
+                self._log.action(f"{prefix}{cmd}")
             else:
-                self._log.action(f"{msg} [{cmd}]")
+                self._log.action(f"{prefix}{msg} [{cmd}]")
+            if self._context.dry_run():
+                continue
             stdout = options.get("stdout", stdout)
             stderr = options.get("stderr", stderr)
             ret = shell_command(

@@ -2,6 +2,8 @@ import os
 import sys
 from typing import Callable
 
+import pytest
+
 from tests.conftest import Dotfiles
 
 
@@ -135,3 +137,52 @@ def test_clean_defaults_2(root: str, home: str, dotfiles: Dotfiles, run_dotbot: 
     run_dotbot()
 
     assert not os.path.islink(os.path.join(home, ".g"))
+
+
+def test_clean_dry_run(
+    capfd: pytest.CaptureFixture[str], root: str, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the clean plugin does not delete files during a dry run."""
+
+    os.symlink(os.path.join(root, "nowhere"), os.path.join(home, ".g"))
+    dotfiles.write_config([{"clean": {"~/": {"force": True}}}])
+    run_dotbot("-n")
+
+    assert os.path.islink(os.path.join(home, ".g"))
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(
+        f"Would remove invalid link {os.path.join(home, '.g')} -> {os.path.join(root, 'nowhere')}" in line
+        for line in lines
+    )
+
+
+def test_clean_dry_run_recursive(
+    capfd: pytest.CaptureFixture[str], root: str, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the clean plugin does not delete files during a recursive dry run."""
+
+    os.makedirs(os.path.join(home, "a", "b"))
+    os.symlink(os.path.join(root, "nowhere"), os.path.join(home, "c"))
+    os.symlink(os.path.join(root, "nowhere"), os.path.join(home, "a", "d"))
+    os.symlink(os.path.join(root, "nowhere"), os.path.join(home, "a", "b", "e"))
+    dotfiles.write_config([{"clean": {"~": {"force": True, "recursive": True}}}])
+    run_dotbot("-n")
+
+    assert os.path.islink(os.path.join(home, "c"))
+    assert os.path.islink(os.path.join(home, "a", "d"))
+    assert os.path.islink(os.path.join(home, "a", "b", "e"))
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(
+        f"Would remove invalid link {os.path.join(home, 'c')} -> {os.path.join(root, 'nowhere')}" in line
+        for line in lines
+    )
+    assert any(
+        f"Would remove invalid link {os.path.join(home, 'a', 'd')} -> {os.path.join(root, 'nowhere')}" in line
+        for line in lines
+    )
+    assert any(
+        f"Would remove invalid link {os.path.join(home, 'a', 'b', 'e')} -> {os.path.join(root, 'nowhere')}" in line
+        for line in lines
+    )

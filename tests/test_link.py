@@ -1206,3 +1206,165 @@ def test_broken_symlink_shows_invalid_link_message(
     stdout, _ = capsys.readouterr()
     assert "Invalid link" in stdout
     assert "Linking failed" not in stdout
+
+
+def test_link_dry_run(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the link plugin does not create links during a dry run."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write("g", "pear")
+    dotfiles.write("h", "banana")
+    os.symlink(os.path.join(dotfiles.directory, "g"), os.path.join(home, ".g"))
+    dotfiles.write_config(
+        [{"link": {"~/.f": "f", "~/.g": {"path": None, "relink": True}, "~/.h": {"path": "h", "type": "hardlink"}}}]
+    )
+    run_dotbot("-n", "-v")
+
+    assert not os.path.exists(os.path.join(home, ".f"))
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(
+        f"Link exists {os.path.join('~', '.g')} -> {os.path.join(dotfiles.directory, 'g')}" == line.strip()
+        for line in lines
+    )
+    assert any(
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
+        for line in lines
+    )
+    assert any(
+        f"Would create hardlink {os.path.join('~', '.h')} -> {os.path.join(dotfiles.directory, 'h')}" == line.strip()
+        for line in lines
+    )
+
+
+def test_link_dry_run_if(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the link plugin does run condition checks during a dry run."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write("g", "pear")
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {
+                        "path": "f",
+                        "if": "touch " + os.path.join(home, "side_effect"),
+                    },
+                    "~/.g": {
+                        "path": "g",
+                        "if": "false",
+                    },
+                }
+            }
+        ]
+    )
+    run_dotbot("-n")
+
+    assert os.path.exists(os.path.join(home, "side_effect"))
+    assert not os.path.exists(os.path.join(home, ".f"))
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
+        for line in lines
+    )
+    assert not any("Would create symlink {os.path.join('~', '.g')}" in line for line in lines)
+
+
+def test_link_dry_run_create(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the link plugin does not create parent directories during a dry run."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.config/.f": {
+                        "path": "f",
+                        "create": True,
+                    }
+                }
+            }
+        ]
+    )
+    run_dotbot("-n")
+    assert not os.path.exists(os.path.join(home, ".config"))
+    assert not os.path.exists(os.path.join(home, ".config", ".f"))
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would create directory {os.path.join(home, '.config')}" for line in lines)
+    assert any(
+        f"Would create symlink {os.path.join('~', '.config', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
+        == line.strip()
+        for line in lines
+    )
+
+
+def test_link_dry_run_relink(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the link plugin does not relink existing links during a dry run."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write("g", "pear")
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {
+                        "path": "f",
+                        "relink": True,
+                    }
+                }
+            }
+        ]
+    )
+    os.symlink(os.path.join(dotfiles.directory, "g"), os.path.join(home, ".f"))
+    run_dotbot("-n")
+    with open(os.path.join(home, ".f")) as file:
+        assert file.read() == "pear"
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines)
+    assert any(
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
+        for line in lines
+    )
+
+
+def test_link_dry_run_overwrite(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the link plugin does not delete existing files during a dry run."""
+
+    dotfiles.write("f", "apple")
+    dotfiles.write_config(
+        [
+            {
+                "link": {
+                    "~/.f": {
+                        "path": "f",
+                        "force": True,
+                    }
+                }
+            }
+        ]
+    )
+    with open(os.path.join(home, ".f"), "w") as file:
+        file.write("pear")
+    run_dotbot("-n")
+    with open(os.path.join(home, ".f")) as file:
+        assert file.read() == "pear"
+
+    lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines)
+    assert any(
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
+        for line in lines
+    )

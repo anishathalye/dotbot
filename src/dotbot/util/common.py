@@ -1,6 +1,7 @@
 import os
 import platform
 import subprocess
+import sys
 from typing import Optional
 
 
@@ -40,3 +41,11 @@ def shell_command(
             stderr=stderr,
             cwd=cwd,
         )
+
+
+def normslash(path: str) -> str:
+    if sys.platform == "win32":
+        # this is how normcase in cpython/Lib/ntpath.py does it; we don't use normcase
+        # because we don't want to make all characters lowercase
+        return path.replace("/", "\\")
+    return path

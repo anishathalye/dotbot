@@ -2,12 +2,15 @@ import os
 from typing import Any
 
 from dotbot.plugin import Plugin
+from dotbot.util.common import normslash
 
 
 class Create(Plugin):
     """
     Create empty paths.
     """
+
+    supports_dry_run = True
 
     _directive = "create"
 
@@ -24,7 +27,7 @@ class Create(Plugin):
         success = True
         defaults = self._context.defaults().get("create", {})
         for key in paths:
-            path = os.path.abspath(os.path.expandvars(os.path.expanduser(key)))
+            path = os.path.abspath(os.path.expandvars(os.path.expanduser(normslash(key))))
             mode = defaults.get("mode", 0o777)  # same as the default for os.makedirs
             if isinstance(paths, dict):
                 options = paths[key]
@@ -49,6 +52,9 @@ class Create(Plugin):
         if not self._exists(path):
             self._log.debug(f"Trying to create path {path} with mode {mode}")
             try:
+                if self._context.dry_run():
+                    self._log.action(f"Would create path {path}")
+                    return True
                 self._log.action(f"Creating path {path}")
                 os.makedirs(path, mode)
                 # On Windows, the *mode* argument to `os.makedirs()` is ignored.

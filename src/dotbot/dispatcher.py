@@ -36,6 +36,7 @@ class Dispatcher:
         self._only = only
         self._skip = skip
         self._exit = exit_on_failure
+        self._dry_run: bool = options is not None and bool(options.dry_run)
 
     def _setup_context(
         self, base_directory: str, options: Optional[Namespace], plugins: Optional[List[Type[Plugin]]]
@@ -85,6 +86,10 @@ class Dispatcher:
                     # keep going, let other plugins handle this if they want
                 for plugin in self._plugins:
                     if plugin.can_handle(action):
+                        if self._dry_run and not plugin.supports_dry_run:
+                            self._log.action(f"Skipping dry-run-unaware plugin {plugin.__class__.__name__}")
+                            handled = True
+                            continue
                         try:
                             local_success = plugin.handle(action, task[action])
                             if not local_success and self._exit:
