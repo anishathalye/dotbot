@@ -1,5 +1,9 @@
 Note: this changelog only lists feature additions, not bugfixes. For details on those, see the Git history.
 
+- v1.23
+    - Switch default output to only show actions taken
+    - Add support for `--dry-run`
+    - Add ability to specify plugins in config file
 - v1.22
     - Add support for creating hardlinks in `link`
     - Add ability to pass multiple config files

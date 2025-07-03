@@ -32,7 +32,7 @@ repository = "https://github.com/anishathalye/dotbot.git"
 issues = "https://github.com/anishathalye/dotbot/issues"
 
 [tool.hatch.version]
-path = "src/dotbot/__init__.py"
+path = "src/dotbot/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
