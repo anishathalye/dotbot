@@ -41,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - uses: actions/setup-python@v5
@@ -58,7 +58,7 @@ jobs:
     name: Type check
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -68,7 +68,7 @@ jobs:
     name: Format and lint
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
