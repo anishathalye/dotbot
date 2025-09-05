@@ -226,8 +226,9 @@ class Link(Plugin):
                 return True
             try:
                 os.makedirs(parent)
-            except OSError:
+            except OSError as e:
                 self._log.warning(f"Failed to create directory {parent}")
+                self._log.debug(f"OSError: {str(e)}")
                 success = False
             else:
                 self._log.action(f"Creating directory {parent}")
@@ -266,8 +267,9 @@ class Link(Plugin):
                         else:
                             os.remove(fullpath)
                             removed = True
-                except OSError:
+                except OSError as e:
                     self._log.warning(f"Failed to remove {path}")
+                    self._log.debug(f"OSError: {str(e)}")
                     success = False
                 else:
                     if removed:
@@ -319,8 +321,9 @@ class Link(Plugin):
                     os.symlink(target_path, link_path)
                 else:  # link_type == "hardlink"
                     os.link(absolute_target, link_path)
-            except OSError:
+            except OSError as e:
                 self._log.warning(f"Linking failed {link_name} -> {target_path}")
+                self._log.debug(f"OSError: {str(e)}")
                 return False
             else:
                 self._log.action(f"Creating {link_type} {link_name} -> {target_path}")
