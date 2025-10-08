@@ -43,7 +43,7 @@ exclude = [
 installer = "uv"
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "pypy3.9", "pypy3.10"]
+python = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.9", "pypy3.10"]
 
 # the default configuration for the hatch-test environment
 # (https://hatch.pypa.io/latest/config/internal/testing/#dependencies) uses a

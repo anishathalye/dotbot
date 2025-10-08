@@ -139,7 +139,6 @@ def root(standardize_tmp: None) -> Generator[str, None, None]:
         (os, "chflags", 0, "path"),
         (os, "chmod", 0, "path"),
         (os, "chown", 0, "path"),
-        (os, "copy_file_range", 1, "dst"),
         (os, "lchflags", 0, "path"),
         (os, "lchmod", 0, "path"),
         (os, "link", 1, "dst"),

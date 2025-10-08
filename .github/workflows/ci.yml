@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-22.04", "macos-latest"]
+        os: ["ubuntu-22.04", "macos-latest", "windows-latest"]
         python:
           - "3.7"
           - "3.8"
@@ -20,24 +20,18 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
+          - "3.14"
           - "pypy-3.9"
           - "pypy-3.10"
-        include:
-          - os: "windows-latest"
-            python: "3.8"
-          - os: "windows-latest"
-            python: "3.9"
-          - os: "windows-latest"
-            python: "3.10"
-          - os: "windows-latest"
-            python: "3.11"
-          - os: "windows-latest"
-            python: "3.12"
-          - os: "windows-latest"
-            python: "3.13"
         exclude:
           - os: "macos-latest"
             python: "3.7"
+          - os: "windows-latest"
+            python: "3.7"
+          - os: "windows-latest"
+            python: "pypy-3.9"
+          - os: "windows-latest"
+            python: "pypy-3.10"
     runs-on: ${{ matrix.os }}
     name: "Test: Python ${{ matrix.python }} on ${{ matrix.os }}"
     steps:
