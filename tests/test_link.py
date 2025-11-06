@@ -227,9 +227,7 @@ def test_backup_file_is_created_if_destination_exists(
     assert os.path.exists(os.path.join(home, ".file.dotbot-backup"))
 
 
-def test_backup_file_not_created_if_link(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_backup_file_not_created_if_link(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file isn't created if destination is a symlink."""
 
     open(os.path.join(home, "file"), "a").close()
@@ -244,9 +242,7 @@ def test_backup_file_not_created_if_link(
     assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
 
 
-def test_backup_file_not_created_if_force(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_backup_file_not_created_if_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file isn't created while using the force option."""
 
     open(os.path.join(home, ".file"), "a").close()
@@ -259,9 +255,7 @@ def test_backup_file_not_created_if_force(
     assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
 
 
-def test_backup_error_if_dest_already_exists(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_backup_error_if_dest_already_exists(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify an error is thrown if the backup already exists."""
 
     os.mkdir(os.path.join(home, ".dir"))
