@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import sys
+from datetime import datetime, timezone
 from typing import Any, List, Optional, Tuple
 
 from dotbot.plugin import Plugin
@@ -47,6 +48,7 @@ class Link(Plugin):
             relink = defaults.get("relink", False)
             create = defaults.get("create", False)
             use_glob = defaults.get("glob", False)
+            backup = defaults.get("backup", False)
             base_prefix = defaults.get("prefix", "")
             test = defaults.get("if", None)
             ignore_missing = defaults.get("ignore-missing", False)
@@ -66,6 +68,7 @@ class Link(Plugin):
                 relink = target.get("relink", relink)
                 create = target.get("create", create)
                 use_glob = target.get("glob", use_glob)
+                backup = target.get("backup", backup)
                 base_prefix = target.get("prefix", base_prefix)
                 ignore_missing = target.get("ignore-missing", ignore_missing)
                 exclude_paths = target.get("exclude", exclude_paths)
@@ -91,8 +94,13 @@ class Link(Plugin):
                     glob_link_name = os.path.join(link_name, glob_item)
                     if create:
                         success &= self._create(glob_link_name)
+                    did_backup = False
                     did_delete = False
-                    if force or relink:
+                    if backup:
+                        did_backup, backup_success = self._backup(glob_link_name)
+                        success &= backup_success
+                    # we only need to consider force/relink if we didn't do a backup
+                    if (force or relink) and not (backup and backup_success):
                         did_delete, delete_success = self._delete(
                             glob_full_item,
                             glob_link_name,
@@ -108,7 +116,7 @@ class Link(Plugin):
                         canonical_path=canonical_path,
                         ignore_missing=ignore_missing,
                         link_type=link_type,
-                        did_delete=did_delete,
+                        assume_gone=(did_backup or did_delete),
                     )
             else:
                 if create:
@@ -121,8 +129,13 @@ class Link(Plugin):
                     success = False
                     self._log.warning(f"Nonexistent target {link_name} -> {path}")
                     continue
+                did_backup = False
                 did_delete = False
-                if force or relink:
+                if backup:
+                    did_backup, backup_success = self._backup(link_name)
+                    success &= backup_success
+                # we only need to consider force/relink if we didn't do a backup
+                if (force or relink) and not (backup and backup_success):
                     did_delete, delete_success = self._delete(
                         path, link_name, relative=relative, canonical_path=canonical_path, force=force
                     )
@@ -134,7 +147,7 @@ class Link(Plugin):
                     canonical_path=canonical_path,
                     ignore_missing=ignore_missing,
                     link_type=link_type,
-                    did_delete=did_delete,
+                    assume_gone=(did_backup or did_delete),
                 )
         if success:
             self._log.info("All links have been set up")
@@ -234,6 +247,26 @@ class Link(Plugin):
                 self._log.action(f"Creating directory {parent}")
         return success
 
+    def _backup(self, path: str) -> Tuple[bool, bool]:
+        if self._exists(path) and not self._is_link(path):
+            file_to_backup = os.path.abspath(os.path.expanduser(path))  # removes trailing slash if any
+            timestamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d-%H%M%S")
+            backup_path = f"{file_to_backup}.dotbot-backup.{timestamp}"
+            self._log.debug(f"Try to backup file {file_to_backup} to {backup_path}")
+            if self._context.dry_run():
+                self._log.action(f"Would backup {file_to_backup} to {backup_path}")
+                return True, True
+            try:
+                os.rename(file_to_backup, backup_path)
+            except OSError as e:
+                self._log.warning(f"Failed to backup file {file_to_backup} to {backup_path}")
+                self._log.debug(f"OSError: {e!s}")
+                return False, False
+            else:
+                self._log.action(f"Backed up file {file_to_backup} to {backup_path}")
+                return True, True
+        return False, True
+
     def _delete(
         self, target: str, path: str, *, relative: bool, canonical_path: bool, force: bool
     ) -> Tuple[bool, bool]:
@@ -293,7 +326,7 @@ class Link(Plugin):
         canonical_path: bool,
         ignore_missing: bool,
         link_type: str,
-        did_delete: bool,
+        assume_gone: bool,
     ) -> bool:
         """
         Links link_name to target.
@@ -310,7 +343,7 @@ class Link(Plugin):
         # we need to use absolute_target below because our cwd is the dotfiles
         # directory, and if target_path is relative, it will be relative to the
         # link directory
-        if ((not self._lexists(link_name)) or (self._context.dry_run() and did_delete)) and (
+        if ((not self._lexists(link_name)) or (self._context.dry_run() and assume_gone)) and (
             ignore_missing or self._exists(absolute_target)
         ):
             if self._context.dry_run():
