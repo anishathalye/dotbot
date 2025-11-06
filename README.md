@@ -155,6 +155,7 @@ Link commands support an optional extended configuration. In this type of config
 | `create` | When true, create parent directories to the link as needed. (default: false) |
 | `relink` | Removes the old link if it's a symlink (default: false) |
 | `force` | Force removes the old link, file or folder, and forces a new link (default: false) |
+| `backup` | Backup existing files/directories if they exist, creating a backup with suffix `.dotbot-backup` (default: false) |
 | `relative` | When creating a symlink, use a relative path to the target. (default: false, absolute links) |
 | `canonicalize` | Resolve any symbolic links encountered in the target to symlink to the canonical path (default: true, real paths) |
 | `if` | Execute this in your `$SHELL` and only link if it is successful. |

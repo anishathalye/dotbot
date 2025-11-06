@@ -197,6 +197,86 @@ def test_link_force_overwrite_symlink(home: str, dotfiles: Dotfiles, run_dotbot:
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
 
 
+def test_backup_is_created_if_destination_exists(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that the backup directory is created if destination exists."""
+
+    os.mkdir(os.path.join(home, ".dir"))
+    dotfiles.write("dir")
+
+    config = [{"link": {"~/.dir": {"path": "dir", "backup": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.exists(os.path.join(home, ".dir.dotbot-backup"))
+
+
+def test_backup_file_is_created_if_destination_exists(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that a backup file is created if destination exists."""
+
+    open(os.path.join(home, ".file"), "a").close()
+    dotfiles.write("file")
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert os.path.exists(os.path.join(home, ".file.dotbot-backup"))
+
+
+def test_backup_file_not_created_if_link(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that a backup file isn't created if destination is a symlink."""
+
+    open(os.path.join(home, "file"), "a").close()
+    dotfiles.write("file")
+    os.symlink(os.path.join(home, "file"), os.path.join(home, ".file"))
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True}}}]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
+
+
+def test_backup_file_not_created_if_force(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that a backup file isn't created while using the force option."""
+
+    open(os.path.join(home, ".file"), "a").close()
+    dotfiles.write("file")
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True, "force": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
+
+
+def test_backup_error_if_dest_already_exists(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify an error is thrown if the backup already exists."""
+
+    os.mkdir(os.path.join(home, ".dir"))
+    os.mkdir(os.path.join(home, ".dir.dotbot-backup"))
+    open(os.path.join(home, ".dir.dotbot-backup", "f"), "a").close()
+    dotfiles.write("dir")
+
+    config = [{"link": {"~/.dir": {"path": "dir", "backup": True}}}]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert os.path.exists(os.path.join(home, ".dir.dotbot-backup", "f"))
+
+
 def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works."""
 

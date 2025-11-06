@@ -47,6 +47,7 @@ class Link(Plugin):
             relink = defaults.get("relink", False)
             create = defaults.get("create", False)
             use_glob = defaults.get("glob", False)
+            backup = defaults.get("backup", False)
             base_prefix = defaults.get("prefix", "")
             test = defaults.get("if", None)
             ignore_missing = defaults.get("ignore-missing", False)
@@ -66,6 +67,7 @@ class Link(Plugin):
                 relink = target.get("relink", relink)
                 create = target.get("create", create)
                 use_glob = target.get("glob", use_glob)
+                backup = target.get("backup", backup)
                 base_prefix = target.get("prefix", base_prefix)
                 ignore_missing = target.get("ignore-missing", ignore_missing)
                 exclude_paths = target.get("exclude", exclude_paths)
@@ -101,6 +103,8 @@ class Link(Plugin):
                             force=force,
                         )
                         success &= delete_success
+                    if backup:
+                        success &= self._backup(glob_link_name)
                     success &= self._link(
                         glob_full_item,
                         glob_link_name,
@@ -127,6 +131,8 @@ class Link(Plugin):
                         path, link_name, relative=relative, canonical_path=canonical_path, force=force
                     )
                     success &= delete_success
+                if backup:
+                    success &= self._backup(link_name)
                 success &= self._link(
                     path,
                     link_name,
@@ -232,6 +238,25 @@ class Link(Plugin):
                 success = False
             else:
                 self._log.action(f"Creating directory {parent}")
+        return success
+
+    def _backup(self, path: str) -> bool:
+        success = True
+        if self._exists(path) and not self._is_link(path):
+            file_to_backup = os.path.expanduser(path)
+            backup_path = file_to_backup + ".dotbot-backup"
+            self._log.debug(f"Try to backup file {file_to_backup} to {backup_path}")
+            if self._context.dry_run():
+                self._log.action(f"Would backup {file_to_backup} to {backup_path}")
+                return True
+            try:
+                os.rename(file_to_backup, backup_path)
+            except OSError as e:
+                self._log.warning(f"Failed to backup file {file_to_backup} to {backup_path}")
+                self._log.debug(f"OSError: {e!s}")
+                success = False
+            else:
+                self._log.lowinfo(f"Backed up file {file_to_backup} to {backup_path}")
         return success
 
     def _delete(
