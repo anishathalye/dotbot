@@ -12,7 +12,7 @@ loaded_modules = []
 
 def load(path: str) -> List[Type[Plugin]]:
     basename = os.path.basename(path)
-    module_name, extension = os.path.splitext(basename)
+    module_name, _ = os.path.splitext(basename)
     loaded_module = load_module(module_name, path)
     plugins = []
     for name in dir(loaded_module):

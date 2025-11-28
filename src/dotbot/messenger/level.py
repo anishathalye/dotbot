@@ -35,3 +35,6 @@ class Level(Enum):
         if not isinstance(other, Level):
             return NotImplemented
         return self.value == other.value
+
+    def __hash__(self) -> int:
+        return hash(self.value)

@@ -32,9 +32,9 @@ def shell_command(
             # won't work; a workaround for this is to write the command as
             # `bash -c "..."`.
             executable = None
-        return subprocess.call(
+        return subprocess.call(  # noqa: S602
             command,
-            shell=True,  # noqa: S602
+            shell=True,
             executable=executable,
             stdin=stdin,
             stdout=stdout,
