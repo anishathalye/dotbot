@@ -9,8 +9,8 @@ class Plugin:
     Abstract base class for commands that process directives.
     """
 
-    _log: Messenger
     _context: Context
+    _log: Messenger
     supports_dry_run: bool = False  # plugins must explicitly declare support for dry-run mode
 
     def __init__(self, context: Context):
