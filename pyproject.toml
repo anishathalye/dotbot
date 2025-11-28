@@ -47,10 +47,10 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "pypy3.9"
 
 # the default configuration for the hatch-test environment
 # (https://hatch.pypa.io/latest/config/internal/testing/#dependencies) uses a
-# version of coverage[toml] that is incompatible with Python 3.7, so we override
-# the test dependencies for Python 3.7 here
+# version of coverage[toml] that is incompatible with Python 3.7 to 3.9, so we override
+# the test dependencies for those Python versions here
 [tool.hatch.envs.hatch-test.overrides]
-name."^py3\\.7$".set-dependencies = [
+name."^py(py)?3\\.(7|8|9)$".set-dependencies = [
   "coverage-enable-subprocess",
   "coverage[toml]",
   "pytest",
