@@ -124,8 +124,7 @@ class Link(Plugin):
                 if not ignore_missing and not self._exists(os.path.join(self._context.base_directory(), path)):
                     # we seemingly check this twice (here and in _link) because
                     # if the file doesn't exist and force is True, we don't
-                    # want to remove the original (this is tested by
-                    # link-force-leaves-when-nonexistent.bash)
+                    # want to remove the original (this is tested by test_link_force_leaves_when_nonexistent)
                     success = False
                     self._log.warning(f"Nonexistent target {link_name} -> {path}")
                     continue
@@ -330,6 +329,8 @@ class Link(Plugin):
         """
         Links link_name to target.
 
+        The caller must ensure that the target exists.
+
         Returns true if successfully linked files.
         """
 
@@ -360,14 +361,6 @@ class Link(Plugin):
             else:
                 self._log.action(f"Creating {link_type} {link_name} -> {target_path}")
                 return True
-
-        # Failure case: The target doesn't exist
-        if not self._exists(absolute_target):
-            if self._is_link(link_name):
-                self._log.warning(f"Nonexistent target {link_name} -> {target_path}")
-            else:
-                self._log.warning(f"Nonexistent target for {link_name} : {target_path}")
-            return False
 
         # Failure case: The link name exists and is a symlink
         if self._is_link(link_name):

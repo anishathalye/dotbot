@@ -35,9 +35,33 @@ def get_long_path(path: str) -> str:
 allowed_tempfile_internal_unlink_calls: List[str] = []
 
 
+def get_path_from_fd(fd: int) -> Optional[str]:
+    """Get the filesystem path for a file descriptor.
+
+    Returns None if the path cannot be determined (e.g., on Windows or if fd is invalid).
+    """
+    try:
+        if sys.platform == "linux":
+            return os.readlink(f"/proc/self/fd/{fd}")
+        if sys.platform == "darwin":
+            import fcntl  # noqa: PLC0415
+
+            f_getpath = getattr(fcntl, "F_GETPATH", 50)  # Python 3.9+ exposes fcntl.F_GETPATH
+            path_buf = b"\0" * 1024
+            result = fcntl.fcntl(fd, f_getpath, path_buf)
+            return result.rstrip(b"\0").decode("utf-8")
+    except (OSError, ValueError):
+        return None
+    else:
+        # Windows doesn't have an easy way to get the path from an fd
+        return None
+
+
 def wrap_function(
     function: Callable[..., Any], function_path: str, arg_index: int, kwarg_key: str, root: str
 ) -> Callable[..., Any]:
+    is_unlink = function == os.unlink
+
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         value = kwargs[kwarg_key] if kwarg_key in kwargs else args[arg_index]
 
@@ -45,12 +69,27 @@ def wrap_function(
         if value in allowed_tempfile_internal_unlink_calls:
             return function(*args, **kwargs)
 
-        msg = "The '{0}' argument to {1}() must be an absolute path"
-        msg = msg.format(kwarg_key, function_path)
+        # For unlink(), allow relative paths when dir_fd is provided (used by shutil.rmtree)
+        if is_unlink and "dir_fd" in kwargs and kwargs["dir_fd"] is not None:
+            dir_fd = kwargs["dir_fd"]
+            dir_path = get_path_from_fd(dir_fd)
+
+            if sys.platform in {"linux", "darwin"}:
+                msg = f"Failed to resolve dir_fd to path for {function_path}()"
+                assert dir_path is not None, msg
+
+                msg = f"The dir_fd argument to {function_path}() must point to a directory rooted in {root}"
+                assert dir_path[: len(str(root))] == str(root), msg
+            # On Windows, we can't easily validate dir_fd, but it's reasonably safe because the dir_fd typically comes
+            # from opening a path we already validated (e.g., from shutil.rmtree), and this is test infrastructure with
+            # trusted (non-adversarial) code.
+
+            return function(*args, **kwargs)
+
+        msg = f"The '{kwarg_key}' argument to {function_path}() must be an absolute path"
         assert value == os.path.abspath(value), msg
 
-        msg = "The '{0}' argument to {1}() must be rooted in {2}"
-        msg = msg.format(kwarg_key, function_path, root)
+        msg = f"The '{kwarg_key}' argument to {function_path}() must be rooted in {root}"
         assert value[: len(str(root))] == str(root), msg
 
         return function(*args, **kwargs)
@@ -74,8 +113,7 @@ def wrap_open(root: str) -> Callable[..., Any]:
         if value != os.devnull and "w" in mode:
             assert value == os.path.abspath(value), msg
 
-        msg = "The 'file' argument to open() must be rooted in {0}"
-        msg = msg.format(root)
+        msg = f"The 'file' argument to open() must be rooted in {root}"
         if value != os.devnull and "w" in mode:
             assert value[: len(str(root))] == str(root), msg
 
@@ -274,8 +312,7 @@ class Dotfiles:
             msg = "The config file path must be an absolute path"
             assert path == os.path.abspath(path), msg
 
-            msg = "The config file path must be rooted in {0}"
-            msg = msg.format(root)
+            msg = f"The config file path must be rooted in {root}"
             assert path[: len(str(root))] == str(root), msg
 
             self._config_filename = path

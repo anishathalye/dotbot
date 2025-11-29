@@ -1,5 +1,6 @@
 import os
 import pathlib
+import stat
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional
@@ -167,7 +168,7 @@ def test_link_force_leaves_when_nonexistent(home: str, dotfiles: Dotfiles, run_d
     """Verify force doesn't erase existing files when targets are nonexistent."""
 
     os.mkdir(os.path.join(home, "dir"))
-    open(os.path.join(home, "file"), "a").close()
+    open(os.path.join(home, "file"), "w").close()
     config = [
         {
             "link": {
@@ -198,11 +199,27 @@ def test_link_force_overwrite_symlink(home: str, dotfiles: Dotfiles, run_dotbot:
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
 
 
+def test_link_force_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify force deletes directories."""
+
+    os.mkdir(os.path.join(home, ".dir"))
+    with open(os.path.join(home, ".dir", "f"), "w") as f:
+        f.write("apple")
+    dotfiles.write("dir/f", "banana")
+
+    config = [{"link": {"~/.dir": {"path": "dir", "force": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    with open(os.path.join(home, ".dir", "f")) as file:
+        assert file.read() == "banana"
+
+
 def test_link_backup_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup directory is created if destination directory exists."""
 
     os.mkdir(os.path.join(home, ".dir"))
-    with open(os.path.join(home, ".dir", "f"), "a") as f:
+    with open(os.path.join(home, ".dir", "f"), "w") as f:
         f.write("apple")
     dotfiles.write("dir/f", "banana")
 
@@ -221,7 +238,7 @@ def test_link_backup_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callab
 def test_link_backup_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file is created if destination file exists."""
 
-    with open(os.path.join(home, ".file"), "a") as f:
+    with open(os.path.join(home, ".file"), "w") as f:
         f.write("apple")
     dotfiles.write("file", "banana")
 
@@ -240,7 +257,7 @@ def test_link_backup_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..
 def test_link_backup_not_created_if_link(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file isn't created if destination is a symlink."""
 
-    open(os.path.join(home, "file"), "a").close()
+    open(os.path.join(home, "file"), "w").close()
     dotfiles.write("file")
     os.symlink(os.path.join(home, "file"), os.path.join(home, ".file"))
 
@@ -255,7 +272,7 @@ def test_link_backup_not_created_if_link(home: str, dotfiles: Dotfiles, run_dotb
 def test_link_backup_created_if_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that backups are created when the force option is used."""
 
-    with open(os.path.join(home, ".file"), "a") as f:
+    with open(os.path.join(home, ".file"), "w") as f:
         f.write("apple")
     dotfiles.write("file", "banana")
 
@@ -282,7 +299,7 @@ def test_link_backup_error_if_dest_already_exists(
     for delta in range(10):
         timestamp = (now + timedelta(seconds=delta)).strftime("%Y%m%d-%H%M%S")
         os.mkdir(os.path.join(home, f".dir.dotbot-backup.{timestamp}"))
-        with open(os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f"), "a") as file:
+        with open(os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f"), "w") as file:
             file.write("apple")
     dotfiles.write("dir")
 
@@ -304,11 +321,11 @@ def test_link_backup_glob(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..
     dotfiles.write("bin/c", "cherry")
 
     os.mkdir(os.path.join(home, "bin"))
-    with open(os.path.join(home, "bin", "a"), "a") as f:
+    with open(os.path.join(home, "bin", "a"), "w") as f:
         f.write("apricot")
-    with open(os.path.join(home, "bin", "b"), "a") as f:
+    with open(os.path.join(home, "bin", "b"), "w") as f:
         f.write("blueberry")
-    with open(os.path.join(home, "bin", "c"), "a") as f:
+    with open(os.path.join(home, "bin", "c"), "w") as f:
         f.write("cranberry")
 
     config = [
@@ -346,7 +363,7 @@ def test_link_backup_glob(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..
 def test_link_backup_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file is not created if running in dry-run mode."""
 
-    with open(os.path.join(home, ".file"), "a") as f:
+    with open(os.path.join(home, ".file"), "w") as f:
         f.write("apple")
     dotfiles.write("file", "banana")
 
@@ -450,6 +467,36 @@ def test_link_glob_4(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., No
         assert file.read() == "dot-banana"
     with open(os.path.join(home, ".c")) as file:
         assert file.read() == "dot-cherry"
+
+
+def test_link_glob_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that glob/force work together."""
+
+    os.mkdir(os.path.join(home, "bin"))
+    with open(os.path.join(home, "bin", "a"), "w") as f:
+        f.write("apricot")
+    with open(os.path.join(home, "bin", "b"), "w") as f:
+        f.write("blueberry")
+    with open(os.path.join(home, "bin", "c"), "w") as f:
+        f.write("cranberry")
+
+    dotfiles.write("bin/a", "apple")
+    dotfiles.write("bin/b", "banana")
+    dotfiles.write("bin/c", "cherry")
+    dotfiles.write_config(
+        [
+            {"defaults": {"link": {"glob": True, "create": True, "force": True}}},
+            {"link": {"~/bin": "bin/*"}},
+        ]
+    )
+    run_dotbot()
+
+    with open(os.path.join(home, "bin", "a")) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, "bin", "b")) as file:
+        assert file.read() == "banana"
+    with open(os.path.join(home, "bin", "c")) as file:
+        assert file.read() == "cherry"
 
 
 @pytest.mark.parametrize("path", ["foo", "foo/"])
@@ -823,7 +870,7 @@ def test_link_if(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None])
 
 @pytest.mark.skipif(
     "sys.platform == 'win32'",
-    reason="These if commands won't run on Windows.",
+    reason="These if commands won't run on Windows",
 )
 def test_link_if_defaults(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directive defaults are checked when linking."""
@@ -856,7 +903,7 @@ def test_link_if_defaults(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..
 
 @pytest.mark.skipif(
     "sys.platform != 'win32'",
-    reason="These if commands only run on Windows.",
+    reason="These if commands only run on Windows",
 )
 def test_link_if_windows(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directives are checked when linking (Windows only)."""
@@ -1529,3 +1576,107 @@ def test_link_dry_run_overwrite(
         f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
         for line in lines
     )
+
+
+@pytest.mark.skipif(
+    "sys.platform == 'win32'",
+    reason="Permissions work differently on Windows",
+)
+@pytest.mark.skipif(
+    "hasattr(os, 'getuid') and os.getuid() == 0",
+    reason="Root bypasses permission checks",
+)
+def test_link_error_creating_link(
+    capsys: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that link reports link creation errors."""
+
+    os.makedirs(os.path.join(home, "subdir"))
+    dotfiles.write("f", "apple")
+    dotfiles.write_config([{"link": {"~/subdir/.f": "f"}}])
+
+    # Remove all write permissions from subdir.
+    old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
+    os.chmod(
+        os.path.join(home, "subdir"),
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
+    )
+
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    # Restore permissions to allow test cleanup.
+    os.chmod(os.path.join(home, "subdir"), old_permissions)
+
+    stdout, _ = capsys.readouterr()
+    assert "Linking failed" in stdout
+
+
+@pytest.mark.skipif(
+    "sys.platform == 'win32'",
+    reason="Permissions work differently on Windows",
+)
+@pytest.mark.skipif(
+    "hasattr(os, 'getuid') and os.getuid() == 0",
+    reason="Root bypasses permission checks",
+)
+def test_link_error_creating_directory(
+    capsys: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that link reports directory creation errors."""
+
+    os.makedirs(os.path.join(home, "subdir"))
+    dotfiles.write("f", "apple")
+    dotfiles.write_config([{"link": {"~/subdir/subsubdir/.f": {"path": "f", "create": True}}}])
+
+    # Remove all write permissions from subdir.
+    old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
+    os.chmod(
+        os.path.join(home, "subdir"),
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
+    )
+
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    # Restore permissions to allow test cleanup.
+    os.chmod(os.path.join(home, "subdir"), old_permissions)
+
+    stdout, _ = capsys.readouterr()
+    assert "Failed to create directory" in stdout
+
+
+@pytest.mark.skipif(
+    "sys.platform == 'win32'",
+    reason="Permissions work differently on Windows",
+)
+@pytest.mark.skipif(
+    "hasattr(os, 'getuid') and os.getuid() == 0",
+    reason="Root bypasses permission checks",
+)
+def test_link_error_delete(
+    capsys: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that link reports deletion errors."""
+
+    os.makedirs(os.path.join(home, "subdir"))
+    with open(os.path.join(home, "subdir", ".f"), "w") as file:
+        file.write("grape")
+    dotfiles.write("f", "apple")
+    dotfiles.write_config([{"link": {"~/subdir/.f": {"path": "f", "force": True}}}])
+
+    # Remove all write permissions from subdir.
+    old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
+    os.chmod(
+        os.path.join(home, "subdir"),
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
+    )
+
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    # Restore permissions to allow test cleanup.
+    os.chmod(os.path.join(home, "subdir"), old_permissions)
+
+    stdout, _ = capsys.readouterr()
+    assert "Failed to remove" in stdout
