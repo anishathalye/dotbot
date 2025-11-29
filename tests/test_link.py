@@ -1,6 +1,7 @@
 import os
 import pathlib
 import sys
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional
 
 import pytest
@@ -195,6 +196,166 @@ def test_link_force_overwrite_symlink(home: str, dotfiles: Dotfiles, run_dotbot:
     run_dotbot()
 
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
+
+
+def test_link_backup_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that a backup directory is created if destination directory exists."""
+
+    os.mkdir(os.path.join(home, ".dir"))
+    with open(os.path.join(home, ".dir", "f"), "a") as f:
+        f.write("apple")
+    dotfiles.write("dir/f", "banana")
+
+    config = [{"link": {"~/.dir": {"path": "dir", "backup": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_dirs = [d for d in os.listdir(home) if d.startswith(".dir.dotbot-backup")]
+    assert len(backup_dirs) == 1
+    with open(os.path.join(home, backup_dirs[0], "f")) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, ".dir", "f")) as file:
+        assert file.read() == "banana"
+
+
+def test_link_backup_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that a backup file is created if destination file exists."""
+
+    with open(os.path.join(home, ".file"), "a") as f:
+        f.write("apple")
+    dotfiles.write("file", "banana")
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_files = [f for f in os.listdir(home) if f.startswith(".file.dotbot-backup")]
+    assert len(backup_files) == 1
+    with open(os.path.join(home, backup_files[0])) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, ".file")) as file:
+        assert file.read() == "banana"
+
+
+def test_link_backup_not_created_if_link(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that a backup file isn't created if destination is a symlink."""
+
+    open(os.path.join(home, "file"), "a").close()
+    dotfiles.write("file")
+    os.symlink(os.path.join(home, "file"), os.path.join(home, ".file"))
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True}}}]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
+
+
+def test_link_backup_created_if_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that backups are created when the force option is used."""
+
+    with open(os.path.join(home, ".file"), "a") as f:
+        f.write("apple")
+    dotfiles.write("file", "banana")
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True, "force": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_files = [f for f in os.listdir(home) if f.startswith(".file.dotbot-backup")]
+    assert len(backup_files) == 1
+    with open(os.path.join(home, backup_files[0])) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, ".file")) as file:
+        assert file.read() == "banana"
+
+
+def test_link_backup_error_if_dest_already_exists(
+    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify an error is thrown if the backup already exists."""
+
+    os.mkdir(os.path.join(home, ".dir"))
+    # create fake backup directories; this test is technically timing dependent but it should work out in practice
+    now = datetime.now(timezone.utc).astimezone()
+    for delta in range(10):
+        timestamp = (now + timedelta(seconds=delta)).strftime("%Y%m%d-%H%M%S")
+        os.mkdir(os.path.join(home, f".dir.dotbot-backup.{timestamp}"))
+        with open(os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f"), "a") as file:
+            file.write("apple")
+    dotfiles.write("dir")
+
+    config = [{"link": {"~/.dir": {"path": "dir", "backup": True}}}]
+    dotfiles.write_config(config)
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    for delta in range(10):
+        timestamp = (now + timedelta(seconds=delta)).strftime("%Y%m%d-%H%M%S")
+        with open(os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f")) as file:
+            assert file.read() == "apple"
+
+
+def test_link_backup_glob(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that backup works with globbing."""
+    dotfiles.write("bin/a", "apple")
+    dotfiles.write("bin/b", "banana")
+    dotfiles.write("bin/c", "cherry")
+
+    os.mkdir(os.path.join(home, "bin"))
+    with open(os.path.join(home, "bin", "a"), "a") as f:
+        f.write("apricot")
+    with open(os.path.join(home, "bin", "b"), "a") as f:
+        f.write("blueberry")
+    with open(os.path.join(home, "bin", "c"), "a") as f:
+        f.write("cranberry")
+
+    config = [
+        {
+            "defaults": {"link": {"glob": True, "create": True, "backup": True}},
+        },
+        {
+            "link": {"~/bin": "bin/*"},
+        },
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    backup_a = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("a.dotbot-backup")]
+    backup_b = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("b.dotbot-backup")]
+    backup_c = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("c.dotbot-backup")]
+    assert len(backup_a) == 1
+    assert len(backup_b) == 1
+    assert len(backup_c) == 1
+    with open(os.path.join(home, "bin", backup_a[0])) as file:
+        assert file.read() == "apricot"
+    with open(os.path.join(home, "bin", backup_b[0])) as file:
+        assert file.read() == "blueberry"
+    with open(os.path.join(home, "bin", backup_c[0])) as file:
+        assert file.read() == "cranberry"
+
+    with open(os.path.join(home, "bin", "a")) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, "bin", "b")) as file:
+        assert file.read() == "banana"
+    with open(os.path.join(home, "bin", "c")) as file:
+        assert file.read() == "cherry"
+
+
+def test_link_backup_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+    """Verify that a backup file is not created if running in dry-run mode."""
+
+    with open(os.path.join(home, ".file"), "a") as f:
+        f.write("apple")
+    dotfiles.write("file", "banana")
+
+    config = [{"link": {"~/.file": {"path": "file", "backup": True}}}]
+    dotfiles.write_config(config)
+    run_dotbot("-n")
+
+    backup_files = [f for f in os.listdir(home) if f.startswith(".file.dotbot-backup")]
+    assert len(backup_files) == 0
 
 
 def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
