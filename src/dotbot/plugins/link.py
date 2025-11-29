@@ -249,21 +249,20 @@ class Link(Plugin):
 
     def _backup(self, path: str) -> Tuple[bool, bool]:
         if self._exists(path) and not self._is_link(path):
-            file_to_backup = os.path.abspath(os.path.expanduser(path))  # removes trailing slash if any
             timestamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d-%H%M%S")
-            backup_path = f"{file_to_backup}.dotbot-backup.{timestamp}"
-            self._log.debug(f"Try to backup file {file_to_backup} to {backup_path}")
+            backup_name = f"{path}.dotbot-backup.{timestamp}"
+            self._log.debug(f"Try to backup file {path} to {backup_name}")
             if self._context.dry_run():
-                self._log.action(f"Would backup {file_to_backup} to {backup_path}")
+                self._log.action(f"Would backup {path} to {backup_name}")
                 return True, True
             try:
-                os.rename(file_to_backup, backup_path)
+                os.rename(os.path.abspath(os.path.expanduser(path)), os.path.abspath(os.path.expanduser(backup_name)))
             except OSError as e:
-                self._log.warning(f"Failed to backup file {file_to_backup} to {backup_path}")
+                self._log.warning(f"Failed to backup file {path} to {backup_name}")
                 self._log.debug(f"OSError: {e!s}")
                 return False, False
             else:
-                self._log.action(f"Backed up file {file_to_backup} to {backup_path}")
+                self._log.action(f"Backed up file {path} to {backup_name}")
                 return True, True
         return False, True
 
