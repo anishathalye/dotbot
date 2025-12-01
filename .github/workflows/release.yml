@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "Test: ${{ matrix.platform }}-${{ matrix.arch }}"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: actions/setup-python@v6
@@ -69,7 +69,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Build binary for ${{ matrix.platform }}-${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
       - uses: actions/setup-python@v6
@@ -92,7 +92,7 @@ jobs:
             cd dist && tar -czf dotbot-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz dotbot
           fi
       - name: Upload binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: dotbot-${{ matrix.platform }}-${{ matrix.arch }}
           path: dist/dotbot-${{ matrix.platform }}-${{ matrix.arch }}.*
@@ -104,9 +104,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download all artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: artifacts
       - name: Create Release
