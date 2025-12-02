@@ -74,7 +74,7 @@ extra-dependencies = [
 ]
 
 [tool.hatch.envs.types.scripts]
-check = "mypy --strict {args:src tests}"
+check = "mypy --strict {args:src tests .ci}"
 
 [tool.hatch.envs.coverage]
 detached = true
