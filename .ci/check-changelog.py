@@ -5,7 +5,7 @@ import argparse
 import re
 import subprocess
 import sys
-from typing import Set
+from typing import Set, Tuple
 
 
 def main() -> None:
@@ -17,13 +17,13 @@ def main() -> None:
     missing_versions = git_versions - changelog_versions
     if missing_versions:
         print("The following versions are missing from the changelog:")  # noqa: T201
-        for version in sorted(missing_versions):
+        for version in sorted(missing_versions, key=version_to_tuple):
             print(f"- v{version}")  # noqa: T201
         sys.exit(1)
     changelog_extras = changelog_versions - git_versions
     if changelog_extras:
         print("The following versions are in the changelog but not in git tags:")  # noqa: T201
-        for version in sorted(changelog_extras):
+        for version in sorted(changelog_extras, key=version_to_tuple):
             print(f"- v{version}")  # noqa: T201
         sys.exit(1)
     print("All versions are present in the changelog.")  # noqa: T201
@@ -51,6 +51,13 @@ def get_changelog_versions(changelog_path: str) -> Set[str]:
         changelog = f.read()
     version_re = re.compile(r"^- v(\d+\.\d+)$", re.MULTILINE)
     return {m.group(1) for m in version_re.finditer(changelog)}
+
+
+def version_to_tuple(version: str) -> Tuple[int, ...]:
+    """
+    Convert a version string without the "v" prefix to a tuple.
+    """
+    return tuple(int(i) for i in version.split("."))
 
 
 if __name__ == "__main__":
