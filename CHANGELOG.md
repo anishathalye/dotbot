@@ -1,5 +1,7 @@
 Note: this changelog only lists feature additions, not bugfixes. For details on those, see the Git history.
 
+- v1.24
+    - Add `backup:` option for `link`
 - v1.23
     - Switch default output to only show actions taken
     - Add support for `--dry-run`
