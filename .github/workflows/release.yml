@@ -92,7 +92,7 @@ jobs:
             cd dist && tar -czf dotbot-${{ matrix.platform }}-${{ matrix.arch }}.tar.gz dotbot
           fi
       - name: Upload binary
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dotbot-${{ matrix.platform }}-${{ matrix.arch }}
           path: dist/dotbot-${{ matrix.platform }}-${{ matrix.arch }}.*
@@ -106,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Download all artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: artifacts
       - name: Create Release
