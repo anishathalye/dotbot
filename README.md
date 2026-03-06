@@ -374,7 +374,12 @@ Plugins should declare support for dry-run with `supports_dry_run = True`, and i
 
 All built-in Dotbot directives are written as plugins that are loaded by default, so those can be used as a reference when writing custom plugins.
 
-See [here][plugins] for a current list of third-party plugins.
+See [here][plugins] for a current list of third-party plugins. Common use cases include package management ([brew][dotbot-brew], [apt][dotbot-apt]) and secret management ([age][dotbot-age], [git-crypt][dotbot-gitcrypt]) for safely storing SSH configs, API keys, and credentials in your dotfiles repo.
+
+[dotbot-brew]: https://github.com/d12frosted/dotbot-brew
+[dotbot-apt]: https://github.com/bryant1410/dotbot-apt
+[dotbot-age]: https://github.com/fcatuhe/dotbot-age
+[dotbot-gitcrypt]: https://gitlab.com/gnfzdz/dotbot-gitcrypt
 
 #### Loading plugins via configuration
 
