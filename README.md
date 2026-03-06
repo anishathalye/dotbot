@@ -21,6 +21,8 @@ Dotbot is designed to be lightweight and self-contained, with no external depend
 
 See [this blog post](https://www.anishathalye.com/2014/08/03/managing-your-dotfiles/) or more resources on the [tutorials page](https://github.com/anishathalye/dotbot/wiki/Tutorials) for more detailed explanations of how to organize your dotfiles.
 
+And if you need to manage secrets like SSH configs, API keys, or credentials in your dotfiles, Dotbot handles this through [plugins][plugins] — see options like [dotbot-age](https://github.com/fcatuhe/dotbot-age) and [dotbot-gitcrypt](https://gitlab.com/gnfzdz/dotbot-gitcrypt).
+
 ## Getting started
 
 ### Starting fresh?
