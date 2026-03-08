@@ -17,7 +17,14 @@ Dotbot makes installing your dotfiles as easy as `git clone $url && cd dotfiles 
 
 Dotbot is a tool that bootstraps your dotfiles (it's a [Dot]files [bo]o[t]strapper, get it?). It does *less* than you think, because version control systems do more than you think.
 
-Dotbot is designed to be lightweight and self-contained, with no external dependencies and no installation required. Dotbot can also be a drop-in replacement for any other tool you were using to manage your dotfiles, and Dotbot is VCS-agnostic -- it doesn't make any attempt to manage your dotfiles.
+Dotbot is designed to be lightweight and self-contained, with no external dependencies and no installation required. Dotbot can also be a drop-in replacement for any other tool you were using to manage your dotfiles, and Dotbot is VCS-agnostic &mdash; it doesn't make any attempt to manage your dotfiles.
+
+Dotbot has many [plugins] that extend its functionality, such as:
+
+- Secrets management: [dotbot-age](https://github.com/fcatuhe/dotbot-age), [dotbot-gitcrypt](https://gitlab.com/gnfzdz/dotbot-gitcrypt), &mldr;
+- Package management: [dotbot-brew](https://github.com/d12frosted/dotbot-brew), [dotbot-apt](https://github.com/bryant1410/dotbot-apt), [dotbot-yum](https://gitlab.com/flyingchipmunk/dotbot-yum), &mldr;
+- OS and application configuration: [crontab-dotbot](https://github.com/fundor333/crontab-dotbot), [dotbot-firefox](https://github.com/kurtmckee/dotbot-firefox), &mldr;
+- &mldr; and [more][plugins]!
 
 See [this blog post](https://www.anishathalye.com/2014/08/03/managing-your-dotfiles/) or more resources on the [tutorials page](https://github.com/anishathalye/dotbot/wiki/Tutorials) for more detailed explanations of how to organize your dotfiles.
 
