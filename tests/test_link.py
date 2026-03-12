@@ -375,6 +375,67 @@ def test_link_backup_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable
     assert len(backup_files) == 0
 
 
+@pytest.mark.parametrize("option", ["relink", "force"])
+def test_link_backup_relink_force_with_existing_incorrect_symlink(
+    option: str,
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that backup + relink/force replaces an incorrect symlink.
+
+    When an incorrect symlink exists at the destination, backup should not
+    prevent the symlink from being deleted and recreated correctly.
+    """
+
+    dotfiles.write("f", "apple")
+    # Create an incorrect symlink at the destination.
+    wrong_target = os.path.join(home, "wrong_target")
+    open(wrong_target, "w").close()
+    os.symlink(wrong_target, os.path.join(home, ".f"))
+
+    config = [{"link": {"~/.f": {"path": "f", "backup": True, option: True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    # The symlink should now point to the correct target.
+    with open(os.path.join(home, ".f")) as file:
+        assert file.read() == "apple"
+    # Symlinks are not backed up (backup only applies to real files).
+    backup_files = [f for f in os.listdir(home) if f.startswith(".f.dotbot-backup")]
+    assert len(backup_files) == 0
+
+
+def test_link_backup_relink_with_existing_incorrect_symlink_glob(
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that backup + relink replaces incorrect symlinks with globbing."""
+
+    dotfiles.write("bin/a", "apple")
+    dotfiles.write("bin/b", "banana")
+
+    os.makedirs(os.path.join(home, "bin"))
+    # Create incorrect symlinks at the destinations.
+    wrong_target = os.path.join(home, "wrong_target")
+    open(wrong_target, "w").close()
+    os.symlink(wrong_target, os.path.join(home, "bin", "a"))
+    os.symlink(wrong_target, os.path.join(home, "bin", "b"))
+
+    config = [
+        {"defaults": {"link": {"glob": True, "create": True, "backup": True, "relink": True}}},
+        {"link": {"~/bin": "bin/*"}},
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    with open(os.path.join(home, "bin", "a")) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, "bin", "b")) as file:
+        assert file.read() == "banana"
+
+
 def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works."""
 

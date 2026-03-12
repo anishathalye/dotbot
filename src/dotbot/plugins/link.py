@@ -99,8 +99,8 @@ class Link(Plugin):
                     if backup:
                         did_backup, backup_success = self._backup(glob_link_name)
                         success &= backup_success
-                    # we only need to consider force/relink if we didn't do a backup
-                    if (force or relink) and not (backup and backup_success):
+
+                    if (force or relink) or (backup and not backup_success):
                         did_delete, delete_success = self._delete(
                             glob_full_item,
                             glob_link_name,
@@ -133,8 +133,8 @@ class Link(Plugin):
                 if backup:
                     did_backup, backup_success = self._backup(link_name)
                     success &= backup_success
-                # we only need to consider force/relink if we didn't do a backup
-                if (force or relink) and not (backup and backup_success):
+
+                if (force or relink) or (backup and not backup_success):
                     did_delete, delete_success = self._delete(
                         path, link_name, relative=relative, canonical_path=canonical_path, force=force
                     )
