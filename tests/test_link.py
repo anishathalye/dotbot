@@ -4,9 +4,11 @@ import stat
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, Dict, List, Optional
+from unittest.mock import patch
 
 import pytest
 
+from dotbot.plugins.link import Link
 from tests.conftest import Dotfiles
 
 
@@ -373,6 +375,106 @@ def test_link_backup_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable
 
     backup_files = [f for f in os.listdir(home) if f.startswith(".file.dotbot-backup")]
     assert len(backup_files) == 0
+
+
+@pytest.mark.parametrize("option", ["relink", "force"])
+def test_link_backup_relink_force_with_existing_incorrect_symlink(
+    option: str,
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that backup + relink/force replaces an incorrect symlink.
+
+    When an incorrect symlink exists at the destination, backup should not
+    prevent the symlink from being deleted and recreated correctly.
+    """
+
+    dotfiles.write("f", "apple")
+    # Create an incorrect symlink at the destination.
+    wrong_target = os.path.join(home, "wrong_target")
+    open(wrong_target, "w").close()
+    os.symlink(wrong_target, os.path.join(home, ".f"))
+
+    config = [{"link": {"~/.f": {"path": "f", "backup": True, option: True}}}]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    # The symlink should now point to the correct target.
+    with open(os.path.join(home, ".f")) as file:
+        assert file.read() == "apple"
+    # Symlinks are not backed up (backup only applies to real files).
+    backup_files = [f for f in os.listdir(home) if f.startswith(".f.dotbot-backup")]
+    assert len(backup_files) == 0
+
+
+def test_link_backup_relink_real_file_skips_delete(
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that _delete is not called when backup already moved a real file.
+
+    When backup successfully renames a real file and relink is set,
+    there's no need to call _delete: the file is already gone.
+    """
+
+    dotfiles.write("f", "apple")
+    with open(os.path.join(home, ".f"), "w") as f:
+        f.write("banana")
+
+    config = [{"link": {"~/.f": {"path": "f", "backup": True, "relink": True}}}]
+    dotfiles.write_config(config)
+
+    original_delete = Link._delete  # noqa: SLF001
+    delete_was_called = False
+
+    def tracking_delete(self: Any, *args: Any, **kwargs: Any) -> Any:
+        nonlocal delete_was_called
+        delete_was_called = True
+        return original_delete(self, *args, **kwargs)
+
+    with patch.object(Link, "_delete", tracking_delete):
+        run_dotbot()
+
+    assert not delete_was_called
+
+    with open(os.path.join(home, ".f")) as file:
+        assert file.read() == "apple"
+    backup_files = [f for f in os.listdir(home) if f.startswith(".f.dotbot-backup")]
+    assert len(backup_files) == 1
+    with open(os.path.join(home, backup_files[0])) as file:
+        assert file.read() == "banana"
+
+
+def test_link_backup_relink_with_existing_incorrect_symlink_glob(
+    home: str,
+    dotfiles: Dotfiles,
+    run_dotbot: Callable[..., None],
+) -> None:
+    """Verify that backup + relink replaces incorrect symlinks with globbing."""
+
+    dotfiles.write("bin/a", "apple")
+    dotfiles.write("bin/b", "banana")
+
+    os.makedirs(os.path.join(home, "bin"))
+    # Create incorrect symlinks at the destinations.
+    wrong_target = os.path.join(home, "wrong_target")
+    open(wrong_target, "w").close()
+    os.symlink(wrong_target, os.path.join(home, "bin", "a"))
+    os.symlink(wrong_target, os.path.join(home, "bin", "b"))
+
+    config = [
+        {"defaults": {"link": {"glob": True, "create": True, "backup": True, "relink": True}}},
+        {"link": {"~/bin": "bin/*"}},
+    ]
+    dotfiles.write_config(config)
+    run_dotbot()
+
+    with open(os.path.join(home, "bin", "a")) as file:
+        assert file.read() == "apple"
+    with open(os.path.join(home, "bin", "b")) as file:
+        assert file.read() == "banana"
 
 
 def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
