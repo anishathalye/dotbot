@@ -19,9 +19,6 @@ jobs:
           - os: ubuntu-24.04-arm
             platform: linux
             arch: arm64
-          - os: macos-13
-            platform: macos
-            arch: x64
           - os: macos-latest
             platform: macos
             arch: arm64
@@ -51,9 +48,6 @@ jobs:
           - os: ubuntu-24.04-arm
             platform: linux
             arch: arm64
-          - os: macos-13
-            platform: macos
-            arch: x64
           - os: macos-latest
             platform: macos
             arch: arm64
