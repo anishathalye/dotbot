@@ -7,7 +7,7 @@ from typing import List, Optional, Type
 from dotbot.plugin import Plugin
 
 # We keep references to loaded modules so they don't get garbage collected.
-loaded_modules = []
+loaded_modules: List[ModuleType] = []
 
 
 def load(path: str) -> List[Type[Plugin]]:

@@ -68,7 +68,7 @@ omit = [
 
 [tool.hatch.envs.types]
 extra-dependencies = [
-  "mypy>=1.0.0",
+  "mypy>=2.0.0",
   "pytest",
   "types-PyYAML>=6.0.1,<7",
 ]
