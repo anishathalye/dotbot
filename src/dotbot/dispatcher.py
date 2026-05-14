@@ -49,6 +49,7 @@ class Dispatcher:
 
     def dispatch(self, tasks: List[Dict[str, Any]]) -> bool:
         success = True
+        self._failed_actions: List[str] = []
         for task in tasks:
             for action in task:
                 if (
@@ -77,6 +78,7 @@ class Dispatcher:
                             success = False
                     if not success:
                         self._log.error("Some plugins could not be loaded")
+                        self._failed_actions.append(action)
                         if self._exit:
                             self._log.error("Action plugins failed")
                             return False
@@ -90,25 +92,33 @@ class Dispatcher:
                             continue
                         try:
                             local_success = plugin.handle(action, task[action])
-                            if not local_success and self._exit:
-                                # The action has failed, exit
-                                self._log.error(f"Action {action} failed")
-                                return False
+                            if not local_success:
+                                self._failed_actions.append(action)
+                                if self._exit:
+                                    # The action has failed, exit
+                                    self._log.error(f"Action {action} failed")
+                                    return False
                             success &= local_success
                             handled = True
                         except Exception as err:  # noqa: BLE001
                             self._log.error(f"An error was encountered while executing action {action}")
                             self._log.debug(str(err))
+                            self._failed_actions.append(action)
                             if self._exit:
                                 # There was an exception, exit
                                 return False
                 if not handled:
                     success = False
+                    self._failed_actions.append(action)
                     self._log.error(f"Action {action} not handled")
                     if self._exit:
                         # Invalid action exit
                         return False
         return success
+
+    def get_failed_actions(self) -> List[str]:
+        """Return the list of action names that failed during the last dispatch."""
+        return self._failed_actions
 
 
 class DispatchError(Exception):
