@@ -33,6 +33,10 @@ class Shell(Plugin):
             stderr = defaults.get("stderr", False)
             quiet = defaults.get("quiet", False)
             if isinstance(item, dict):
+                if "command" not in item:
+                    self._log.error(f"Missing 'command' key in shell item: {item}")
+                    success = False
+                    continue
                 cmd = item["command"]
                 msg = item.get("description", None)
                 stdin = item.get("stdin", stdin)
@@ -40,6 +44,10 @@ class Shell(Plugin):
                 stderr = item.get("stderr", stderr)
                 quiet = item.get("quiet", quiet)
             elif isinstance(item, list):
+                if not item:
+                    self._log.error("Empty list in shell items")
+                    success = False
+                    continue
                 cmd = item[0]
                 msg = item[1] if len(item) > 1 else None
             else:
