@@ -131,7 +131,8 @@ def main() -> None:
         if success:
             log.info("All tasks executed successfully")
         else:
-            msg = "Some tasks were not executed successfully"
+            failed_str = ", ".join(dispatcher.get_failed_actions())
+            msg = f"Some tasks were not executed successfully: {failed_str}"
             raise DispatchError(msg)  # noqa: TRY301
     except (ReadingError, DispatchError) as e:
         log.error(str(e))  # noqa: TRY400

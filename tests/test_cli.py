@@ -25,8 +25,9 @@ def test_except_create(
     run_dotbot("--except", "create")
 
     assert not os.path.exists(os.path.join(home, "a"))
-    stdout = capfd.readouterr().out.splitlines()
-    assert any(line.startswith("success") for line in stdout)
+    stdout = capfd.readouterr().out
+    assert any(line.startswith("success") for line in stdout.splitlines())
+    assert "Some tasks were not executed successfully" not in stdout
 
 
 def test_except_shell(
@@ -73,7 +74,9 @@ def test_except_multiples(
     assert not any(line.startswith("failure") for line in stdout)
 
 
-def test_exit_on_failure(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
+def test_exit_on_failure(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
     """Verify that processing can halt immediately on failures."""
 
     dotfiles.write_config(
@@ -88,6 +91,44 @@ def test_exit_on_failure(home: str, dotfiles: Dotfiles, run_dotbot: Callable[...
 
     assert os.path.isdir(os.path.join(home, "a"))
     assert not os.path.isdir(os.path.join(home, "b"))
+
+    stdout = capfd.readouterr().out
+    assert "Some tasks were not executed successfully: shell" in stdout
+
+
+def test_exit_on_failure_reports_multiple(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that multiple failed action names are reported."""
+
+    _ = home
+    dotfiles.write_config(
+        [
+            {"shell": ["this_is_not_a_command"]},
+            {"link": {"~/.f": "nonexistent_source"}},
+        ]
+    )
+    with pytest.raises(SystemExit):
+        run_dotbot()
+
+    stdout = capfd.readouterr().out
+    assert "Some tasks were not executed successfully: shell, link" in stdout
+
+
+def test_exit_on_failure_reports_exception(
+    capfd: pytest.CaptureFixture[str], home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
+) -> None:
+    """Verify that an action whose plugin raises an exception is reported as failed."""
+
+    _ = home
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_raises.py")
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "raises.py"))
+    dotfiles.write_config([{"plugin_raises": "~"}])
+    with pytest.raises(SystemExit):
+        run_dotbot("--plugin", os.path.join(dotfiles.directory, "raises.py"))
+
+    stdout = capfd.readouterr().out
+    assert "Some tasks were not executed successfully: plugin_raises" in stdout
 
 
 def test_only(
