@@ -1,7 +1,7 @@
 import copy
 import os
 from argparse import Namespace
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Type
 
 if TYPE_CHECKING:
     from dotbot.plugin import Plugin
@@ -33,7 +33,20 @@ class Context:
         return base_directory
 
     def set_defaults(self, defaults: Dict[str, Any]) -> None:
-        self._defaults = defaults
+        self._defaults = self._merge_defaults(self._defaults, defaults)
+
+    @classmethod
+    def _merge_defaults(
+        cls, current: Mapping[str, Any], updates: Mapping[str, Any]
+    ) -> Dict[str, Any]:
+        """Merge default mappings recursively, with later values taking precedence."""
+        merged = copy.deepcopy(dict(current))
+        for key, value in updates.items():
+            if isinstance(value, Mapping) and isinstance(merged.get(key), Mapping):
+                merged[key] = cls._merge_defaults(merged[key], value)
+            else:
+                merged[key] = copy.deepcopy(value)
+        return merged
 
     def defaults(self) -> Dict[str, Any]:
         return copy.deepcopy(self._defaults)
