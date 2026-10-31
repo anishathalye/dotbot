@@ -36,9 +36,7 @@ def load_module(module_name: str, path: str) -> ModuleType:
     return module
 
 
-def load_plugins(
-    paths: List[str], plugins: Optional[List[Type[Plugin]]] = None
-) -> List[Type[Plugin]]:
+def load_plugins(paths: List[str], plugins: Optional[List[Type[Plugin]]] = None) -> List[Type[Plugin]]:
     """
     Load plugins from the given paths and add them to the given list of plugins.
 
@@ -65,8 +63,7 @@ def load_plugins(
             # built-in plugin, which will cause it to appear in the list
             # returned by load() above
             plugin_already_loaded = any(
-                existing_plugin.__module__ == plugin.__module__
-                and existing_plugin.__name__ == plugin.__name__
+                existing_plugin.__module__ == plugin.__module__ and existing_plugin.__name__ == plugin.__name__
                 for existing_plugin in plugins
             )
             if not plugin_already_loaded:

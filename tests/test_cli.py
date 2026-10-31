@@ -82,9 +82,7 @@ def test_except_multiples(
     assert not any(line.startswith("failure") for line in stdout)
 
 
-def test_exit_on_failure(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_exit_on_failure(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that processing can halt immediately on failures."""
 
     dotfiles.write_config(
@@ -167,14 +165,10 @@ def test_only_with_multiples(
     assert not os.path.exists(os.path.join(home, ".f"))
 
 
-def test_plugin_loading_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_loading_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that plugins can be loaded by file."""
 
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "file.py"))
     dotfiles.write_config([{"plugin_file": "~"}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "file.py"))
@@ -183,18 +177,12 @@ def test_plugin_loading_file(
         assert file.read() == "file plugin loading works"
 
 
-def test_plugin_loading_directory(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_loading_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that plugins can be loaded from a directory."""
 
     dotfiles.makedirs("plugins")
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
-    )
-    shutil.copy(
-        plugin_file, os.path.join(dotfiles.directory, "plugins", "directory.py")
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config([{"plugin_directory": "~"}])
     run_dotbot("--plugin-dir", os.path.join(dotfiles.directory, "plugins"))
 
@@ -212,28 +200,15 @@ def test_issue_357(
     using a plugin that imports from dotbot.plugins."""
 
     _ = home
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_issue_357.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_issue_357.py")
     dotfiles.write_config([{"shell": [{"command": "echo apple", "stdout": True}]}])
 
     run_dotbot("--plugin", plugin_file)
 
-    assert (
-        len(
-            [
-                line
-                for line in capfd.readouterr().out.splitlines()
-                if line.strip() == "apple"
-            ]
-        )
-        == 1
-    )
+    assert len([line for line in capfd.readouterr().out.splitlines() if line.strip() == "apple"]) == 1
 
 
-def test_disable_builtin_plugins(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_disable_builtin_plugins(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that builtin plugins can be disabled."""
 
     dotfiles.write("f", "apple")
@@ -255,13 +230,9 @@ def test_plugin_context_plugin(
     """Verify that the plugin context is available to plugins."""
 
     _ = home
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_context_plugin.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_context_plugin.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugin.py"))
-    dotfiles.write_config(
-        [{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}]
-    )
+    dotfiles.write_config([{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "plugin.py"))
 
     stdout = capfd.readouterr().out.splitlines()
@@ -282,9 +253,7 @@ def test_plugin_dispatcher_no_plugins(
         "dotbot_plugin_dispatcher_no_plugins.py",
     )
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugin.py"))
-    dotfiles.write_config(
-        [{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}]
-    )
+    dotfiles.write_config([{"dispatch": [{"shell": [{"command": "echo apple", "stdout": True}]}]}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "plugin.py"))
 
     stdout = capfd.readouterr().out.splitlines()
@@ -299,9 +268,7 @@ def test_dry_run_unaware_plugin(
 ) -> None:
     """Verify that plugins not aware of dry-run mode do not execute actions during a dry run."""
 
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "file.py"))
     dotfiles.write_config([{"plugin_file": "~"}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "file.py"), "--dry-run")
@@ -309,9 +276,7 @@ def test_dry_run_unaware_plugin(
     assert not os.path.exists(os.path.join(home, "flag-file"))
 
     stdout = capfd.readouterr().out.splitlines()
-    assert any(
-        line.strip() == "Skipping dry-run-unaware plugin File" for line in stdout
-    )
+    assert any(line.strip() == "Skipping dry-run-unaware plugin File" for line in stdout)
 
 
 def test_dry_run_aware_plugin(
@@ -322,9 +287,7 @@ def test_dry_run_aware_plugin(
 ) -> None:
     """Verify that plugins that are aware of dry-run mode do execute during a dry run."""
 
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "dry_run.py"))
     dotfiles.write_config([{"dry_run": "~"}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "dry_run.py"), "--dry-run")
@@ -334,14 +297,10 @@ def test_dry_run_aware_plugin(
     assert any(line.startswith("Would execute dry run") for line in stdout)
 
 
-def test_dry_run_aware_plugin_no_dry_run(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_dry_run_aware_plugin_no_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that plugins that are aware of dry-run mode do execute without dry run."""
 
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_dry_run.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "dry_run.py"))
     dotfiles.write_config([{"dry_run": "~"}])
     run_dotbot("--plugin", os.path.join(dotfiles.directory, "dry_run.py"))

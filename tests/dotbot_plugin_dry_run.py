@@ -17,8 +17,6 @@ class DryRun(dotbot.Plugin):
         if self._context.dry_run():
             self._log.action("Would execute dry run")
         else:
-            with open(
-                os.path.abspath(os.path.expanduser("~/flag-dry-run")), "w"
-            ) as file:
+            with open(os.path.abspath(os.path.expanduser("~/flag-dry-run")), "w") as file:
                 file.write("Dry run executed")
         return True

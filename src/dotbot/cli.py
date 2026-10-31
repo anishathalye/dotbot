@@ -13,12 +13,8 @@ from dotbot.util import module
 
 
 def add_options(parser: ArgumentParser) -> None:
-    parser.add_argument(
-        "-Q", "--super-quiet", action="store_true", help=SUPPRESS
-    )  # deprecated
-    parser.add_argument(
-        "-q", "--quiet", action="store_true", help="suppress most output"
-    )
+    parser.add_argument("-Q", "--super-quiet", action="store_true", help=SUPPRESS)  # deprecated
+    parser.add_argument("-q", "--quiet", action="store_true", help="suppress most output")
     parser.add_argument(
         "-v",
         "--verbose",
@@ -63,9 +59,7 @@ def add_options(parser: ArgumentParser) -> None:
         metavar="PLUGIN_DIR",
         help=SUPPRESS,  # deprecated
     )
-    parser.add_argument(
-        "--only", nargs="+", help="only run specified directives", metavar="DIRECTIVE"
-    )
+    parser.add_argument("--only", nargs="+", help="only run specified directives", metavar="DIRECTIVE")
     parser.add_argument(
         "--except",
         nargs="+",
@@ -85,12 +79,8 @@ def add_options(parser: ArgumentParser) -> None:
         action="store_true",
         help="force color output",
     )
-    parser.add_argument(
-        "--no-color", dest="no_color", action="store_true", help="disable color output"
-    )
-    parser.add_argument(
-        "--version", action="store_true", help="show program's version number and exit"
-    )
+    parser.add_argument("--no-color", dest="no_color", action="store_true", help="disable color output")
+    parser.add_argument("--version", action="store_true", help="show program's version number and exit")
     parser.add_argument(
         "-x",
         "--exit-on-failure",
@@ -142,9 +132,7 @@ def main() -> None:
         plugins = []
         if not options.disable_built_in_plugins:
             plugins.extend([Clean, Create, Link, Shell])
-        module.load_plugins(
-            options.plugin_dirs, plugins
-        )  # note, plugin_dirs is deprecated
+        module.load_plugins(options.plugin_dirs, plugins)  # note, plugin_dirs is deprecated
         module.load_plugins(options.plugins, plugins)
 
         if not options.config_file:
@@ -159,8 +147,8 @@ def main() -> None:
             # default to directory of first config file
             base_directory = os.path.dirname(os.path.abspath(options.config_file[0]))
         os.chdir(base_directory)
-        dotbot.dispatcher._all_plugins = (
-            plugins  # for backwards compatibility, see dispatcher.py  # noqa: SLF001
+        dotbot.dispatcher._all_plugins = (  # noqa: SLF001
+            plugins  # for backwards compatibility, see dispatcher.py
         )
         dispatcher = Dispatcher(
             base_directory,

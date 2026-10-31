@@ -10,9 +10,7 @@ from typing import Set, Tuple
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--changelog", type=str, help="Path to the changelog file", required=True
-    )
+    parser.add_argument("--changelog", type=str, help="Path to the changelog file", required=True)
     args = parser.parse_args()
     git_versions = get_git_minor_versions()
     changelog_versions = get_changelog_versions(args.changelog)

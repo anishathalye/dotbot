@@ -12,9 +12,7 @@ from dotbot.plugins.link import Link
 from tests.conftest import Dotfiles
 
 
-def test_link_canonicalization(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_canonicalization(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify links to symlinked targets are canonical.
 
     "Canonical", here, means that dotbot does not create symlinks
@@ -27,9 +25,7 @@ def test_link_canonicalization(
     # Point to the config file in a symlinked dotfiles directory.
     dotfiles_symlink = os.path.join(home, "dotfiles-symlink")
     os.symlink(dotfiles.directory, dotfiles_symlink)
-    config_file = os.path.join(
-        dotfiles_symlink, os.path.basename(dotfiles.config_filename)
-    )
+    config_file = os.path.join(dotfiles_symlink, os.path.basename(dotfiles.config_filename))
     run_dotbot("-c", config_file, custom=True)
 
     expected = os.path.join(dotfiles.directory, "f")
@@ -182,9 +178,7 @@ def test_link_environment_variable_unset(
         assert file.read() == "apple"
 
 
-def test_link_force_leaves_when_nonexistent(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_force_leaves_when_nonexistent(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify force doesn't erase existing files when targets are nonexistent."""
 
     os.mkdir(os.path.join(home, "dir"))
@@ -205,9 +199,7 @@ def test_link_force_leaves_when_nonexistent(
     assert os.path.isfile(os.path.join(home, "file"))
 
 
-def test_link_force_overwrite_symlink(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_force_overwrite_symlink(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify force overwrites a symlinked directory."""
 
     os.mkdir(os.path.join(home, "dir"))
@@ -221,9 +213,7 @@ def test_link_force_overwrite_symlink(
     assert os.path.isfile(os.path.join(home, ".dir", "f"))
 
 
-def test_link_force_directory(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_force_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify force deletes directories."""
 
     os.mkdir(os.path.join(home, ".dir"))
@@ -239,9 +229,7 @@ def test_link_force_directory(
         assert file.read() == "banana"
 
 
-def test_link_backup_directory(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup directory is created if destination directory exists."""
 
     os.mkdir(os.path.join(home, ".dir"))
@@ -261,9 +249,7 @@ def test_link_backup_directory(
         assert file.read() == "banana"
 
 
-def test_link_backup_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file is created if destination file exists."""
 
     with open(os.path.join(home, ".file"), "w") as f:
@@ -282,9 +268,7 @@ def test_link_backup_file(
         assert file.read() == "banana"
 
 
-def test_link_backup_not_created_if_link(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_not_created_if_link(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file isn't created if destination is a symlink."""
 
     open(os.path.join(home, "file"), "w").close()
@@ -299,9 +283,7 @@ def test_link_backup_not_created_if_link(
     assert not os.path.exists(os.path.join(home, ".file.dotbot-backup"))
 
 
-def test_link_backup_created_if_force(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_created_if_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that backups are created when the force option is used."""
 
     with open(os.path.join(home, ".file"), "w") as f:
@@ -331,9 +313,7 @@ def test_link_backup_error_if_dest_already_exists(
     for delta in range(10):
         timestamp = (now + timedelta(seconds=delta)).strftime("%Y%m%d-%H%M%S")
         os.mkdir(os.path.join(home, f".dir.dotbot-backup.{timestamp}"))
-        with open(
-            os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f"), "w"
-        ) as file:
+        with open(os.path.join(home, f".dir.dotbot-backup.{timestamp}", "f"), "w") as file:
             file.write("apple")
     dotfiles.write("dir")
 
@@ -348,9 +328,7 @@ def test_link_backup_error_if_dest_already_exists(
             assert file.read() == "apple"
 
 
-def test_link_backup_glob(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_glob(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that backup works with globbing."""
     dotfiles.write("bin/a", "apple")
     dotfiles.write("bin/b", "banana")
@@ -375,21 +353,9 @@ def test_link_backup_glob(
     dotfiles.write_config(config)
     run_dotbot()
 
-    backup_a = [
-        f
-        for f in os.listdir(os.path.join(home, "bin"))
-        if f.startswith("a.dotbot-backup")
-    ]
-    backup_b = [
-        f
-        for f in os.listdir(os.path.join(home, "bin"))
-        if f.startswith("b.dotbot-backup")
-    ]
-    backup_c = [
-        f
-        for f in os.listdir(os.path.join(home, "bin"))
-        if f.startswith("c.dotbot-backup")
-    ]
+    backup_a = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("a.dotbot-backup")]
+    backup_b = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("b.dotbot-backup")]
+    backup_c = [f for f in os.listdir(os.path.join(home, "bin")) if f.startswith("c.dotbot-backup")]
     assert len(backup_a) == 1
     assert len(backup_b) == 1
     assert len(backup_c) == 1
@@ -408,9 +374,7 @@ def test_link_backup_glob(
         assert file.read() == "cherry"
 
 
-def test_link_backup_dry_run(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_backup_dry_run(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a backup file is not created if running in dry-run mode."""
 
     with open(os.path.join(home, ".file"), "w") as f:
@@ -513,11 +477,7 @@ def test_link_backup_relink_with_existing_incorrect_symlink_glob(
     os.symlink(wrong_target, os.path.join(home, "bin", "b"))
 
     config = [
-        {
-            "defaults": {
-                "link": {"glob": True, "create": True, "backup": True, "relink": True}
-            }
-        },
+        {"defaults": {"link": {"glob": True, "create": True, "backup": True, "relink": True}}},
         {"link": {"~/bin": "bin/*"}},
     ]
     dotfiles.write_config(config)
@@ -529,9 +489,7 @@ def test_link_backup_relink_with_existing_incorrect_symlink_glob(
         assert file.read() == "banana"
 
 
-def test_link_glob_1(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works."""
 
     dotfiles.write("bin/a", "apple")
@@ -553,9 +511,7 @@ def test_link_glob_1(
         assert file.read() == "cherry"
 
 
-def test_link_glob_2(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_2(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works with a trailing slash in the target."""
 
     dotfiles.write("bin/a", "apple")
@@ -577,9 +533,7 @@ def test_link_glob_2(
         assert file.read() == "cherry"
 
 
-def test_link_glob_3(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_3(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works with hidden ("period-prefixed") files."""
 
     dotfiles.write("bin/.a", "dot-apple")
@@ -601,9 +555,7 @@ def test_link_glob_3(
         assert file.read() == "dot-cherry"
 
 
-def test_link_glob_4(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_4(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify globbing works at the root of the home and dotfiles directories."""
 
     dotfiles.write(".a", "dot-apple")
@@ -631,9 +583,7 @@ def test_link_glob_4(
         assert file.read() == "dot-cherry"
 
 
-def test_link_glob_force(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_force(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that glob/force work together."""
 
     os.mkdir(os.path.join(home, "bin"))
@@ -687,9 +637,7 @@ def test_link_glob_ignore_no_glob_chars(
     assert os.path.exists(os.path.join(home, "foo"))
 
 
-def test_link_glob_exclude_1(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_exclude_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify link globbing with an explicit exclusion."""
 
     dotfiles.write("config/foo/a", "apple")
@@ -731,9 +679,7 @@ def test_link_glob_exclude_1(
         assert file.read() == "cherry"
 
 
-def test_link_glob_exclude_2(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_exclude_2(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify deep link globbing with a globbed exclusion."""
 
     dotfiles.write("config/foo/a", "apple")
@@ -777,9 +723,7 @@ def test_link_glob_exclude_2(
         assert file.read() == "cherry"
 
 
-def test_link_glob_exclude_3(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_exclude_3(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify deep link globbing with an explicit exclusion."""
 
     dotfiles.write("config/foo/a", "apple")
@@ -830,9 +774,7 @@ def test_link_glob_exclude_3(
         assert file.read() == "grape"
 
 
-def test_link_glob_exclude_4(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_exclude_4(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify deep link globbing with multiple globbed exclusions."""
 
     dotfiles.write("config/foo/a", "apple")
@@ -879,9 +821,7 @@ def test_link_glob_exclude_4(
         assert file.read() == "cherry"
 
 
-def test_link_glob_multi_star(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_multi_star(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify link globbing with deep-nested stars."""
 
     dotfiles.write("config/foo/a", "apple")
@@ -951,9 +891,7 @@ def test_link_glob_patterns(
             assert not os.path.islink(os.path.join(home, "globtest", "." + fruit))
 
 
-def test_link_glob_recursive(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_recursive(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify recursive link globbing and exclusions."""
 
     dotfiles.write("config/foo/bar/a", "apple")
@@ -979,9 +917,7 @@ def test_link_glob_recursive(
         assert file.read() == "cherry"
 
 
-def test_link_glob_no_match(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_no_match(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a glob with no match doesn't raise an error."""
 
     _ = home
@@ -995,9 +931,7 @@ def test_link_glob_no_match(
     run_dotbot()
 
 
-def test_link_glob_single_match(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_glob_single_match(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify linking works even when glob matches exactly one file."""
     # regression test for https://github.com/anishathalye/dotbot/issues/282
 
@@ -1021,9 +955,7 @@ def test_link_glob_single_match(
     "sys.platform == 'win32'",
     reason="These if commands won't run on Windows",
 )
-def test_link_if(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_if(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directives are checked when linking."""
 
     os.mkdir(os.path.join(home, "d"))
@@ -1054,9 +986,7 @@ def test_link_if(
     "sys.platform == 'win32'",
     reason="These if commands won't run on Windows",
 )
-def test_link_if_defaults(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_if_defaults(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directive defaults are checked when linking."""
 
     os.mkdir(os.path.join(home, "d"))
@@ -1089,9 +1019,7 @@ def test_link_if_defaults(
     "sys.platform != 'win32'",
     reason="These if commands only run on Windows",
 )
-def test_link_if_windows(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_if_windows(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directives are checked when linking (Windows only)."""
 
     os.mkdir(os.path.join(home, "d"))
@@ -1122,9 +1050,7 @@ def test_link_if_windows(
     "sys.platform != 'win32'",
     reason="These if commands only run on Windows.",
 )
-def test_link_if_defaults_windows(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_if_defaults_windows(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify 'if' directive defaults are checked when linking (Windows only)."""
 
     os.mkdir(os.path.join(home, "d"))
@@ -1183,9 +1109,7 @@ def test_link_ignore_missing(
             run_dotbot()
 
 
-def test_link_leaves_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_leaves_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify relink does not overwrite file."""
 
     dotfiles.write("f", "apple")
@@ -1200,15 +1124,11 @@ def test_link_leaves_file(
 
 
 @pytest.mark.parametrize("key", ["canonicalize-path", "canonicalize"])
-def test_link_no_canonicalize(
-    key: str, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_no_canonicalize(key: str, home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify link canonicalization can be disabled."""
 
     dotfiles.write("f", "apple")
-    dotfiles.write_config(
-        [{"defaults": {"link": {key: False}}}, {"link": {"~/.f": {"path": "f"}}}]
-    )
+    dotfiles.write_config([{"defaults": {"link": {key: False}}}, {"link": {"~/.f": {"path": "f"}}}])
     os.symlink(
         dotfiles.directory,
         os.path.join(home, "dotfiles-symlink"),
@@ -1216,17 +1136,13 @@ def test_link_no_canonicalize(
     )
     run_dotbot(
         "-c",
-        os.path.join(
-            home, "dotfiles-symlink", os.path.basename(dotfiles.config_filename)
-        ),
+        os.path.join(home, "dotfiles-symlink", os.path.basename(dotfiles.config_filename)),
         custom=True,
     )
     assert "dotfiles-symlink" in os.readlink(os.path.join(home, ".f"))
 
 
-def test_link_prefix(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_prefix(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify link prefixes are prepended."""
 
     dotfiles.write("conf/a", "apple")
@@ -1254,9 +1170,7 @@ def test_link_prefix(
         assert file.read() == "cherry"
 
 
-def test_link_relative(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_relative(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Test relative linking works."""
 
     dotfiles.write("f", "apple")
@@ -1317,9 +1231,7 @@ def test_link_relative(
         assert file.read() == "grape"
 
 
-def test_link_relink_leaves_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_relink_leaves_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify relink does not overwrite file."""
 
     dotfiles.write("f", "apple")
@@ -1332,9 +1244,7 @@ def test_link_relink_leaves_file(
         assert file.read() == "grape"
 
 
-def test_link_relink_overwrite_symlink(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_relink_overwrite_symlink(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify relink overwrites symlinks."""
 
     dotfiles.write("f", "apple")
@@ -1347,9 +1257,7 @@ def test_link_relink_overwrite_symlink(
         assert file.read() == "apple"
 
 
-def test_link_relink_relative_leaves_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_relink_relative_leaves_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify relink relative does not incorrectly relink file."""
 
     dotfiles.write("f", "apple")
@@ -1426,9 +1334,7 @@ def test_target_is_not_overwritten_by_symlink_trickery(
     assert ssh_config.read_text() == "preserve me!"
 
 
-def test_link_defaults_1(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_defaults_1(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that link doesn't overwrite non-dotfiles links by default."""
 
     with open(os.path.join(home, "f"), "w") as file:
@@ -1449,9 +1355,7 @@ def test_link_defaults_1(
         assert file.read() == "grape"
 
 
-def test_link_defaults_2(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_link_defaults_2(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that explicit link defaults override the implicit default."""
 
     with open(os.path.join(home, "f"), "w") as file:
@@ -1580,9 +1484,7 @@ def test_symlink_exists_when_hardlink_requested(
     )
 
     # Act
-    dotfiles.write_config(
-        [{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}]
-    )
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}])
     with pytest.raises(SystemExit):
         run_dotbot()
 
@@ -1606,9 +1508,7 @@ def test_hardlink_already_exists(
     )
 
     # Act
-    dotfiles.write_config(
-        [{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}]
-    )
+    dotfiles.write_config([{"link": {"~/hardlink": {"path": "target", "type": "hardlink"}}}])
     run_dotbot("-v")
 
     # Verify
@@ -1668,18 +1568,15 @@ def test_link_dry_run(
 
     lines = capfd.readouterr().out.splitlines()
     assert any(
-        f"Link exists {os.path.join('~', '.g')} -> {os.path.join(dotfiles.directory, 'g')}"
-        == line.strip()
+        f"Link exists {os.path.join('~', '.g')} -> {os.path.join(dotfiles.directory, 'g')}" == line.strip()
         for line in lines
     )
     assert any(
-        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
-        == line.strip()
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
         for line in lines
     )
     assert any(
-        f"Would create hardlink {os.path.join('~', '.h')} -> {os.path.join(dotfiles.directory, 'h')}"
-        == line.strip()
+        f"Would create hardlink {os.path.join('~', '.h')} -> {os.path.join(dotfiles.directory, 'h')}" == line.strip()
         for line in lines
     )
 
@@ -1717,13 +1614,10 @@ def test_link_dry_run_if(
 
     lines = capfd.readouterr().out.splitlines()
     assert any(
-        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
-        == line.strip()
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
         for line in lines
     )
-    assert not any(
-        "Would create symlink {os.path.join('~', '.g')}" in line for line in lines
-    )
+    assert not any("Would create symlink {os.path.join('~', '.g')}" in line for line in lines)
 
 
 def test_link_dry_run_create(
@@ -1752,10 +1646,7 @@ def test_link_dry_run_create(
     assert not os.path.exists(os.path.join(home, ".config", ".f"))
 
     lines = capfd.readouterr().out.splitlines()
-    assert any(
-        line.strip() == f"Would create directory {os.path.join(home, '.config')}"
-        for line in lines
-    )
+    assert any(line.strip() == f"Would create directory {os.path.join(home, '.config')}" for line in lines)
     assert any(
         f"Would create symlink {os.path.join('~', '.config', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
         == line.strip()
@@ -1791,12 +1682,9 @@ def test_link_dry_run_relink(
         assert file.read() == "pear"
 
     lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines)
     assert any(
-        line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines
-    )
-    assert any(
-        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
-        == line.strip()
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
         for line in lines
     )
 
@@ -1829,12 +1717,9 @@ def test_link_dry_run_overwrite(
         assert file.read() == "pear"
 
     lines = capfd.readouterr().out.splitlines()
+    assert any(line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines)
     assert any(
-        line.strip() == f"Would remove {os.path.join('~', '.f')}" for line in lines
-    )
-    assert any(
-        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}"
-        == line.strip()
+        f"Would create symlink {os.path.join('~', '.f')} -> {os.path.join(dotfiles.directory, 'f')}" == line.strip()
         for line in lines
     )
 
@@ -1863,12 +1748,7 @@ def test_link_error_creating_link(
     old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
     os.chmod(
         os.path.join(home, "subdir"),
-        stat.S_IRUSR
-        | stat.S_IXUSR
-        | stat.S_IRGRP
-        | stat.S_IXGRP
-        | stat.S_IROTH
-        | stat.S_IXOTH,
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
     )
 
     with pytest.raises(SystemExit):
@@ -1899,20 +1779,13 @@ def test_link_error_creating_directory(
 
     os.makedirs(os.path.join(home, "subdir"))
     dotfiles.write("f", "apple")
-    dotfiles.write_config(
-        [{"link": {"~/subdir/subsubdir/.f": {"path": "f", "create": True}}}]
-    )
+    dotfiles.write_config([{"link": {"~/subdir/subsubdir/.f": {"path": "f", "create": True}}}])
 
     # Remove all write permissions from subdir.
     old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
     os.chmod(
         os.path.join(home, "subdir"),
-        stat.S_IRUSR
-        | stat.S_IXUSR
-        | stat.S_IRGRP
-        | stat.S_IXGRP
-        | stat.S_IROTH
-        | stat.S_IXOTH,
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
     )
 
     with pytest.raises(SystemExit):
@@ -1951,12 +1824,7 @@ def test_link_error_delete(
     old_permissions = stat.S_IMODE(os.stat(os.path.join(home, "subdir")).st_mode)
     os.chmod(
         os.path.join(home, "subdir"),
-        stat.S_IRUSR
-        | stat.S_IXUSR
-        | stat.S_IRGRP
-        | stat.S_IXGRP
-        | stat.S_IROTH
-        | stat.S_IXOTH,
+        stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH,
     )
 
     with pytest.raises(SystemExit):

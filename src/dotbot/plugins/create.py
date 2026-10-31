@@ -27,9 +27,7 @@ class Create(Plugin):
         success = True
         defaults = self._context.defaults().get("create", {})
         for key in paths:
-            path = os.path.abspath(
-                os.path.expandvars(os.path.expanduser(normslash(key)))
-            )
+            path = os.path.abspath(os.path.expandvars(os.path.expanduser(normslash(key))))
             mode = defaults.get("mode", 0o777)  # same as the default for os.makedirs
             if isinstance(paths, dict):
                 options = paths[key]

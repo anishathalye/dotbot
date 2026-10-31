@@ -7,14 +7,10 @@ import pytest
 from tests.conftest import Dotfiles
 
 
-def test_plugin_file(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_file(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a plugin file can be loaded in the config."""
 
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "file.py"))
     dotfiles.write_config(
         [
@@ -27,13 +23,9 @@ def test_plugin_file(
         assert file.read() == "file plugin loading works"
 
 
-def test_plugin_absolute_path(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_absolute_path(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a plugin can be loaded via absolute path."""
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "file.py"))
     dotfiles.write_config(
         [
@@ -46,17 +38,11 @@ def test_plugin_absolute_path(
         assert file.read() == "file plugin loading works"
 
 
-def test_plugin_directory(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_directory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a plugin directory can be loaded in the config."""
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
     os.makedirs(os.path.join(dotfiles.directory, "plugins"))
-    shutil.copy(
-        plugin_file, os.path.join(dotfiles.directory, "plugins", "directory.py")
-    )
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config(
         [
             {"plugins": ["plugins"]},
@@ -68,21 +54,13 @@ def test_plugin_directory(
         assert file.read() == "directory plugin loading works"
 
 
-def test_plugin_multiple(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_multiple(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that multiple plugins can be loaded at once in the config."""
-    plugin_file1 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
-    plugin_file2 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
-    )
+    plugin_file1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
+    plugin_file2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
     shutil.copy(plugin_file1, os.path.join(dotfiles.directory, "file.py"))
     os.makedirs(os.path.join(dotfiles.directory, "plugins"))
-    shutil.copy(
-        plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py")
-    )
+    shutil.copy(plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config(
         [
             {"plugins": ["file.py", "plugins"]},
@@ -97,21 +75,13 @@ def test_plugin_multiple(
         assert file.read() == "directory plugin loading works"
 
 
-def test_plugin_command_line_and_config(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_command_line_and_config(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that plugins can be simultaneously loaded via command-line arguments and config."""
-    plugin_file1 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
-    plugin_file2 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
-    )
+    plugin_file1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
+    plugin_file2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
     shutil.copy(plugin_file1, os.path.join(dotfiles.directory, "file.py"))
     os.makedirs(os.path.join(dotfiles.directory, "plugins"))
-    shutil.copy(
-        plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py")
-    )
+    shutil.copy(plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config(
         [
             {"plugins": ["file.py"]},
@@ -146,9 +116,7 @@ def test_plugin_nonexistent(
     assert any("Some plugins could not be loaded" in line for line in stdout)
 
 
-def test_plugin_empty_list(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_empty_list(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that an empty plugin list doesn't cause errors."""
     dotfiles.write_config(
         [
@@ -162,21 +130,13 @@ def test_plugin_empty_list(
         assert file.read() == "content"
 
 
-def test_plugin_multiple_directives(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_multiple_directives(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that multiple plugin directives in the same config work correctly."""
-    plugin_file1 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
-    plugin_file2 = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py"
-    )
+    plugin_file1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
+    plugin_file2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_directory.py")
     shutil.copy(plugin_file1, os.path.join(dotfiles.directory, "file.py"))
     os.makedirs(os.path.join(dotfiles.directory, "plugins"))
-    shutil.copy(
-        plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py")
-    )
+    shutil.copy(plugin_file2, os.path.join(dotfiles.directory, "plugins", "directory.py"))
     dotfiles.write_config(
         [
             {"plugins": ["file.py"]},
@@ -192,13 +152,9 @@ def test_plugin_multiple_directives(
         assert file.read() == "directory plugin loading works"
 
 
-def test_plugin_duplicate_loading(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_duplicate_loading(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that duplicate plugin references don't load/execute the plugin multiple times."""
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_counter.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_counter.py")
     shutil.copy(plugin_file, os.path.join(dotfiles.directory, "counter.py"))
 
     dotfiles.write_config(
@@ -213,17 +169,11 @@ def test_plugin_duplicate_loading(
         assert file.read() == "1"
 
 
-def test_plugin_subdirectory(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_plugin_subdirectory(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Verify that a plugin file in a subdirectory can be loaded."""
-    plugin_file = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py"
-    )
+    plugin_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dotbot_plugin_file.py")
     os.makedirs(os.path.join(dotfiles.directory, "plugins", "subdir"))
-    shutil.copy(
-        plugin_file, os.path.join(dotfiles.directory, "plugins", "subdir", "file.py")
-    )
+    shutil.copy(plugin_file, os.path.join(dotfiles.directory, "plugins", "subdir", "file.py"))
     dotfiles.write_config(
         [
             {"plugins": ["plugins/subdir/file.py"]},

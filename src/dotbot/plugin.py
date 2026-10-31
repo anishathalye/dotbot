@@ -11,9 +11,7 @@ class Plugin:
 
     _context: Context
     _log: Messenger
-    supports_dry_run: bool = (
-        False  # plugins must explicitly declare support for dry-run mode
-    )
+    supports_dry_run: bool = False  # plugins must explicitly declare support for dry-run mode
 
     def __init__(self, context: Context):
         self._context = context

@@ -46,9 +46,7 @@ def get_path_from_fd(fd: int) -> Optional[str]:
         if sys.platform == "darwin":
             import fcntl  # noqa: PLC0415
 
-            f_getpath = getattr(
-                fcntl, "F_GETPATH", 50
-            )  # Python 3.9+ exposes fcntl.F_GETPATH
+            f_getpath = getattr(fcntl, "F_GETPATH", 50)  # Python 3.9+ exposes fcntl.F_GETPATH
             path_buf = b"\0" * 1024
             result = fcntl.fcntl(fd, f_getpath, path_buf)
             return result.rstrip(b"\0").decode("utf-8")
@@ -92,14 +90,10 @@ def wrap_function(
 
             return function(*args, **kwargs)
 
-        msg = (
-            f"The '{kwarg_key}' argument to {function_path}() must be an absolute path"
-        )
+        msg = f"The '{kwarg_key}' argument to {function_path}() must be an absolute path"
         assert value == os.path.abspath(value), msg
 
-        msg = (
-            f"The '{kwarg_key}' argument to {function_path}() must be rooted in {root}"
-        )
+        msg = f"The '{kwarg_key}' argument to {function_path}() must be rooted in {root}"
         assert value[: len(str(root))] == str(root), msg
 
         return function(*args, **kwargs)
@@ -234,9 +228,7 @@ def root(standardize_tmp: None) -> Generator[str, None, None]:
         # to ensure the variable closures work correctly.
         function_path = f"{module.__name__}.{function_name}"
         function = getattr(module, function_name)
-        wrapped = wrap_function(
-            function, function_path, arg_index, kwarg_key, current_root
-        )
+        wrapped = wrap_function(function, function_path, arg_index, kwarg_key, current_root)
         patches.append(mock.patch(function_path, wrapped))
 
     # open() must be separately wrapped.
@@ -311,9 +303,7 @@ class Dotfiles:
         with open(path, "w") as file:
             file.write(content)
 
-    def write_config(
-        self, config: Any, serializer: str = "yaml", path: Optional[str] = None
-    ) -> str:
+    def write_config(self, config: Any, serializer: str = "yaml", path: Optional[str] = None) -> str:
         """Write a dotbot config and return the filename."""
 
         assert serializer in {"json", "yaml"}, "Only json and yaml are supported"

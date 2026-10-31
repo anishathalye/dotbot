@@ -81,8 +81,6 @@ class Shell(Plugin):
             ret["stderr"] = True
             ret["stdout"] = True
             if not self._has_shown_override_message:
-                self._log.debug(
-                    "Shell: Found cli option to force show stderr and stdout."
-                )
+                self._log.debug("Shell: Found cli option to force show stderr and stdout.")
                 self._has_shown_override_message = True
         return ret

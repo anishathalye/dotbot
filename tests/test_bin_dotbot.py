@@ -13,15 +13,11 @@ from tests.conftest import Dotfiles
     reason="The hybrid sh/Python dotbot script doesn't run on Windows platforms",
 )
 @pytest.mark.parametrize("python_name", [None, "python", "python3"])
-def test_find_python_executable(
-    python_name: Optional[str], home: str, dotfiles: Dotfiles
-) -> None:
+def test_find_python_executable(python_name: Optional[str], home: str, dotfiles: Dotfiles) -> None:
     """Verify that the sh/Python hybrid dotbot executable can find Python."""
 
     dotfiles.write_config([])
-    dotbot_executable = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin", "dotbot"
-    )
+    dotbot_executable = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "bin", "dotbot")
 
     # Create a link to sh.
     tmp_bin = os.path.join(home, "tmp_bin")

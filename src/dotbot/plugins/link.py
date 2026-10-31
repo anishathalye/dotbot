@@ -42,9 +42,7 @@ class Link(Plugin):
             link_name = os.path.expandvars(normslash(link_name))  # noqa: PLW2901
             relative = defaults.get("relative", False)
             # support old "canonicalize-path" key for compatibility
-            canonical_path = defaults.get(
-                "canonicalize", defaults.get("canonicalize-path", True)
-            )
+            canonical_path = defaults.get("canonicalize", defaults.get("canonicalize-path", True))
             link_type = defaults.get("type", "symlink")
             force = defaults.get("force", False)
             relink = defaults.get("relink", False)
@@ -59,9 +57,7 @@ class Link(Plugin):
                 # extended config
                 test = target.get("if", test)
                 relative = target.get("relative", relative)
-                canonical_path = target.get(
-                    "canonicalize", target.get("canonicalize-path", canonical_path)
-                )
+                canonical_path = target.get("canonicalize", target.get("canonicalize-path", canonical_path))
                 link_type = target.get("type", link_type)
                 if link_type not in {"symlink", "hardlink"}:
                     msg = f"The link type is not recognized: '{link_type}'"
@@ -89,14 +85,8 @@ class Link(Plugin):
                 self._log.debug(f"Globs from '{path}': {glob_results}")
                 for glob_full_item in glob_results:
                     # Find common dirname between pattern and the item:
-                    glob_dirname = os.path.dirname(
-                        os.path.commonprefix([path, glob_full_item])
-                    )
-                    glob_item = (
-                        glob_full_item
-                        if len(glob_dirname) == 0
-                        else glob_full_item[len(glob_dirname) + 1 :]
-                    )
+                    glob_dirname = os.path.dirname(os.path.commonprefix([path, glob_full_item]))
+                    glob_item = glob_full_item if len(glob_dirname) == 0 else glob_full_item[len(glob_dirname) + 1 :]
                     # Add prefix to basepath, if provided
                     if base_prefix:
                         glob_item = base_prefix + glob_item
@@ -131,9 +121,7 @@ class Link(Plugin):
             else:
                 if create:
                     success &= self._create(link_name)
-                if not ignore_missing and not self._exists(
-                    os.path.join(self._context.base_directory(), path)
-                ):
+                if not ignore_missing and not self._exists(os.path.join(self._context.base_directory(), path)):
                     # we seemingly check this twice (here and in _link) because
                     # if the file doesn't exist and force is True, we don't
                     # want to remove the original (this is tested by test_link_force_leaves_when_nonexistent)
@@ -264,9 +252,7 @@ class Link(Plugin):
 
     def _backup(self, path: str) -> Tuple[bool, bool]:
         if self._exists(path) and not self._is_link(path):
-            timestamp = (
-                datetime.now(timezone.utc).astimezone().strftime("%Y%m%d-%H%M%S")
-            )
+            timestamp = datetime.now(timezone.utc).astimezone().strftime("%Y%m%d-%H%M%S")
             backup_name = f"{path}.dotbot-backup.{timestamp}"
             self._log.debug(f"Try to backup file {path} to {backup_name}")
             if self._context.dry_run():
@@ -297,15 +283,9 @@ class Link(Plugin):
     ) -> Tuple[bool, bool]:
         success = True
         removed = False
-        target = os.path.join(
-            self._context.base_directory(canonical_path=canonical_path), target
-        )
+        target = os.path.join(self._context.base_directory(canonical_path=canonical_path), target)
         fullpath = os.path.abspath(os.path.expanduser(path))
-        if (
-            self._exists(path)
-            and not self._is_link(path)
-            and os.path.realpath(fullpath) == target
-        ):
+        if self._exists(path) and not self._is_link(path) and os.path.realpath(fullpath) == target:
             # Special case: The path is not a symlink but resolves to the target anyway.
             # Deleting the path would actually delete the target.
             # This may happen if a parent directory is a symlink.
@@ -371,22 +351,16 @@ class Link(Plugin):
         base_directory = self._context.base_directory(canonical_path=canonical_path)
         absolute_target = os.path.join(base_directory, target)
         link_name = os.path.normpath(link_name)
-        target_path = (
-            self._relative_path(absolute_target, link_path)
-            if relative
-            else absolute_target
-        )
+        target_path = self._relative_path(absolute_target, link_path) if relative else absolute_target
 
         # we need to use absolute_target below because our cwd is the dotfiles
         # directory, and if target_path is relative, it will be relative to the
         # link directory
-        if (
-            (not self._lexists(link_name)) or (self._context.dry_run() and assume_gone)
-        ) and (ignore_missing or self._exists(absolute_target)):
+        if ((not self._lexists(link_name)) or (self._context.dry_run() and assume_gone)) and (
+            ignore_missing or self._exists(absolute_target)
+        ):
             if self._context.dry_run():
-                self._log.action(
-                    f"Would create {link_type} {link_name} -> {target_path}"
-                )
+                self._log.action(f"Would create {link_type} {link_name} -> {target_path}")
                 return True
             try:
                 if link_type == "symlink":
@@ -412,26 +386,17 @@ class Link(Plugin):
                 # The existing symlink isn't pointing at the target.
                 # Distinguish between an incorrect symlink and a broken ("invalid") symlink.
                 terminology = "Incorrect" if self._exists(link_name) else "Invalid"
-                self._log.warning(
-                    f"{terminology} link {link_name} -> {self._link_target(link_name)}"
-                )
+                self._log.warning(f"{terminology} link {link_name} -> {self._link_target(link_name)}")
                 return False
 
-            self._log.warning(
-                f"{link_name} already exists but is a symbolic link, not a hard link"
-            )
+            self._log.warning(f"{link_name} already exists but is a symbolic link, not a hard link")
             return False
 
         # Failure case: The link name exists
-        if (
-            link_type == "hardlink"
-            and os.stat(link_path).st_ino == os.stat(absolute_target).st_ino
-        ):
+        if link_type == "hardlink" and os.stat(link_path).st_ino == os.stat(absolute_target).st_ino:
             # Idempotent case: The configured hardlink already exists
             self._log.info(f"Link exists {link_name} -> {target_path}")
             return True
 
-        self._log.warning(
-            f"{link_name} already exists but is a regular file or directory"
-        )
+        self._log.warning(f"{link_name} already exists but is a regular file or directory")
         return False

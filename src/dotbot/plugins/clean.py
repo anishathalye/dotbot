@@ -49,9 +49,7 @@ class Clean(Plugin):
             self._log.debug(f"Ignoring nonexistent directory {target}")
             return True
         for item in os.listdir(os.path.expandvars(os.path.expanduser(target))):
-            path = os.path.abspath(
-                os.path.join(os.path.expandvars(os.path.expanduser(target)), item)
-            )
+            path = os.path.abspath(os.path.join(os.path.expandvars(os.path.expanduser(target)), item))
             if recursive and os.path.isdir(path):
                 # isdir implies not islink -- we don't want to descend into
                 # symlinked directories. okay to do a recursive call here
@@ -63,9 +61,7 @@ class Clean(Plugin):
                     points_at = points_at[4:]
                 if self._in_directory(path, self._context.base_directory()) or force:
                     if self._context.dry_run():
-                        self._log.action(
-                            f"Would remove invalid link {path} -> {points_at}"
-                        )
+                        self._log.action(f"Would remove invalid link {path} -> {points_at}")
                     else:
                         self._log.action(f"Removing invalid link {path} -> {points_at}")
                         os.remove(path)

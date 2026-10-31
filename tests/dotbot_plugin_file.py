@@ -23,14 +23,10 @@ class File(dotbot.Plugin):
             self._log.debug("Attempting to get options from Context")
             options = self._context.options()
             if len(options.plugins) != 1:
-                self._log.debug(
-                    f"Context.options.plugins length is {len(options.plugins)}, expected 1"
-                )
+                self._log.debug(f"Context.options.plugins length is {len(options.plugins)}, expected 1")
                 return False
             if not options.plugins[0].endswith("file.py"):
-                self._log.debug(
-                    f"Context.options.plugins[0] is {options.plugins[0]}, expected end with file.py"
-                )
+                self._log.debug(f"Context.options.plugins[0] is {options.plugins[0]}, expected end with file.py")
                 return False
 
         with open(os.path.abspath(os.path.expanduser("~/flag-file")), "w") as file:

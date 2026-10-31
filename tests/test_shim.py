@@ -17,14 +17,10 @@ def test_shim(home: str, dotfiles: Dotfiles) -> None:
         pytest.skip("git is unavailable")
 
     if sys.platform == "win32":
-        install = os.path.join(
-            dotfiles.directory, "dotbot", "tools", "git-submodule", "install.ps1"
-        )
+        install = os.path.join(dotfiles.directory, "dotbot", "tools", "git-submodule", "install.ps1")
         shim = os.path.join(dotfiles.directory, "install.ps1")
     else:
-        install = os.path.join(
-            dotfiles.directory, "dotbot", "tools", "git-submodule", "install"
-        )
+        install = os.path.join(dotfiles.directory, "dotbot", "tools", "git-submodule", "install")
         shim = os.path.join(dotfiles.directory, "install")
 
     # Set up the test environment.

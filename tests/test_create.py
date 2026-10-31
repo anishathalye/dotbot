@@ -8,9 +8,7 @@ from tests.conftest import Dotfiles
 
 
 @pytest.mark.parametrize("directory", ["~/a", "~/b/c"])
-def test_directory_creation(
-    home: str, directory: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_directory_creation(home: str, directory: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Test creating directories, including nested directories."""
 
     _ = home
@@ -22,9 +20,7 @@ def test_directory_creation(
     assert os.stat(expanded_directory).st_mode & 0o777 == 0o777
 
 
-def test_default_mode(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_default_mode(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Test creating a directory with an explicit default mode.
 
     Note: `os.chmod()` on Windows only supports changing write permissions.
@@ -43,9 +39,7 @@ def test_default_mode(
     assert os.stat(directory).st_mode & stat.S_IWOTH == 0
 
 
-def test_default_mode_override(
-    home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]
-) -> None:
+def test_default_mode_override(home: str, dotfiles: Dotfiles, run_dotbot: Callable[..., None]) -> None:
     """Test creating a directory that overrides an explicit default mode.
 
     Note: `os.chmod()` on Windows only supports changing write permissions.
@@ -83,10 +77,5 @@ def test_create_dry_run(
     assert not os.path.exists(directory)
 
     lines = capfd.readouterr().out.splitlines()
-    assert any(
-        line.strip() == f"Would create path {os.path.join(home, 'a')}" for line in lines
-    )
-    assert any(
-        f"Path exists {os.path.join(home, 'existing')}" == line.strip()
-        for line in lines
-    )
+    assert any(line.strip() == f"Would create path {os.path.join(home, 'a')}" for line in lines)
+    assert any(f"Path exists {os.path.join(home, 'existing')}" == line.strip() for line in lines)
