@@ -43,7 +43,7 @@ jobs:
           version: ${{ matrix.hatch_version || 'latest' }}
       - run: hatch test -v --cover --include python=$(echo ${{ matrix.python }} | tr -d '-') tests
       - run: hatch run coverage:xml
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v7
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
